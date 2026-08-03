@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ranking de Spartans — Halo Infinite" />
+  <title>SPARTAN RANKING | Halo Infinite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="boot-screen" class="boot-screen">
+    <div class="boot-content">
+      <div class="boot-logo">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M32 8 L44 28 L32 24 L20 28 Z" fill="currentColor"/>
+          <path d="M32 56 L44 36 L32 40 L20 36 Z" fill="currentColor" opacity="0.6"/>
+          <circle cx="32" cy="32" r="6" fill="currentColor"/>
+        </svg>
+      </div>
+      <p class="boot-title">UNSC FIRETEAM RANKING</p>
+      <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+      <p class="boot-status" id="boot-status">Inicializando sistemas...</p>
+    </div>
+  </div>
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <header class="header">
+    <div class="header__brand">
+      <div class="header__emblem">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
+          <path d="M32 8 L44 28 L32 24 L20 28 Z" fill="currentColor"/>
+          <path d="M32 56 L44 36 L32 40 L20 36 Z" fill="currentColor" opacity="0.6"/>
+          <circle cx="32" cy="32" r="6" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <p class="header__tag">UNSC FIRETEAM</p>
+        <h1 class="header__title">SPARTAN RANKING</h1>
+      </div>
+    </div>
+    <nav class="header__nav" aria-label="Secciones">
+      <button class="nav-btn active" data-section="ranking">Ranking</button>
+      <button class="nav-btn" data-section="stats">Estadísticas</button>
+    </nav>
+    <div class="header__status">
+      <span class="status-dot"></span>
+      <span class="status-text">LIVE FEED</span>
+      <time id="last-updated" class="status-time"></time>
+    </div>
+    <p id="season-banner" class="season-banner"></p>
+  </header>
+
+  <main>
+    <!-- RANKING SECTION -->
+    <section id="ranking" class="section section--ranking active">
+      <div class="ranking-stack" id="ranking-stack" role="list" aria-label="Ranking del escuadrón"></div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section id="stats" class="section">
+      <div class="section-intro">
+        <h2 class="section-title">Estadísticas del Escuadrón</h2>
+        <p class="section-desc">Métricas agregadas de la temporada actual.</p>
+      </div>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3>K/D Ratio</h3>
+          <div class="bar-chart" id="kd-chart"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Victorias</h3>
+          <div class="bar-chart" id="wins-chart"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- PLAYER MODAL -->
+  <dialog id="player-modal" class="player-modal">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Cerrar">&times;</button>
+      <div class="modal-header">
+        <div class="modal-rank" id="modal-rank"></div>
+        <div>
+          <h2 id="modal-name"></h2>
+          <p id="modal-gamertag" class="modal-gamertag"></p>
+        </div>
+      </div>
+      <div class="modal-stats" id="modal-stats"></div>
+      <div class="modal-badges" id="modal-badges"></div>
+    </div>
+  </dialog>
+
+  <footer class="footer">
+    <p>UNSC FIRETEAM RANKING SYSTEM — HALO INFINITE</p>
+    <p class="footer-sub">Datos actualizados desde tu automatización de grupo</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
