@@ -1,6 +1,6 @@
 # Spartan Ranking — Halo Infinite
 
-Sitio web inmersivo de ranking para tu escuadrón de Halo Infinite. Complementa tu automatización de grupo con filas horizontales estilo HUD.
+Sitio web de ranking para el escuadrón, alineado con los datos de **HaloBackend** (gamertag + puntos de temporada + puesto).
 
 ## Inicio rápido
 
@@ -12,58 +12,33 @@ npx serve .
 
 ## Actualizar datos
 
-Edita `data.js` con los nombres, gamertags, puntos y estadísticas de tu grupo. La estructura coincide con la pirámide de ranking:
+Edita `data.js` con el ranking de la temporada activa. Forma esperada (compatible con el bot):
 
-- `rank` — posición en el ranking (1 = primero)
-- `points` — puntos de ranking
-- `kd`, `wins`, `losses`, etc. — estadísticas opcionales
+```js
+const SQUAD_DATA = {
+  season: "Temporada 3 — desde 14 jul 2026",
+  lastUpdated: "2026-08-03T21:00:00",
+  players: [
+    { id: 1, name: "jugador1", rank: 1, points: 42 },
+    { id: 2, name: "jugador2", rank: 2, points: 38 }
+  ]
+};
+```
+
+| Campo | Origen backend |
+|-------|----------------|
+| `name` | `jugador` |
+| `points` | `puntaje_total` |
+| `rank` | puesto (empatados comparten número) |
+| `season` | etiqueta derivada de la temporada activa |
+| `lastUpdated` | momento de la exportación |
 
 ## Secciones
 
-1. **Ranking** — filas horizontales a pantalla completa (15% de altura por jugador)
-2. **Leaderboard** — tabla completa ordenada
-3. **Estadísticas** — métricas del escuadrón y gráficos K/D y victorias
+1. **Ranking** — filas HUD: puesto, gamertag, puntos (colores oro/plata/bronce en 1–3)
+2. **Temporada** — Spartans, puntos del líder, puntos totales, temporada, última actualización, barra de puntos
 
-## Personalización
+## Notas
 
-- Colores por jugador en el campo `color` (hex)
-- Temporada y fecha en `SQUAD_DATA.season` y `lastUpdated`
-
-## Automatización y capturas
-
-Este proyecto ahora incluye un flujo de automatización para procesar capturas de pantalla de partidas.
-
-### Estructura nueva
-
-- `captures/` — carpeta donde se colocan las capturas de scoreboard.
-- `matches.json` — historial de partidas procesadas.
-- `scripts/process_capture.py` — script Python que extrae datos con OCR y genera `data.js`.
-- `.github/workflows/process-captures.yml` — GitHub Actions para procesar capturas automáticamente.
-
-### Cómo usarlo
-
-1. Añade una captura válida a `captures/`.
-2. Instala dependencias en tu máquina:
-
-```bash
-python -m pip install --upgrade pip
-pip install -r scripts/requirements.txt
-```
-
-3. Ejecuta el script:
-
-```bash
-python scripts/process_capture.py
-```
-
-4. Si la captura tiene al menos 5 jugadores y OCR confiable, el script actualizará `matches.json` y generará `data.js`.
-
-### Validaciones incluidas
-
-- Formato de captura rígido recomendado.
-- Comprobación básica de confianza OCR.
-- Registro con `id`, `captureFile`, `date`, `confidence` y `status`.
-
-### GitHub Actions
-
-El workflow se ejecuta cuando se sube una nueva captura o cada dos meses. Si el resultado cambia, hará commit automático de `matches.json` y `data.js`.
+- El pipeline OCR de capturas **no escribe** `data.js` (el ranking viene del bot).
+- El workflow de GitHub Actions está desactivado para no pisar el ranking.

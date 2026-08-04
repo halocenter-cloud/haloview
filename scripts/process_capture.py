@@ -276,15 +276,13 @@ def main():
     else:
         print("No hay cambios en matches.json")
 
-    accepted_matches = [m for m in new_matches if m["status"] == "accepted"]
-    players = aggregate_players(accepted_matches)
-    if players:
-        season = load_season_from_data_js()
-        data_js = build_data_js(players, season)
-        DATA_FILE.write_text(data_js, encoding="utf-8")
-        print(f"Actualizado {DATA_FILE} con {len(players)} jugadores.")
-    else:
-        print("No hay partidas aceptadas. data.js no se actualizó.")
+    # data.js es la fuente de verdad del ranking web (HaloBackend / sync).
+    # Este script solo archiva capturas en matches.json; no reescribe data.js.
+    accepted = sum(1 for m in new_matches if m.get("status") == "accepted")
+    print(
+        f"OCR archive: {accepted} partida(s) aceptada(s). "
+        "data.js no se modifica (ranking desde HaloBackend)."
+    )
 
 
 if __name__ == "__main__":

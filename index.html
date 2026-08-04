@@ -48,61 +48,39 @@
     </div>
     <nav class="header__nav" aria-label="Secciones">
       <button class="nav-btn active" data-section="ranking">Ranking</button>
-      <button class="nav-btn" data-section="stats">Estadísticas</button>
+      <button class="nav-btn" data-section="stats">Temporada</button>
     </nav>
     <div class="header__status">
-      <span class="status-dot"></span>
-      <span class="status-text">LIVE FEED</span>
+      <span class="status-dot status-dot--idle"></span>
+      <span class="status-text">RANKING</span>
       <time id="last-updated" class="status-time"></time>
     </div>
     <p id="season-banner" class="season-banner"></p>
   </header>
 
   <main>
-    <!-- RANKING SECTION -->
     <section id="ranking" class="section section--ranking active">
       <div class="ranking-stack" id="ranking-stack" role="list" aria-label="Ranking del escuadrón"></div>
     </section>
 
-    <!-- STATS SECTION -->
     <section id="stats" class="section">
       <div class="section-intro">
-        <h2 class="section-title">Estadísticas del Escuadrón</h2>
-        <p class="section-desc">Métricas agregadas de la temporada actual.</p>
+        <h2 class="section-title">Temporada</h2>
+        <p class="section-desc">Resumen del ranking acumulado de la temporada activa.</p>
       </div>
       <div class="stats-grid" id="stats-grid"></div>
       <div class="charts-row">
-        <div class="chart-card">
-          <h3>K/D Ratio</h3>
-          <div class="bar-chart" id="kd-chart"></div>
-        </div>
-        <div class="chart-card">
-          <h3>Victorias</h3>
-          <div class="bar-chart" id="wins-chart"></div>
+        <div class="chart-card chart-card--full">
+          <h3>Puntos por jugador</h3>
+          <div class="bar-chart" id="points-chart"></div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- PLAYER MODAL -->
-  <dialog id="player-modal" class="player-modal">
-    <div class="modal-content">
-      <button class="modal-close" aria-label="Cerrar">&times;</button>
-      <div class="modal-header">
-        <div class="modal-rank" id="modal-rank"></div>
-        <div>
-          <h2 id="modal-name"></h2>
-          <p id="modal-gamertag" class="modal-gamertag"></p>
-        </div>
-      </div>
-      <div class="modal-stats" id="modal-stats"></div>
-      <div class="modal-badges" id="modal-badges"></div>
-    </div>
-  </dialog>
-
   <footer class="footer">
     <p>UNSC FIRETEAM RANKING SYSTEM — HALO INFINITE</p>
-    <p class="footer-sub">Datos actualizados desde tu automatización de grupo</p>
+    <p class="footer-sub">Datos del ranking de temporada (HaloBackend)</p>
   </footer>
 
   <script src="data.js"></script>

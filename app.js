@@ -1,8 +1,32 @@
 /**
- * Halo Infinite Ranking — Interactive UI
+ * Halo Infinite Ranking — UI alineada con HaloBackend
+ * (jugador, puntaje_total, puesto, temporada).
  */
 
-const players = [...SQUAD_DATA.players].sort((a, b) => a.rank - b.rank);
+const RANK_COLORS = {
+  1: '#FFD700',
+  2: '#C7D3DC',
+  3: '#CD7F32'
+};
+const RANK_COLOR_DEFAULT = '#4FD1FF';
+
+const players = [...SQUAD_DATA.players].sort((a, b) => {
+  if (a.rank !== b.rank) return a.rank - b.rank;
+  if (b.points !== a.points) return b.points - a.points;
+  return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+});
+
+function accentForRank(rank) {
+  return RANK_COLORS[rank] || RANK_COLOR_DEFAULT;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 // --- Particles background ---
 function initParticles() {
@@ -57,120 +81,77 @@ function renderRanking() {
   const stack = document.getElementById('ranking-stack');
   const rankLabel = (n) => String(n).padStart(2, '0');
 
-  stack.innerHTML = players.map(p => `
+  if (!players.length) {
+    stack.innerHTML = `
+      <div class="ranking-empty" role="status">
+        Sin jugadores en el ranking de esta temporada.
+      </div>
+    `;
+    return;
+  }
+
+  stack.innerHTML = players.map(p => {
+    const accent = accentForRank(p.rank);
+    const name = escapeHtml(p.name);
+    return `
     <article
       class="spartan-row rank-${p.rank}"
-      style="--row-accent: ${p.color}"
+      style="--row-accent: ${accent}"
       data-id="${p.id}"
       role="listitem"
-      tabindex="0"
-      aria-label="${p.name}, posición ${p.rank}, ${p.points} puntos"
+      aria-label="${name}, puesto ${p.rank}, ${p.points} puntos"
     >
       <div class="spartan-row__glow" aria-hidden="true"></div>
       <div class="spartan-row__scan" aria-hidden="true"></div>
       <div class="spartan-row__rank">
         ${rankLabel(p.rank)}
-        <span class="spartan-row__rank-label">RANK</span>
+        <span class="spartan-row__rank-label">PUESTO</span>
       </div>
       <div class="spartan-row__identity">
-        <h2 class="spartan-row__name">${p.name}</h2>
-        <p class="spartan-row__tag">${p.gamertag}</p>
-      </div>
-      <div class="spartan-row__stats">
-        <div class="spartan-row__stat">
-          <span class="spartan-row__stat-value">${p.kd.toFixed(2)}</span>
-          <span class="spartan-row__stat-label">K/D</span>
-        </div>
-        <div class="spartan-row__stat">
-          <span class="spartan-row__stat-value">${p.wins}</span>
-          <span class="spartan-row__stat-label">WINS</span>
-        </div>
-        <div class="spartan-row__stat">
-          <span class="spartan-row__stat-value">${p.medals}</span>
-          <span class="spartan-row__stat-label">MEDALS</span>
-        </div>
+        <h2 class="spartan-row__name">${name}</h2>
       </div>
       <div class="spartan-row__points">
-        <span class="spartan-row__points-value">${p.points.toLocaleString()}</span>
+        <span class="spartan-row__points-value">${p.points.toLocaleString('es')}</span>
         <span class="spartan-row__points-label">PTS</span>
       </div>
-      <span class="spartan-row__cta">VER DOSSIER ›</span>
     </article>
-  `).join('');
-
-  stack.querySelectorAll('.spartan-row').forEach(row => {
-    const open = () => openPlayerModal(+row.dataset.id);
-    row.addEventListener('click', open);
-    row.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        open();
-      }
-    });
-  });
+  `;
+  }).join('');
 }
 
 function renderStats() {
-  const totalWins = players.reduce((s, p) => s + p.wins, 0);
-  const totalGames = players.reduce((s, p) => s + p.wins + p.losses, 0);
-  const avgKd = players.reduce((s, p) => s + p.kd, 0) / players.length;
-  const totalMedals = players.reduce((s, p) => s + p.medals, 0);
+  const spartanCount = players.length;
+  const leaderPoints = spartanCount ? Math.max(...players.map(p => p.points)) : 0;
+  const totalPoints = players.reduce((sum, p) => sum + p.points, 0);
+  const updated = new Date(SQUAD_DATA.lastUpdated);
+  const updatedLabel = Number.isNaN(updated.getTime())
+    ? '—'
+    : updated.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
 
   document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><span class="stat-value">${players.length}</span><span class="stat-label">SPARTANS</span></div>
-    <div class="stat-card"><span class="stat-value">${totalWins}</span><span class="stat-label">VICTORIAS</span></div>
-    <div class="stat-card"><span class="stat-value">${totalGames}</span><span class="stat-label">PARTIDAS</span></div>
-    <div class="stat-card"><span class="stat-value">${avgKd.toFixed(2)}</span><span class="stat-label">K/D PROMEDIO</span></div>
-    <div class="stat-card"><span class="stat-value">${totalMedals}</span><span class="stat-label">MEDALLAS</span></div>
+    <div class="stat-card"><span class="stat-value">${spartanCount}</span><span class="stat-label">SPARTANS</span></div>
+    <div class="stat-card"><span class="stat-value">${leaderPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS LÍDER</span></div>
+    <div class="stat-card"><span class="stat-value">${totalPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS TOTALES</span></div>
+    <div class="stat-card"><span class="stat-value stat-value--text">${escapeHtml(SQUAD_DATA.season)}</span><span class="stat-label">TEMPORADA</span></div>
+    <div class="stat-card"><span class="stat-value stat-value--text">${escapeHtml(updatedLabel)}</span><span class="stat-label">ACTUALIZADO</span></div>
   `;
 
-  const maxKd = Math.max(...players.map(p => p.kd));
-  const maxWins = Math.max(...players.map(p => p.wins));
+  const chart = document.getElementById('points-chart');
+  if (!spartanCount) {
+    chart.innerHTML = '<p class="chart-empty">Sin datos de puntos.</p>';
+    return;
+  }
 
-  document.getElementById('kd-chart').innerHTML = players.map(p => `
+  const maxPoints = Math.max(leaderPoints, 1);
+  chart.innerHTML = players.map(p => `
     <div class="bar-row">
-      <span class="bar-label">${p.name}</span>
-      <div class="bar-track"><div class="bar-fill" style="--bar-color: ${p.color}; width: ${(p.kd / maxKd) * 100}%"></div></div>
-      <span class="bar-value">${p.kd.toFixed(2)}</span>
+      <span class="bar-label">${escapeHtml(p.name)}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="--bar-color: ${accentForRank(p.rank)}; width: ${(p.points / maxPoints) * 100}%"></div>
+      </div>
+      <span class="bar-value">${p.points.toLocaleString('es')}</span>
     </div>
   `).join('');
-
-  document.getElementById('wins-chart').innerHTML = players.map(p => `
-    <div class="bar-row">
-      <span class="bar-label">${p.name}</span>
-      <div class="bar-track"><div class="bar-fill" style="--bar-color: ${p.color}; width: ${(p.wins / maxWins) * 100}%"></div></div>
-      <span class="bar-value">${p.wins}</span>
-    </div>
-  `).join('');
-}
-
-function openPlayerModal(id) {
-  const p = players.find(x => x.id === id);
-  if (!p) return;
-
-  const modal = document.getElementById('player-modal');
-  document.getElementById('modal-rank').textContent = `#${p.rank}`;
-  document.getElementById('modal-rank').style.color = p.color;
-  document.getElementById('modal-name').textContent = p.name;
-  document.getElementById('modal-gamertag').textContent = p.gamertag;
-
-  document.getElementById('modal-stats').innerHTML = [
-    ['Puntos', p.points.toLocaleString()],
-    ['K/D', p.kd.toFixed(2)],
-    ['Victorias', p.wins],
-    ['Derrotas', p.losses],
-    ['Headshots', p.headshots],
-    ['Medallas', p.medals],
-    ['Tiempo', p.playtime],
-    ['Arma favorita', p.favoriteWeapon]
-  ].map(([label, value]) => `
-    <div class="modal-stat"><div class="label">${label}</div><div class="value">${value}</div></div>
-  `).join('');
-
-  document.getElementById('modal-badges').innerHTML = p.badges
-    .map(b => `<span class="badge">${b}</span>`).join('');
-
-  modal.showModal();
 }
 
 function initNavigation() {
@@ -198,20 +179,15 @@ function initNavigation() {
   });
 }
 
-function initModal() {
-  const modal = document.getElementById('player-modal');
-  modal.querySelector('.modal-close').addEventListener('click', () => modal.close());
-  modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
-}
-
 function updateTimestamp() {
   const el = document.getElementById('last-updated');
   const date = new Date(SQUAD_DATA.lastUpdated);
-  el.textContent = date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+  el.textContent = Number.isNaN(date.getTime())
+    ? '—'
+    : date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
   document.getElementById('season-banner').textContent = SQUAD_DATA.season;
 }
 
-// --- Boot sequence ---
 function runBootSequence() {
   const screen = document.getElementById('boot-screen');
   const status = document.getElementById('boot-status');
@@ -235,13 +211,11 @@ function runBootSequence() {
   }, 2400);
 }
 
-// --- Boot ---
 document.addEventListener('DOMContentLoaded', () => {
   runBootSequence();
   initParticles();
   renderRanking();
   renderStats();
   initNavigation();
-  initModal();
   updateTimestamp();
 });

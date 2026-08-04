@@ -1,17 +1,17 @@
+# Desactivado: el ranking web se alimenta desde HaloBackend (data.js),
+# no desde OCR de capturas. Mantener este workflow apagado evita que
+# sobrescriba el ranking real.
+#
+# Para reactivar solo como archivo de matches (sin tocar data.js),
+# quita el `if: false` del job y usa workflow_dispatch.
 name: Process Halo captures
 
 on:
-  push:
-    paths:
-      - 'captures/**'
-      - 'scripts/**'
-      - '.github/workflows/**'
   workflow_dispatch: {}
-  schedule:
-    - cron: '0 0 1 */2 *'
 
 jobs:
   build:
+    if: false
     runs-on: ubuntu-latest
 
     steps:
@@ -35,12 +35,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r scripts/requirements.txt
 
-      - name: Process captures and update ranking
+      - name: Process captures (matches.json only)
         run: python scripts/process_capture.py
 
-      - name: Commit and push changes
+      - name: Commit and push matches.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add matches.json data.js
-          git diff --quiet --cached || (git commit -m "Automated ranking update" && git push)
+          git add matches.json
+          git diff --quiet --cached || (git commit -m "Automated match archive update" && git push)
