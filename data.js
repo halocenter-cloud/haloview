@@ -3,37 +3,37 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 10 — desde 4 ago 2026",
-  "lastUpdated": "2026-08-04T04:29:41.207Z",
+  "lastUpdated": "2026-08-04T04:44:23.483Z",
   "players": [
     {
       "id": 1,
-      "name": "tagoras5268",
+      "name": "Kairos5404",
       "rank": 1,
-      "points": 18
+      "points": 24
     },
     {
       "id": 2,
-      "name": "Kairos5404",
-      "rank": 2,
-      "points": 16
+      "name": "tagoras5268",
+      "rank": 1,
+      "points": 24
     },
     {
       "id": 3,
       "name": "Andrei2589",
-      "rank": 3,
-      "points": 14
+      "rank": 2,
+      "points": 18
     },
     {
       "id": 4,
       "name": "ArgonautaElite1",
-      "rank": 4,
-      "points": 6
+      "rank": 3,
+      "points": 16
     },
     {
       "id": 5,
       "name": "Palitha96xD",
       "rank": 4,
-      "points": 6
+      "points": 8
     },
     {
       "id": 6,
