@@ -1,18 +1,111 @@
 /**
- * Datos del ranking — alimentable desde HaloBackend
- * (jugador → name, puntaje_total → points, puesto → rank).
+ * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  season: "Temporada 3 — desde 14 jul 2026",
-  lastUpdated: "2026-08-03T21:00:00",
-  players: [
-    { id: 1, name: "Kairos5404", rank: 1, points: 42 },
-    { id: 2, name: "tagoras5268", rank: 2, points: 38 },
-    { id: 3, name: "Athena mx", rank: 3, points: 25 },
-    { id: 4, name: "Espectro99", rank: 4, points: 18 },
-    { id: 5, name: "Vellega", rank: 4, points: 18 },
-    { id: 6, name: "TemuSpartan", rank: 5, points: 12 },
-    { id: 7, name: "ArgonautaX", rank: 6, points: 0 },
-    { id: 8, name: "CortanaLite", rank: 6, points: 0 }
+  "season": "Temporada 9 — desde 3 ago 2026",
+  "lastUpdated": "2026-08-04T02:39:15.611Z",
+  "players": [
+    {
+      "id": 1,
+      "name": "tagoras5268",
+      "rank": 1,
+      "points": 63
+    },
+    {
+      "id": 2,
+      "name": "Andrei2589",
+      "rank": 2,
+      "points": 60
+    },
+    {
+      "id": 3,
+      "name": "Andrey2k94",
+      "rank": 3,
+      "points": 44
+    },
+    {
+      "id": 4,
+      "name": "Kairos5404",
+      "rank": 4,
+      "points": 34
+    },
+    {
+      "id": 5,
+      "name": "ESPECTRO5118",
+      "rank": 5,
+      "points": 26
+    },
+    {
+      "id": 6,
+      "name": "ArgonautaElite1",
+      "rank": 6,
+      "points": 25
+    },
+    {
+      "id": 7,
+      "name": "Palitha96xD",
+      "rank": 7,
+      "points": 10
+    },
+    {
+      "id": 8,
+      "name": "Anzelot 5737",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 9,
+      "name": "AsturiA4395",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 10,
+      "name": "Gargolaa6235",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 11,
+      "name": "JOSEMAGUZMO4346",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 12,
+      "name": "KHKgolber",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 13,
+      "name": "Mariana",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 14,
+      "name": "TAILONG0108R",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 15,
+      "name": "Tony91653",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 16,
+      "name": "Vellega",
+      "rank": 8,
+      "points": 0
+    },
+    {
+      "id": 17,
+      "name": "Wikzork26",
+      "rank": 8,
+      "points": 0
+    }
   ]
 };
