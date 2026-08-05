@@ -3,59 +3,59 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 11 — desde 5 ago 2026",
-  "lastUpdated": "2026-08-05T03:17:20.164Z",
+  "lastUpdated": "2026-08-05T03:20:19.553Z",
   "players": [
     {
       "id": 1,
       "name": "ArgonautaElite1",
       "rank": 1,
-      "points": 10
+      "points": 15
     },
     {
       "id": 2,
-      "name": "Kairos5404",
+      "name": "tagoras5268",
       "rank": 2,
-      "points": 8
+      "points": 11
     },
     {
       "id": 3,
-      "name": "tagoras5268",
+      "name": "Andrei2589",
       "rank": 3,
-      "points": 6
+      "points": 9
     },
     {
       "id": 4,
-      "name": "Andrei2589",
-      "rank": 4,
-      "points": 4
+      "name": "Kairos5404",
+      "rank": 3,
+      "points": 9
     },
     {
       "id": 5,
       "name": "Palitha96xD",
-      "rank": 5,
+      "rank": 4,
       "points": 2
     },
     {
       "id": 6,
       "name": "Andrey2k94",
-      "rank": 6,
-      "points": 0
+      "rank": 5,
+      "points": 1
     },
     {
       "id": 7,
+      "name": "ESPECTRO5118",
+      "rank": 5,
+      "points": 1
+    },
+    {
+      "id": 8,
       "name": "Anzelot 5737",
       "rank": 6,
       "points": 0
     },
     {
-      "id": 8,
-      "name": "AsturiA4395",
-      "rank": 6,
-      "points": 0
-    },
-    {
       "id": 9,
-      "name": "ESPECTRO5118",
+      "name": "AsturiA4395",
       "rank": 6,
       "points": 0
     },
