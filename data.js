@@ -3,67 +3,67 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 1 — desde 7 ago 2026",
-  "lastUpdated": "2026-08-09T06:37:15.847Z",
+  "lastUpdated": "2026-08-09T06:37:48.969Z",
   "players": [
     {
       "id": 1,
-      "name": "ArgonautaElite1",
+      "name": "Kairos5404",
       "rank": 1,
-      "points": 11
+      "points": 14
     },
     {
       "id": 2,
-      "name": "Kairos5404",
-      "rank": 1,
-      "points": 11
+      "name": "ArgonautaElite1",
+      "rank": 2,
+      "points": 12
     },
     {
       "id": 3,
       "name": "tagoras5268",
-      "rank": 2,
-      "points": 8
+      "rank": 3,
+      "points": 10
     },
     {
       "id": 4,
-      "name": "Andrei2589",
+      "name": "Vellega",
       "rank": 3,
-      "points": 5
+      "points": 10
     },
     {
       "id": 5,
-      "name": "Vellega",
-      "rank": 3,
-      "points": 5
+      "name": "Andrei2589",
+      "rank": 4,
+      "points": 6
     },
     {
       "id": 6,
-      "name": "Palitha96xD",
-      "rank": 4,
+      "name": "Andrey2k94",
+      "rank": 5,
       "points": 2
     },
     {
       "id": 7,
-      "name": "Andrey2k94",
+      "name": "Anzelot 5737",
       "rank": 5,
-      "points": 1
+      "points": 2
     },
     {
       "id": 8,
-      "name": "Anzelot 5737",
+      "name": "ESPECTRO5118",
       "rank": 5,
-      "points": 1
+      "points": 2
     },
     {
       "id": 9,
-      "name": "ESPECTRO5118",
+      "name": "Gargolaa6235",
       "rank": 5,
-      "points": 1
+      "points": 2
     },
     {
       "id": 10,
-      "name": "Gargolaa6235",
+      "name": "Palitha96xD",
       "rank": 5,
-      "points": 1
+      "points": 2
     },
     {
       "id": 11,
