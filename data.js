@@ -3,65 +3,65 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 1 — desde 8 ago 2026",
-  "lastUpdated": "2026-08-09T07:23:53.154Z",
+  "lastUpdated": "2026-08-09T07:24:48.787Z",
   "players": [
     {
       "id": 1,
       "name": "tagoras5268",
       "rank": 1,
-      "points": 85
+      "points": 95
     },
     {
       "id": 2,
-      "name": "Andrey2k94",
+      "name": "Kairos5404",
       "rank": 2,
-      "points": 60
+      "points": 65
     },
     {
       "id": 3,
-      "name": "Kairos5404",
+      "name": "Andrey2k94",
       "rank": 3,
-      "points": 59
+      "points": 61
     },
     {
       "id": 4,
       "name": "Gargolaa6235",
       "rank": 4,
-      "points": 49
+      "points": 57
     },
     {
       "id": 5,
       "name": "Andrei2589",
       "rank": 5,
-      "points": 44
+      "points": 45
     },
     {
       "id": 6,
       "name": "ESPECTRO5118",
-      "rank": 6,
-      "points": 41
+      "rank": 5,
+      "points": 45
     },
     {
       "id": 7,
       "name": "Anzelot 5737",
-      "rank": 7,
+      "rank": 6,
       "points": 30
     },
     {
       "id": 8,
       "name": "ArgonautaElite1",
-      "rank": 8,
-      "points": 25
+      "rank": 7,
+      "points": 26
     },
     {
       "id": 9,
-      "name": "Palitha96xD",
-      "rank": 9,
-      "points": 8
+      "name": "Vellega",
+      "rank": 8,
+      "points": 10
     },
     {
       "id": 10,
-      "name": "Vellega",
+      "name": "Palitha96xD",
       "rank": 9,
       "points": 8
     },
