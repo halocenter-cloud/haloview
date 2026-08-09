@@ -3,7 +3,7 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 1 — desde 7 ago 2026",
-  "lastUpdated": "2026-08-09T06:46:05.157Z",
+  "lastUpdated": "2026-08-09T07:09:42.317Z",
   "players": [
     {
       "id": 1,
