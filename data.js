@@ -3,108 +3,108 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 1 — desde 8 ago 2026",
-  "lastUpdated": "2026-08-09T04:06:40.958Z",
+  "lastUpdated": "2026-08-09T04:22:59.855Z",
   "players": [
     {
       "id": 1,
       "name": "tagoras5268",
       "rank": 1,
-      "points": 62
+      "points": 70
     },
     {
       "id": 2,
-      "name": "Kairos5404",
+      "name": "Andrey2k94",
       "rank": 2,
-      "points": 43
+      "points": 46
     },
     {
       "id": 3,
-      "name": "Andrey2k94",
+      "name": "Kairos5404",
       "rank": 3,
-      "points": 40
+      "points": 44
     },
     {
       "id": 4,
-      "name": "Andrei2589",
+      "name": "Gargolaa6235",
       "rank": 4,
-      "points": 33
+      "points": 37
     },
     {
       "id": 5,
-      "name": "Gargolaa6235",
-      "rank": 4,
-      "points": 33
+      "name": "Andrei2589",
+      "rank": 5,
+      "points": 34
     },
     {
       "id": 6,
-      "name": "Anzelot 5737",
-      "rank": 5,
-      "points": 20
+      "name": "ESPECTRO5118",
+      "rank": 6,
+      "points": 28
     },
     {
       "id": 7,
-      "name": "ESPECTRO5118",
-      "rank": 6,
-      "points": 18
+      "name": "Anzelot 5737",
+      "rank": 7,
+      "points": 22
     },
     {
       "id": 8,
       "name": "ArgonautaElite1",
-      "rank": 7,
-      "points": 14
+      "rank": 8,
+      "points": 15
     },
     {
       "id": 9,
       "name": "Palitha96xD",
-      "rank": 8,
+      "rank": 9,
       "points": 8
     },
     {
       "id": 10,
       "name": "AsturiA4395",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 11,
       "name": "JOSEMAGUZMO4346",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 12,
       "name": "KHKgolber",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 13,
       "name": "Mariana",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 14,
       "name": "TAILONG0108R",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 15,
       "name": "Tony91653",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 16,
       "name": "Vellega",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     },
     {
       "id": 17,
       "name": "Wikzork26",
-      "rank": 9,
+      "rank": 10,
       "points": 0
     }
   ]
