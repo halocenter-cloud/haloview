@@ -131,20 +131,30 @@ function initParticles() {
   const canvas = document.getElementById('particles');
   if (!canvas) return;
 
-  if (prefersReducedMotion() || isMobileViewport()) {
-    canvas.remove();
-    return;
-  }
-
   const ctx = canvas.getContext('2d');
-  let w, h;
+  if (!ctx) return;
+
+  let w = 0;
+  let h = 0;
+  let dpr = 1;
   let rafId = 0;
   let running = false;
   const particles = [];
+  const reduceMotion = prefersReducedMotion();
+
+  function particleCount() {
+    return isMobileViewport() ? 20 : 40;
+  }
 
   function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.max(1, Math.floor(w * dpr));
+    canvas.height = Math.max(1, Math.floor(h * dpr));
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   class Particle {
@@ -158,6 +168,10 @@ function initParticles() {
       this.speedX = (Math.random() - 0.5) * 0.3;
       this.speedY = (Math.random() - 0.5) * 0.3;
       this.opacity = Math.random() * 0.4 + 0.1;
+      // ~30% orange accents to match ranking palette
+      this.color = Math.random() < 0.3
+        ? `rgba(255, 107, 53, ${this.opacity})`
+        : `rgba(0, 212, 255, ${this.opacity})`;
     }
     update() {
       this.x += this.speedX;
@@ -167,24 +181,35 @@ function initParticles() {
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0, 212, 255, ${this.opacity})`;
+      ctx.fillStyle = this.color;
       ctx.fill();
     }
   }
 
-  resize();
-  for (let i = 0; i < 40; i++) particles.push(new Particle());
+  function syncParticleCount() {
+    const target = particleCount();
+    while (particles.length < target) particles.push(new Particle());
+    while (particles.length > target) particles.pop();
+  }
+
+  function paintFrame(update) {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      if (update) p.update();
+      p.draw();
+    });
+  }
 
   function animate() {
     if (!running) return;
-    ctx.clearRect(0, 0, w, h);
-    particles.forEach(p => { p.update(); p.draw(); });
+    paintFrame(true);
     rafId = requestAnimationFrame(animate);
   }
 
   function start() {
-    if (running || document.hidden) return;
+    if (reduceMotion || running || document.hidden) return;
     running = true;
+    paintFrame(false);
     rafId = requestAnimationFrame(animate);
   }
 
@@ -194,18 +219,29 @@ function initParticles() {
     rafId = 0;
   }
 
+  resize();
+  syncParticleCount();
+  paintFrame(false);
+
+  if (reduceMotion) {
+    window.addEventListener('resize', () => {
+      resize();
+      syncParticleCount();
+      paintFrame(false);
+    });
+    return;
+  }
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
     else start();
   });
 
   window.addEventListener('resize', () => {
-    if (isMobileViewport()) {
-      stop();
-      canvas.remove();
-      return;
-    }
     resize();
+    syncParticleCount();
+    if (!running && !document.hidden) start();
+    else if (!running) paintFrame(false);
   });
 
   start();

@@ -169,7 +169,7 @@ body::before {
 #particles {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
 }
 
@@ -319,6 +319,8 @@ body::before {
 
 /* ===== SECTIONS ===== */
 main {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
@@ -908,6 +910,8 @@ main:has(.section--ranking.active) {
 
 /* ===== FOOTER ===== */
 .footer {
+  position: relative;
+  z-index: 1;
   text-align: center;
   padding: 2rem;
   margin-top: 4rem;
