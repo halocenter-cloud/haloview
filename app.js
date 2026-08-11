@@ -42,15 +42,72 @@ function rankLabel(n) {
   return String(n).padStart(2, '0');
 }
 
-function renderSpartanRow(p) {
+function normalizePlayerName(name) {
+  return String(name || '').trim().toLowerCase();
+}
+
+/**
+ * Lee ?player= o #player= de la URL.
+ * @returns {string|null}
+ */
+function getHighlightedPlayerName() {
+  try {
+    const fromQuery = new URLSearchParams(window.location.search).get('player');
+    if (fromQuery && fromQuery.trim()) {
+      return decodeURIComponent(fromQuery.trim());
+    }
+
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash.startsWith('player=')) {
+      const value = hash.slice('player='.length);
+      if (value.trim()) return decodeURIComponent(value.trim());
+    }
+  } catch (_) {
+    /* ignore malformed URL */
+  }
+  return null;
+}
+
+function hasTiedRanks(list) {
+  const seen = new Set();
+  for (const p of list) {
+    if (seen.has(p.rank)) return true;
+    seen.add(p.rank);
+  }
+  return false;
+}
+
+/**
+ * @param {{ id: number, name: string, rank: number, points: number }} p
+ * @param {{ variant?: 'hero' | 'row', gapOverNext?: number, nextRank?: number }} [options]
+ */
+function renderSpartanRow(p, options = {}) {
+  const variant = options.variant || 'row';
   const accent = accentForRank(p.rank);
   const name = escapeHtml(p.name);
+  const isHero = variant === 'hero';
+  const classes = [
+    'spartan-row',
+    `rank-${p.rank}`,
+    isHero ? 'spartan-row--hero' : ''
+  ].filter(Boolean).join(' ');
+
+  const gap = options.gapOverNext;
+  const nextRank = options.nextRank;
+  const gapLine = isHero && typeof gap === 'number' && gap > 0 && nextRank != null
+    ? `<p class="spartan-row__gap">Ventaja +${gap.toLocaleString('es')} sobre el ${nextRank}º</p>`
+    : '';
+
+  const pointsUnit = isHero
+    ? `<span class="spartan-row__points-unit">pts</span>`
+    : '';
 
   return `
     <article
-      class="spartan-row rank-${p.rank}"
+      class="${classes}"
       style="--row-accent: ${accent}"
       data-id="${p.id}"
+      data-name="${name}"
       role="listitem"
       aria-label="${name}, puesto ${p.rank}, ${p.points} puntos"
     >
@@ -59,9 +116,11 @@ function renderSpartanRow(p) {
       <div class="spartan-row__rank">${rankLabel(p.rank)}</div>
       <div class="spartan-row__identity">
         <p class="spartan-row__name">${name}</p>
+        ${gapLine}
       </div>
       <div class="spartan-row__points">
         <span class="spartan-row__points-value">${p.points.toLocaleString('es')}</span>
+        ${pointsUnit}
       </div>
     </article>
   `;
@@ -152,6 +211,60 @@ function initParticles() {
   start();
 }
 
+function wireZeroGroupToggle() {
+  const toggle = document.getElementById('zero-group-toggle');
+  const list = document.getElementById('zero-group-list');
+  if (!toggle || !list) return;
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    list.hidden = expanded;
+  });
+}
+
+function expandZeroGroup() {
+  const toggle = document.getElementById('zero-group-toggle');
+  const list = document.getElementById('zero-group-list');
+  if (!toggle || !list) return;
+  toggle.setAttribute('aria-expanded', 'true');
+  list.hidden = false;
+}
+
+/**
+ * Resalta la fila del jugador de la query y hace scroll.
+ * @param {string|null} queryName
+ */
+function highlightPlayer(queryName) {
+  if (!queryName) return;
+
+  const target = normalizePlayerName(queryName);
+  const match = players.find(p => normalizePlayerName(p.name) === target);
+  if (!match) return;
+
+  if (match.points <= 0) {
+    expandZeroGroup();
+  }
+
+  const row = document.querySelector(
+    `.spartan-row[data-id="${match.id}"]`
+  );
+  if (!row) return;
+
+  row.classList.add('is-highlighted');
+  row.setAttribute('tabindex', '0');
+
+  const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+  requestAnimationFrame(() => {
+    row.scrollIntoView({ block: 'center', behavior });
+    try {
+      row.focus({ preventScroll: true });
+    } catch (_) {
+      /* older browsers */
+    }
+  });
+}
+
 function renderRanking() {
   const stack = document.getElementById('ranking-stack');
 
@@ -166,8 +279,23 @@ function renderRanking() {
 
   const withPoints = players.filter(p => p.points > 0);
   const zeroPoints = players.filter(p => p.points <= 0);
+  const HERO_SLOTS = 3;
 
-  let html = withPoints.map(p => renderSpartanRow(p)).join('');
+  let html = '';
+
+  withPoints.forEach((p, index) => {
+    const isHero = index < HERO_SLOTS;
+    const next = withPoints[index + 1] || null;
+    const gapOverNext = next ? p.points - next.points : 0;
+    html += renderSpartanRow(p, isHero
+      ? {
+          variant: 'hero',
+          gapOverNext,
+          nextRank: next ? next.rank : undefined
+        }
+      : { variant: 'row' }
+    );
+  });
 
   if (zeroPoints.length) {
     const zeroRows = zeroPoints.map(p => renderSpartanRow(p)).join('');
@@ -190,17 +318,16 @@ function renderRanking() {
     `;
   }
 
-  stack.innerHTML = html;
-
-  const toggle = document.getElementById('zero-group-toggle');
-  const list = document.getElementById('zero-group-list');
-  if (toggle && list) {
-    toggle.addEventListener('click', () => {
-      const expanded = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!expanded));
-      list.hidden = expanded;
-    });
+  if (hasTiedRanks(players)) {
+    html += `
+      <p class="ranking-tie-hint" role="status">
+        Puestos iguales = mismos puntos.
+      </p>
+    `;
   }
+
+  stack.innerHTML = html;
+  wireZeroGroupToggle();
 }
 
 function renderStats() {
@@ -219,8 +346,8 @@ function renderStats() {
     <div class="stat-card"><span class="stat-value">${spartanCount}</span><span class="stat-label">SPARTANS</span></div>
     <div class="stat-card"><span class="stat-value">${leaderPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS LÍDER</span></div>
     <div class="stat-card"><span class="stat-value">${totalPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS TOTALES</span></div>
-    <div class="stat-card"><span class="stat-value">${gapToSecond.toLocaleString('es')}</span><span class="stat-label">GAP AL 2º</span></div>
-    <div class="stat-card"><span class="stat-value">${avgPoints.toLocaleString('es')}</span><span class="stat-label">MEDIA ACTIVOS</span></div>
+    <div class="stat-card"><span class="stat-value">${gapToSecond.toLocaleString('es')}</span><span class="stat-label">VENTAJA SOBRE EL 2º</span></div>
+    <div class="stat-card"><span class="stat-value">${avgPoints.toLocaleString('es')}</span><span class="stat-label">MEDIA DE PUNTOS</span></div>
   `;
 
   const podium = document.getElementById('podium');
@@ -302,11 +429,14 @@ function updateTimestamp() {
   document.getElementById('season-banner').textContent = SQUAD_DATA.season;
 }
 
-function runBootSequence() {
+/**
+ * @param {{ skip?: boolean }} [options]
+ */
+function runBootSequence(options = {}) {
   const screen = document.getElementById('boot-screen');
   if (!screen) return;
 
-  if (prefersReducedMotion()) {
+  if (options.skip || prefersReducedMotion()) {
     screen.classList.add('hidden');
     return;
   }
@@ -328,10 +458,17 @@ function runBootSequence() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  runBootSequence();
+  const highlightName = getHighlightedPlayerName();
+  const highlightExists = Boolean(
+    highlightName &&
+    players.some(p => normalizePlayerName(p.name) === normalizePlayerName(highlightName))
+  );
+
+  runBootSequence({ skip: highlightExists });
   initParticles();
   renderRanking();
   renderStats();
   initNavigation();
   updateTimestamp();
+  highlightPlayer(highlightName);
 });
