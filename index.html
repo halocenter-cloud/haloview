@@ -7,10 +7,11 @@
   <title>SPARTAN RANKING | Halo Infinite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Ir al contenido</a>
   <div id="boot-screen" class="boot-screen">
     <div class="boot-content">
       <div class="boot-logo">
@@ -47,19 +48,20 @@
       </div>
     </div>
     <nav class="header__nav" aria-label="Secciones">
-      <button class="nav-btn active" data-section="ranking">Ranking</button>
-      <button class="nav-btn" data-section="stats">Temporada</button>
+      <button class="nav-btn active" data-section="ranking" aria-pressed="true">Ranking</button>
+      <button class="nav-btn" data-section="stats" aria-pressed="false">Temporada</button>
     </nav>
     <div class="header__status">
       <span class="status-dot status-dot--idle"></span>
-      <span class="status-text">RANKING</span>
+      <span class="status-text" id="status-text">RANKING</span>
       <time id="last-updated" class="status-time"></time>
     </div>
     <p id="season-banner" class="season-banner"></p>
   </header>
 
-  <main>
+  <main id="main-content">
     <section id="ranking" class="section section--ranking active">
+      <h2 class="visually-hidden">Ranking del escuadrón</h2>
       <div class="ranking-stack" id="ranking-stack" role="list" aria-label="Ranking del escuadrón"></div>
     </section>
 
@@ -69,6 +71,7 @@
         <p class="section-desc">Resumen del ranking acumulado de la temporada activa.</p>
       </div>
       <div class="stats-grid" id="stats-grid"></div>
+      <div id="podium" class="podium" aria-label="Podio"></div>
       <div class="charts-row">
         <div class="chart-card chart-card--full">
           <h3>Puntos por jugador</h3>
