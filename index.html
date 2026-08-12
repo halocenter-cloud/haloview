@@ -56,7 +56,30 @@
       <span class="status-text" id="status-text">RANKING</span>
       <time id="last-updated" class="status-time"></time>
     </div>
-    <p id="season-banner" class="season-banner"></p>
+    <div class="season-selector" id="season-selector">
+      <button
+        type="button"
+        class="season-banner season-banner--trigger"
+        id="season-trigger"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="season-panel"
+      >
+        <span class="season-banner__label" id="season-banner-label"></span>
+        <span class="season-banner__chip" id="season-archive-chip" hidden>ARCHIVO</span>
+        <span class="season-banner__chevron" aria-hidden="true"></span>
+      </button>
+      <div
+        class="season-panel"
+        id="season-panel"
+        role="listbox"
+        aria-label="Temporadas"
+        hidden
+      >
+        <p class="season-panel__title">REGISTRO DE TEMPORADAS</p>
+        <div class="season-panel__list" id="season-panel-list"></div>
+      </div>
+    </div>
   </header>
 
   <main id="main-content">
@@ -68,7 +91,7 @@
     <section id="stats" class="section">
       <div class="section-intro">
         <h2 class="section-title">Temporada</h2>
-        <p class="section-desc">Resumen del ranking acumulado de la temporada activa.</p>
+        <p class="section-desc" id="season-section-desc">Resumen del ranking acumulado de la temporada activa.</p>
       </div>
       <div class="stats-grid" id="stats-grid"></div>
       <div id="podium" class="podium" aria-label="Podio"></div>

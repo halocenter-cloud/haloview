@@ -12,11 +12,81 @@ const RANK_COLOR_DEFAULT = '#4FD1FF';
 const MOBILE_MQ = '(max-width: 768px)';
 const REDUCED_MOTION_MQ = '(prefers-reduced-motion: reduce)';
 
-const players = [...SQUAD_DATA.players].sort((a, b) => {
-  if (a.rank !== b.rank) return a.rank - b.rank;
-  if (b.points !== a.points) return b.points - a.points;
-  return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
-});
+/**
+ * Normaliza legacy (season + players) o shape multi-temporada.
+ * @param {object} raw
+ */
+function normalizeSquadData(raw) {
+  const source = raw || {};
+  if (Array.isArray(source.seasons) && source.seasons.length > 0) {
+    const seasons = source.seasons.map((s) => ({
+      id: Number(s.id),
+      label: s.label || `Temporada ${s.id}`,
+      active: Boolean(s.active),
+      fechaInicio: s.fechaInicio || null,
+      fechaFin: s.fechaFin || null,
+      players: Array.isArray(s.players) ? s.players : []
+    }));
+    const active = seasons.find((s) => s.active) || seasons[0];
+    return {
+      lastUpdated: source.lastUpdated || null,
+      activeSeasonId: source.activeSeasonId != null
+        ? Number(source.activeSeasonId)
+        : active.id,
+      season: source.season || active.label,
+      players: Array.isArray(source.players) ? source.players : active.players,
+      seasons
+    };
+  }
+
+  const players = Array.isArray(source.players) ? source.players : [];
+  const label = source.season || 'Temporada activa';
+  return {
+    lastUpdated: source.lastUpdated || null,
+    activeSeasonId: 1,
+    season: label,
+    players,
+    seasons: [
+      {
+        id: 1,
+        label,
+        active: true,
+        fechaInicio: null,
+        fechaFin: null,
+        players
+      }
+    ]
+  };
+}
+
+const squadData = normalizeSquadData(typeof SQUAD_DATA !== 'undefined' ? SQUAD_DATA : {});
+
+/** @type {number} */
+let selectedSeasonId = squadData.activeSeasonId;
+
+function sortPlayers(list) {
+  return [...(list || [])].sort((a, b) => {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    if (b.points !== a.points) return b.points - a.points;
+    return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+  });
+}
+
+function getSeasonById(id) {
+  return squadData.seasons.find((s) => s.id === Number(id)) || null;
+}
+
+function getSelectedSeason() {
+  return getSeasonById(selectedSeasonId)
+    || getSeasonById(squadData.activeSeasonId)
+    || squadData.seasons[0]
+    || null;
+}
+
+function getCurrentPlayers() {
+  const season = getSelectedSeason();
+  return sortPlayers(season ? season.players : []);
+}
 
 function prefersReducedMotion() {
   return window.matchMedia(REDUCED_MOTION_MQ).matches;
@@ -66,6 +136,35 @@ function getHighlightedPlayerName() {
     /* ignore malformed URL */
   }
   return null;
+}
+
+/**
+ * Lee ?season= o #season= de la URL.
+ * @returns {number|null}
+ */
+function getSeasonIdFromUrl() {
+  try {
+    const fromQuery = new URLSearchParams(window.location.search).get('season');
+    if (fromQuery && fromQuery.trim()) {
+      const n = Number(fromQuery.trim());
+      if (Number.isFinite(n)) return n;
+    }
+
+    const hash = window.location.hash.replace(/^#/, '');
+    if (hash.startsWith('season=')) {
+      const n = Number(hash.slice('season='.length).trim());
+      if (Number.isFinite(n)) return n;
+    }
+  } catch (_) {
+    /* ignore */
+  }
+  return null;
+}
+
+function resolveInitialSeasonId() {
+  const fromUrl = getSeasonIdFromUrl();
+  if (fromUrl != null && getSeasonById(fromUrl)) return fromUrl;
+  return squadData.activeSeasonId;
 }
 
 function hasTiedRanks(list) {
@@ -168,7 +267,6 @@ function initParticles() {
       this.speedX = (Math.random() - 0.5) * 0.3;
       this.speedY = (Math.random() - 0.5) * 0.3;
       this.opacity = Math.random() * 0.4 + 0.1;
-      // ~30% orange accents to match ranking palette
       this.color = Math.random() < 0.3
         ? `rgba(255, 107, 53, ${this.opacity})`
         : `rgba(0, 212, 255, ${this.opacity})`;
@@ -274,6 +372,7 @@ function expandZeroGroup() {
 function highlightPlayer(queryName) {
   if (!queryName) return;
 
+  const players = getCurrentPlayers();
   const target = normalizePlayerName(queryName);
   const match = players.find(p => normalizePlayerName(p.name) === target);
   if (!match) return;
@@ -303,6 +402,7 @@ function highlightPlayer(queryName) {
 
 function renderRanking() {
   const stack = document.getElementById('ranking-stack');
+  const players = getCurrentPlayers();
 
   if (!players.length) {
     stack.innerHTML = `
@@ -367,6 +467,7 @@ function renderRanking() {
 }
 
 function renderStats() {
+  const players = getCurrentPlayers();
   const spartanCount = players.length;
   const withPoints = players.filter(p => p.points > 0);
   const leader = withPoints[0] || null;
@@ -458,11 +559,216 @@ function initNavigation() {
 
 function updateTimestamp() {
   const el = document.getElementById('last-updated');
-  const date = new Date(SQUAD_DATA.lastUpdated);
+  if (!el) return;
+  const date = new Date(squadData.lastUpdated);
   el.textContent = Number.isNaN(date.getTime())
     ? '—'
     : date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
-  document.getElementById('season-banner').textContent = SQUAD_DATA.season;
+}
+
+function updateSeasonChrome() {
+  const season = getSelectedSeason();
+  const labelEl = document.getElementById('season-banner-label');
+  const chipEl = document.getElementById('season-archive-chip');
+  const descEl = document.getElementById('season-section-desc');
+  const trigger = document.getElementById('season-trigger');
+  const isArchive = Boolean(season && !season.active);
+
+  if (labelEl) {
+    labelEl.textContent = season ? season.label : (squadData.season || 'Temporada');
+  }
+  if (chipEl) {
+    chipEl.hidden = !isArchive;
+  }
+  document.body.classList.toggle('is-season-archive', isArchive);
+
+  if (descEl) {
+    descEl.textContent = isArchive
+      ? 'Registro archivado — ranking acumulado de una temporada cerrada.'
+      : 'Resumen del ranking acumulado de la temporada activa.';
+  }
+  if (trigger) {
+    trigger.setAttribute(
+      'aria-label',
+      season
+        ? `Temporada seleccionada: ${season.label}${isArchive ? ' (archivo)' : ''}`
+        : 'Seleccionar temporada'
+    );
+  }
+
+  const options = document.querySelectorAll('.season-option');
+  options.forEach((opt) => {
+    const selected = Number(opt.dataset.seasonId) === selectedSeasonId;
+    opt.classList.toggle('is-selected', selected);
+    opt.setAttribute('aria-selected', String(selected));
+  });
+}
+
+function playSeasonSwapMotion() {
+  const targets = [
+    document.getElementById('ranking-stack'),
+    document.getElementById('stats')
+  ].filter(Boolean);
+
+  if (prefersReducedMotion()) return;
+
+  targets.forEach((el) => {
+    el.classList.remove('season-swap');
+    // force reflow
+    void el.offsetWidth;
+    el.classList.add('season-swap');
+  });
+}
+
+function selectSeason(seasonId, options = {}) {
+  const next = getSeasonById(seasonId);
+  if (!next) return;
+  if (next.id === selectedSeasonId && !options.force) return;
+
+  selectedSeasonId = next.id;
+  closeSeasonPanel();
+  updateSeasonChrome();
+  playSeasonSwapMotion();
+  renderRanking();
+  renderStats();
+
+  if (options.highlightName) {
+    highlightPlayer(options.highlightName);
+  }
+}
+
+function isSeasonPanelOpen() {
+  const panel = document.getElementById('season-panel');
+  return Boolean(panel && !panel.hidden);
+}
+
+function openSeasonPanel() {
+  const panel = document.getElementById('season-panel');
+  const trigger = document.getElementById('season-trigger');
+  if (!panel || !trigger) return;
+  panel.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
+  const selected = panel.querySelector('.season-option.is-selected')
+    || panel.querySelector('.season-option');
+  if (selected) {
+    try {
+      selected.focus();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+}
+
+function closeSeasonPanel() {
+  const panel = document.getElementById('season-panel');
+  const trigger = document.getElementById('season-trigger');
+  if (!panel || !trigger) return;
+  panel.hidden = true;
+  trigger.setAttribute('aria-expanded', 'false');
+}
+
+function toggleSeasonPanel() {
+  if (isSeasonPanelOpen()) closeSeasonPanel();
+  else openSeasonPanel();
+}
+
+function renderSeasonPanelList() {
+  const list = document.getElementById('season-panel-list');
+  if (!list) return;
+
+  list.innerHTML = squadData.seasons.map((season) => {
+    const selected = season.id === selectedSeasonId;
+    const badge = season.active
+      ? '<span class="season-option__badge season-option__badge--live">ACTIVA</span>'
+      : '<span class="season-option__badge">ARCHIVO</span>';
+    return `
+      <button
+        type="button"
+        class="season-option${selected ? ' is-selected' : ''}${season.active ? ' is-active' : ''}"
+        role="option"
+        data-season-id="${season.id}"
+        aria-selected="${selected}"
+        id="season-option-${season.id}"
+      >
+        <span class="season-option__id">T${String(season.id).padStart(2, '0')}</span>
+        <span class="season-option__meta">
+          <span class="season-option__label">${escapeHtml(season.label)}</span>
+          ${badge}
+        </span>
+      </button>
+    `;
+  }).join('');
+}
+
+function initSeasonSelector() {
+  const trigger = document.getElementById('season-trigger');
+  const panel = document.getElementById('season-panel');
+  const list = document.getElementById('season-panel-list');
+  if (!trigger || !panel || !list) return;
+
+  // Una sola temporada: trigger informativo, sin panel.
+  if (squadData.seasons.length <= 1) {
+    trigger.disabled = true;
+    trigger.classList.add('season-banner--static');
+    updateSeasonChrome();
+    return;
+  }
+
+  renderSeasonPanelList();
+  updateSeasonChrome();
+
+  trigger.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleSeasonPanel();
+  });
+
+  list.addEventListener('click', (event) => {
+    const option = event.target.closest('.season-option');
+    if (!option) return;
+    const id = Number(option.dataset.seasonId);
+    selectSeason(id, { highlightName: getHighlightedPlayerName() });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isSeasonPanelOpen()) {
+      event.preventDefault();
+      closeSeasonPanel();
+      trigger.focus();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    const root = document.getElementById('season-selector');
+    if (!root || !isSeasonPanelOpen()) return;
+    if (!root.contains(event.target)) closeSeasonPanel();
+  });
+
+  panel.addEventListener('keydown', (event) => {
+    const options = [...panel.querySelectorAll('.season-option')];
+    if (!options.length) return;
+    const currentIndex = options.indexOf(document.activeElement);
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      const next = options[(currentIndex + 1 + options.length) % options.length];
+      next.focus();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      const prev = options[(currentIndex - 1 + options.length) % options.length];
+      prev.focus();
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      options[0].focus();
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      options[options.length - 1].focus();
+    } else if (event.key === 'Enter' || event.key === ' ') {
+      if (document.activeElement && document.activeElement.classList.contains('season-option')) {
+        event.preventDefault();
+        const id = Number(document.activeElement.dataset.seasonId);
+        selectSeason(id, { highlightName: getHighlightedPlayerName() });
+      }
+    }
+  });
 }
 
 /**
@@ -494,17 +800,23 @@ function runBootSequence(options = {}) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  selectedSeasonId = resolveInitialSeasonId();
+
   const highlightName = getHighlightedPlayerName();
   const highlightExists = Boolean(
     highlightName &&
-    players.some(p => normalizePlayerName(p.name) === normalizePlayerName(highlightName))
+    getCurrentPlayers().some(
+      (p) => normalizePlayerName(p.name) === normalizePlayerName(highlightName)
+    )
   );
 
   runBootSequence({ skip: highlightExists });
   initParticles();
+  initSeasonSelector();
   renderRanking();
   renderStats();
   initNavigation();
   updateTimestamp();
+  updateSeasonChrome();
   highlightPlayer(highlightName);
 });
