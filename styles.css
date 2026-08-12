@@ -307,11 +307,12 @@ body::before {
 }
 
 .season-banner {
-  width: 100%;
+  width: auto;
+  max-width: min(320px, 100%);
   text-align: center;
   font-family: var(--font-display);
   font-size: 0.65rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
   color: var(--halo-orange);
   opacity: 0.85;
   margin-top: 0.25rem;
@@ -319,7 +320,9 @@ body::before {
 
 .season-selector {
   position: relative;
-  width: 100%;
+  width: auto;
+  max-width: min(320px, 100%);
+  margin-inline: auto;
   grid-area: season;
   z-index: 120;
 }
@@ -329,10 +332,12 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   margin: 0;
   padding: 0.35rem 0.75rem;
   border: 1px solid transparent;
+  border-radius: 0;
   background: linear-gradient(
     90deg,
     transparent,
@@ -341,7 +346,6 @@ body::before {
   );
   color: inherit;
   cursor: pointer;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   transition:
     border-color 0.24s ease,
     background 0.24s ease,
@@ -412,18 +416,18 @@ body::before {
   position: absolute;
   top: calc(100% + 0.35rem);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0);
   width: min(420px, calc(100vw - 2rem));
   padding: 0.85rem 0.75rem 0.7rem;
   background:
     linear-gradient(180deg, rgba(10, 18, 28, 0.97), rgba(6, 8, 16, 0.98)),
     var(--halo-panel);
   border: 1px solid rgba(0, 212, 255, 0.35);
-  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  border-radius: 0;
   box-shadow:
     0 12px 40px rgba(0, 0, 0, 0.55),
     inset 0 0 0 1px rgba(0, 212, 255, 0.08);
-  animation: seasonPanelIn 0.22s var(--transition);
+  animation: seasonPanelIn 0.18s ease-out both;
 }
 
 .season-panel[hidden] {
@@ -433,11 +437,11 @@ body::before {
 @keyframes seasonPanelIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-6px);
+    transform: translate(-50%, -6px);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, 0);
   }
 }
 
@@ -467,11 +471,11 @@ body::before {
   width: 100%;
   padding: 0.65rem 0.7rem;
   border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 0;
   background: rgba(0, 212, 255, 0.03);
   color: var(--halo-silver);
   text-align: left;
   cursor: pointer;
-  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
@@ -562,7 +566,7 @@ body.is-season-archive .vignette {
 }
 
 .season-swap {
-  animation: seasonSwap 0.24s ease;
+  animation: seasonSwap 0.18s ease-out both;
 }
 
 @keyframes seasonSwap {
@@ -667,8 +671,8 @@ main:has(.section--ranking.active) {
     linear-gradient(180deg, rgba(12, 20, 32, 0.95) 0%, rgba(8, 14, 24, 0.98) 100%);
   border: 1px solid var(--halo-border);
   border-left: 4px solid var(--row-accent);
+  border-radius: 0;
   overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s ease,
@@ -1295,7 +1299,7 @@ main:has(.section--ranking.active) + .footer {
   .season-banner,
   .season-banner--trigger {
     grid-area: auto;
-    width: 100%;
+    width: auto;
     max-width: 100%;
     margin-top: 0;
     text-align: right;
@@ -1306,16 +1310,18 @@ main:has(.section--ranking.active) + .footer {
   }
 
   .season-selector {
-    width: 100%;
+    width: auto;
     max-width: 100%;
+    margin-inline: 0;
+    justify-self: end;
   }
 
   .season-panel {
     left: auto;
     right: 0;
     transform: none;
-    width: min(100%, 360px);
-    animation: seasonPanelInMobile 0.22s var(--transition);
+    width: min(100vw - 2rem, 360px);
+    animation: seasonPanelInMobile 0.18s ease-out both;
   }
 
   @keyframes seasonPanelInMobile {
@@ -1501,13 +1507,15 @@ main:has(.section--ranking.active) + .footer {
 
   .season-selector {
     grid-area: season;
-    width: 100%;
+    width: auto;
     max-width: 100%;
+    margin-inline: 0;
+    justify-self: end;
   }
 
   .season-banner,
   .season-banner--trigger {
-    width: 100%;
+    width: auto;
     max-width: 100%;
     margin-top: 0;
     text-align: right;

@@ -566,6 +566,14 @@ function updateTimestamp() {
     : date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function shortSeasonLabel(season) {
+  if (!season) return 'Temporada';
+  if (season.id != null && Number.isFinite(Number(season.id))) {
+    return `Temporada ${season.id}`;
+  }
+  return season.label || 'Temporada';
+}
+
 function updateSeasonChrome() {
   const season = getSelectedSeason();
   const labelEl = document.getElementById('season-banner-label');
@@ -575,7 +583,7 @@ function updateSeasonChrome() {
   const isArchive = Boolean(season && !season.active);
 
   if (labelEl) {
-    labelEl.textContent = season ? season.label : (squadData.season || 'Temporada');
+    labelEl.textContent = shortSeasonLabel(season);
   }
   if (chipEl) {
     chipEl.hidden = !isArchive;
