@@ -1,121 +1,861 @@
 /**
  * Datos del ranking — generado por HaloBackend (no editar a mano).
- * Shape multi-temporada (ejemplo local hasta el próximo sync).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-08-09T07:25:09.946Z",
-  "activeSeasonId": 2,
-  "season": "Temporada 2 — desde 9 ago 2026",
+  "lastUpdated": "2026-08-12T13:27:50.828Z",
+  "activeSeasonId": 1,
+  "season": "Temporada 1 — desde 8 ago 2026",
   "players": [
-    { "id": 1, "name": "tagoras5268", "rank": 1, "points": 20 },
-    { "id": 2, "name": "Kairos5404", "rank": 2, "points": 15 },
-    { "id": 3, "name": "Andrey2k94", "rank": 3, "points": 12 },
-    { "id": 4, "name": "Gargolaa6235", "rank": 4, "points": 10 },
-    { "id": 5, "name": "Andrei2589", "rank": 5, "points": 8 },
-    { "id": 6, "name": "ESPECTRO5118", "rank": 5, "points": 8 },
-    { "id": 7, "name": "Anzelot 5737", "rank": 6, "points": 5 },
-    { "id": 8, "name": "ArgonautaElite1", "rank": 7, "points": 4 },
-    { "id": 9, "name": "Vellega", "rank": 8, "points": 2 },
-    { "id": 10, "name": "Palitha96xD", "rank": 9, "points": 1 },
-    { "id": 11, "name": "AsturiA4395", "rank": 10, "points": 0 },
-    { "id": 12, "name": "JOSEMAGUZMO4346", "rank": 10, "points": 0 },
-    { "id": 13, "name": "KHKgolber", "rank": 10, "points": 0 },
-    { "id": 14, "name": "Mariana", "rank": 10, "points": 0 },
-    { "id": 15, "name": "TAILONG0108R", "rank": 10, "points": 0 },
-    { "id": 16, "name": "Tony91653", "rank": 10, "points": 0 },
-    { "id": 17, "name": "Wikzork26", "rank": 10, "points": 0 }
+    {
+      "id": 1,
+      "name": "tagoras5268",
+      "rank": 1,
+      "points": 95
+    },
+    {
+      "id": 2,
+      "name": "Kairos5404",
+      "rank": 2,
+      "points": 65
+    },
+    {
+      "id": 3,
+      "name": "Andrey2k94",
+      "rank": 3,
+      "points": 61
+    },
+    {
+      "id": 4,
+      "name": "Gargolaa6235",
+      "rank": 4,
+      "points": 57
+    },
+    {
+      "id": 5,
+      "name": "Andrei2589",
+      "rank": 5,
+      "points": 45
+    },
+    {
+      "id": 6,
+      "name": "ESPECTRO5118",
+      "rank": 5,
+      "points": 45
+    },
+    {
+      "id": 7,
+      "name": "Anzelot 5737",
+      "rank": 6,
+      "points": 30
+    },
+    {
+      "id": 8,
+      "name": "ArgonautaElite1",
+      "rank": 7,
+      "points": 26
+    },
+    {
+      "id": 9,
+      "name": "Vellega",
+      "rank": 8,
+      "points": 10
+    },
+    {
+      "id": 10,
+      "name": "Palitha96xD",
+      "rank": 9,
+      "points": 8
+    },
+    {
+      "id": 11,
+      "name": "AsturiA4395",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 12,
+      "name": "JOSEMAGUZMO4346",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 13,
+      "name": "KHKgolber",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 14,
+      "name": "Mariana",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 15,
+      "name": "TAILONG0108R",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 16,
+      "name": "Tony91653",
+      "rank": 10,
+      "points": 0
+    },
+    {
+      "id": 17,
+      "name": "Wikzork26",
+      "rank": 10,
+      "points": 0
+    }
   ],
   "seasons": [
     {
-      "id": 2,
-      "label": "Temporada 2 — desde 9 ago 2026",
+      "id": 1,
+      "label": "Temporada 1 — desde 8 ago 2026",
       "active": true,
-      "fechaInicio": "2026-08-09T00:00:00.000Z",
+      "fechaInicio": "2026-08-08T00:34:38.549Z",
       "fechaFin": null,
       "players": [
-        { "id": 1, "name": "tagoras5268", "rank": 1, "points": 20 },
-        { "id": 2, "name": "Kairos5404", "rank": 2, "points": 15 },
-        { "id": 3, "name": "Andrey2k94", "rank": 3, "points": 12 },
-        { "id": 4, "name": "Gargolaa6235", "rank": 4, "points": 10 },
-        { "id": 5, "name": "Andrei2589", "rank": 5, "points": 8 },
-        { "id": 6, "name": "ESPECTRO5118", "rank": 5, "points": 8 },
-        { "id": 7, "name": "Anzelot 5737", "rank": 6, "points": 5 },
-        { "id": 8, "name": "ArgonautaElite1", "rank": 7, "points": 4 },
-        { "id": 9, "name": "Vellega", "rank": 8, "points": 2 },
-        { "id": 10, "name": "Palitha96xD", "rank": 9, "points": 1 },
-        { "id": 11, "name": "AsturiA4395", "rank": 10, "points": 0 },
-        { "id": 12, "name": "JOSEMAGUZMO4346", "rank": 10, "points": 0 },
-        { "id": 13, "name": "KHKgolber", "rank": 10, "points": 0 },
-        { "id": 14, "name": "Mariana", "rank": 10, "points": 0 },
-        { "id": 15, "name": "TAILONG0108R", "rank": 10, "points": 0 },
-        { "id": 16, "name": "Tony91653", "rank": 10, "points": 0 },
-        { "id": 17, "name": "Wikzork26", "rank": 10, "points": 0 }
-      ]
-    },
-    {
-      "id": 1,
-      "label": "Temporada 1 — 8 ago 2026 → 9 ago 2026",
-      "active": false,
-      "fechaInicio": "2026-08-08T00:00:00.000Z",
-      "fechaFin": "2026-08-09T00:00:00.000Z",
-      "players": [
-        { "id": 1, "name": "tagoras5268", "rank": 1, "points": 95 },
-        { "id": 2, "name": "Kairos5404", "rank": 2, "points": 65 },
-        { "id": 3, "name": "Andrey2k94", "rank": 3, "points": 61 },
-        { "id": 4, "name": "Gargolaa6235", "rank": 4, "points": 57 },
-        { "id": 5, "name": "Andrei2589", "rank": 5, "points": 45 },
-        { "id": 6, "name": "ESPECTRO5118", "rank": 5, "points": 45 },
-        { "id": 7, "name": "Anzelot 5737", "rank": 6, "points": 30 },
-        { "id": 8, "name": "ArgonautaElite1", "rank": 7, "points": 26 },
-        { "id": 9, "name": "Vellega", "rank": 8, "points": 10 },
-        { "id": 10, "name": "Palitha96xD", "rank": 9, "points": 8 },
-        { "id": 11, "name": "AsturiA4395", "rank": 10, "points": 0 },
-        { "id": 12, "name": "JOSEMAGUZMO4346", "rank": 10, "points": 0 },
-        { "id": 13, "name": "KHKgolber", "rank": 10, "points": 0 },
-        { "id": 14, "name": "Mariana", "rank": 10, "points": 0 },
-        { "id": 15, "name": "TAILONG0108R", "rank": 10, "points": 0 },
-        { "id": 16, "name": "Tony91653", "rank": 10, "points": 0 },
-        { "id": 17, "name": "Wikzork26", "rank": 10, "points": 0 }
+        {
+          "id": 1,
+          "name": "tagoras5268",
+          "rank": 1,
+          "points": 95
+        },
+        {
+          "id": 2,
+          "name": "Kairos5404",
+          "rank": 2,
+          "points": 65
+        },
+        {
+          "id": 3,
+          "name": "Andrey2k94",
+          "rank": 3,
+          "points": 61
+        },
+        {
+          "id": 4,
+          "name": "Gargolaa6235",
+          "rank": 4,
+          "points": 57
+        },
+        {
+          "id": 5,
+          "name": "Andrei2589",
+          "rank": 5,
+          "points": 45
+        },
+        {
+          "id": 6,
+          "name": "ESPECTRO5118",
+          "rank": 5,
+          "points": 45
+        },
+        {
+          "id": 7,
+          "name": "Anzelot 5737",
+          "rank": 6,
+          "points": 30
+        },
+        {
+          "id": 8,
+          "name": "ArgonautaElite1",
+          "rank": 7,
+          "points": 26
+        },
+        {
+          "id": 9,
+          "name": "Vellega",
+          "rank": 8,
+          "points": 10
+        },
+        {
+          "id": 10,
+          "name": "Palitha96xD",
+          "rank": 9,
+          "points": 8
+        },
+        {
+          "id": 11,
+          "name": "AsturiA4395",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 12,
+          "name": "JOSEMAGUZMO4346",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 13,
+          "name": "KHKgolber",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 14,
+          "name": "Mariana",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 15,
+          "name": "TAILONG0108R",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 16,
+          "name": "Tony91653",
+          "rank": 10,
+          "points": 0
+        },
+        {
+          "id": 17,
+          "name": "Wikzork26",
+          "rank": 10,
+          "points": 0
+        }
       ]
     }
   ],
   "profiles": [
     {
-      "name": "tagoras5268",
-      "bestRank": 1,
-      "careerPoints": 115,
-      "matchesPlayed": 18,
+      "name": "Andrei2589",
+      "bestRank": 5,
+      "careerPoints": 45,
+      "matchesPlayed": 14,
       "recentMatches": [
-        { "at": "2026-08-09T18:00:00.000Z", "seasonId": 2, "points": 10 },
-        { "at": "2026-08-09T19:00:00.000Z", "seasonId": 2, "points": 8 },
-        { "at": "2026-08-09T20:00:00.000Z", "seasonId": 2, "points": 5 },
-        { "at": "2026-08-09T21:00:00.000Z", "seasonId": 2, "points": 8 },
-        { "at": "2026-08-10T18:00:00.000Z", "seasonId": 2, "points": 10 },
-        { "at": "2026-08-10T19:00:00.000Z", "seasonId": 2, "points": 6 },
-        { "at": "2026-08-11T18:00:00.000Z", "seasonId": 2, "points": 8 },
-        { "at": "2026-08-11T19:00:00.000Z", "seasonId": 2, "points": 5 }
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 4
+        }
       ],
       "bySeason": [
-        { "seasonId": 2, "points": 20, "rank": 1, "matches": 6 },
-        { "seasonId": 1, "points": 95, "rank": 1, "matches": 12 }
+        {
+          "seasonId": 1,
+          "points": 45,
+          "rank": 5,
+          "matches": 14
+        }
+      ]
+    },
+    {
+      "name": "Andrey2k94",
+      "bestRank": 3,
+      "careerPoints": 61,
+      "matchesPlayed": 16,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 6
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 2
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 61,
+          "rank": 3,
+          "matches": 16
+        }
+      ]
+    },
+    {
+      "name": "Anzelot 5737",
+      "bestRank": 6,
+      "careerPoints": 30,
+      "matchesPlayed": 8,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 6
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 6
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 8
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 30,
+          "rank": 6,
+          "matches": 8
+        }
+      ]
+    },
+    {
+      "name": "ArgonautaElite1",
+      "bestRank": 7,
+      "careerPoints": 26,
+      "matchesPlayed": 13,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 5
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 26,
+          "rank": 7,
+          "matches": 13
+        }
+      ]
+    },
+    {
+      "name": "AsturiA4395",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
+      ]
+    },
+    {
+      "name": "ESPECTRO5118",
+      "bestRank": 5,
+      "careerPoints": 45,
+      "matchesPlayed": 16,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 4
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 10
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 1
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 45,
+          "rank": 5,
+          "matches": 16
+        }
+      ]
+    },
+    {
+      "name": "Gargolaa6235",
+      "bestRank": 4,
+      "careerPoints": 57,
+      "matchesPlayed": 13,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 8
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 3
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 4
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 5
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 57,
+          "rank": 4,
+          "matches": 13
+        }
+      ]
+    },
+    {
+      "name": "JOSEMAGUZMO4346",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
       ]
     },
     {
       "name": "Kairos5404",
       "bestRank": 2,
-      "careerPoints": 80,
-      "matchesPlayed": 14,
+      "careerPoints": 65,
+      "matchesPlayed": 16,
       "recentMatches": [
-        { "at": "2026-08-09T18:00:00.000Z", "seasonId": 2, "points": 5 },
-        { "at": "2026-08-09T19:00:00.000Z", "seasonId": 2, "points": 3 },
-        { "at": "2026-08-10T18:00:00.000Z", "seasonId": 2, "points": 5 },
-        { "at": "2026-08-10T19:00:00.000Z", "seasonId": 2, "points": 2 },
-        { "at": "2026-08-11T18:00:00.000Z", "seasonId": 2, "points": 3 },
-        { "at": "2026-08-11T19:00:00.000Z", "seasonId": 2, "points": 5 }
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 6
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 3
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 8
+        }
       ],
       "bySeason": [
-        { "seasonId": 2, "points": 15, "rank": 2, "matches": 5 },
-        { "seasonId": 1, "points": 65, "rank": 2, "matches": 9 }
+        {
+          "seasonId": 1,
+          "points": 65,
+          "rank": 2,
+          "matches": 16
+        }
+      ]
+    },
+    {
+      "name": "KHKgolber",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
+      ]
+    },
+    {
+      "name": "Mariana",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
+      ]
+    },
+    {
+      "name": "Palitha96xD",
+      "bestRank": 9,
+      "careerPoints": 8,
+      "matchesPlayed": 6,
+      "recentMatches": [
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 2
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 8,
+          "rank": 9,
+          "matches": 6
+        }
+      ]
+    },
+    {
+      "name": "tagoras5268",
+      "bestRank": 1,
+      "careerPoints": 95,
+      "matchesPlayed": 16,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 10
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 8
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 10
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 95,
+          "rank": 1,
+          "matches": 16
+        }
+      ]
+    },
+    {
+      "name": "TAILONG0108R",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
+      ]
+    },
+    {
+      "name": "Tony91653",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
+      ]
+    },
+    {
+      "name": "Vellega",
+      "bestRank": 8,
+      "careerPoints": 10,
+      "matchesPlayed": 4,
+      "recentMatches": [
+        {
+          "at": "2026-08-09T07:24:48.754Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T07:23:53.117Z",
+          "seasonId": 1,
+          "points": 2
+        },
+        {
+          "at": "2026-08-09T07:00:31.863Z",
+          "seasonId": 1,
+          "points": 5
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1
+        }
+      ],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 10,
+          "rank": 8,
+          "matches": 4
+        }
+      ]
+    },
+    {
+      "name": "Wikzork26",
+      "bestRank": 10,
+      "careerPoints": 0,
+      "matchesPlayed": 0,
+      "recentMatches": [],
+      "bySeason": [
+        {
+          "seasonId": 1,
+          "points": 0,
+          "rank": 10,
+          "matches": 0
+        }
       ]
     }
   ]
