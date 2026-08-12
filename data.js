@@ -3,55 +3,55 @@
  */
 const SQUAD_DATA = {
   "season": "Temporada 1 — desde 7 ago 2026",
-  "lastUpdated": "2026-08-12T06:02:05.445Z",
+  "lastUpdated": "2026-08-12T06:02:25.398Z",
   "players": [
     {
       "id": 1,
       "name": "Kairos5404",
       "rank": 1,
-      "points": 24
+      "points": 19
     },
     {
       "id": 2,
       "name": "ArgonautaElite1",
       "rank": 2,
-      "points": 16
+      "points": 14
     },
     {
       "id": 3,
       "name": "tagoras5268",
       "rank": 3,
-      "points": 14
+      "points": 12
     },
     {
       "id": 4,
       "name": "Vellega",
       "rank": 3,
-      "points": 14
+      "points": 12
     },
     {
       "id": 5,
-      "name": "Andrey2k94",
+      "name": "Andrei2589",
       "rank": 4,
-      "points": 12
+      "points": 8
     },
     {
       "id": 6,
-      "name": "ESPECTRO5118",
-      "rank": 4,
-      "points": 12
+      "name": "Andrey2k94",
+      "rank": 5,
+      "points": 7
     },
     {
       "id": 7,
-      "name": "Andrei2589",
+      "name": "ESPECTRO5118",
       "rank": 5,
-      "points": 10
+      "points": 7
     },
     {
       "id": 8,
       "name": "Gargolaa6235",
       "rank": 6,
-      "points": 6
+      "points": 4
     },
     {
       "id": 9,
