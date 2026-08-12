@@ -1535,3 +1535,327 @@ main:has(.section--ranking.active) + .footer {
     padding: 1rem 1.5rem;
   }
 }
+
+/* ===== PLAYER DOSSIER ===== */
+body.is-dossier-open {
+  overflow: hidden;
+}
+
+.player-dossier {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.player-dossier[hidden] {
+  display: none !important;
+}
+
+.player-dossier__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 4, 10, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.player-dossier__frame {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  max-height: min(92vh, 900px);
+  overflow: auto;
+  padding: 1.25rem 1.35rem 1.5rem;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(10, 18, 28, 0.98), rgba(6, 8, 16, 0.99)),
+    var(--halo-panel);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.65),
+    inset 0 0 0 1px rgba(0, 212, 255, 0.08);
+  animation: dossierIn 0.2s ease-out both;
+}
+
+.player-dossier__scan {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 212, 255, 0.03) 3px,
+    rgba(0, 212, 255, 0.03) 4px
+  );
+  opacity: 0.55;
+}
+
+@keyframes dossierIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.player-dossier__header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.player-dossier__eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: var(--halo-cyan);
+}
+
+.player-dossier__close {
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  background: rgba(0, 212, 255, 0.06);
+  color: var(--halo-silver);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.player-dossier__close:hover,
+.player-dossier__close:focus-visible {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.7);
+  background: rgba(0, 212, 255, 0.12);
+}
+
+.player-dossier__hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.35rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.18);
+}
+
+.player-dossier__rank {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: var(--halo-cyan);
+  text-shadow: 0 0 24px rgba(0, 212, 255, 0.25);
+}
+
+.player-dossier__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #e8f4ff;
+}
+
+.player-dossier__season {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: rgba(192, 208, 224, 0.75);
+}
+
+.player-dossier__readouts {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.dossier-readout {
+  padding: 0.7rem 0.65rem;
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  background: rgba(0, 212, 255, 0.04);
+  border-radius: 0;
+}
+
+.dossier-readout__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  color: var(--halo-cyan-dim);
+  margin-bottom: 0.35rem;
+}
+
+.dossier-readout__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--halo-silver);
+}
+
+.dossier-readout__value--trend {
+  color: var(--halo-orange);
+}
+
+.dossier-readout__sub {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: rgba(192, 208, 224, 0.55);
+}
+
+.player-dossier__trend {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(255, 107, 53, 0.22);
+  background: rgba(255, 107, 53, 0.05);
+  color: var(--halo-orange);
+  border-radius: 0;
+}
+
+.dossier-trend__title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 107, 53, 0.9);
+}
+
+.dossier-trend__svg {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.dossier-trend__empty {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: rgba(192, 208, 224, 0.55);
+}
+
+.player-dossier__seasons {
+  position: relative;
+  z-index: 1;
+}
+
+.player-dossier__seasons-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.18em;
+  color: var(--halo-cyan);
+}
+
+.player-dossier__seasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dossier-season-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  background: rgba(0, 212, 255, 0.03);
+  border-radius: 0;
+}
+
+.dossier-season-row.is-current {
+  border-color: rgba(0, 212, 255, 0.45);
+  background: rgba(0, 212, 255, 0.08);
+}
+
+.dossier-season-row__id {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--halo-cyan);
+}
+
+.dossier-season-row__label {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--halo-silver);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dossier-season-row__stat {
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: rgba(192, 208, 224, 0.8);
+  white-space: nowrap;
+}
+
+.spartan-row--interactive {
+  cursor: pointer;
+}
+
+.spartan-row--interactive:focus-visible {
+  outline: 2px solid var(--halo-cyan);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .player-dossier {
+    padding: 0.5rem;
+    align-items: stretch;
+  }
+
+  .player-dossier__frame {
+    width: 100%;
+    max-height: 100%;
+    padding: 1rem 0.9rem 1.2rem;
+  }
+
+  .player-dossier__readouts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dossier-season-row {
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.65rem;
+  }
+
+  .dossier-season-row__stat {
+    font-size: 0.52rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-dossier__frame {
+    animation: none;
+  }
+}

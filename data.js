@@ -78,5 +78,45 @@ const SQUAD_DATA = {
         { "id": 17, "name": "Wikzork26", "rank": 10, "points": 0 }
       ]
     }
+  ],
+  "profiles": [
+    {
+      "name": "tagoras5268",
+      "bestRank": 1,
+      "careerPoints": 115,
+      "matchesPlayed": 18,
+      "recentMatches": [
+        { "at": "2026-08-09T18:00:00.000Z", "seasonId": 2, "points": 10 },
+        { "at": "2026-08-09T19:00:00.000Z", "seasonId": 2, "points": 8 },
+        { "at": "2026-08-09T20:00:00.000Z", "seasonId": 2, "points": 5 },
+        { "at": "2026-08-09T21:00:00.000Z", "seasonId": 2, "points": 8 },
+        { "at": "2026-08-10T18:00:00.000Z", "seasonId": 2, "points": 10 },
+        { "at": "2026-08-10T19:00:00.000Z", "seasonId": 2, "points": 6 },
+        { "at": "2026-08-11T18:00:00.000Z", "seasonId": 2, "points": 8 },
+        { "at": "2026-08-11T19:00:00.000Z", "seasonId": 2, "points": 5 }
+      ],
+      "bySeason": [
+        { "seasonId": 2, "points": 20, "rank": 1, "matches": 6 },
+        { "seasonId": 1, "points": 95, "rank": 1, "matches": 12 }
+      ]
+    },
+    {
+      "name": "Kairos5404",
+      "bestRank": 2,
+      "careerPoints": 80,
+      "matchesPlayed": 14,
+      "recentMatches": [
+        { "at": "2026-08-09T18:00:00.000Z", "seasonId": 2, "points": 5 },
+        { "at": "2026-08-09T19:00:00.000Z", "seasonId": 2, "points": 3 },
+        { "at": "2026-08-10T18:00:00.000Z", "seasonId": 2, "points": 5 },
+        { "at": "2026-08-10T19:00:00.000Z", "seasonId": 2, "points": 2 },
+        { "at": "2026-08-11T18:00:00.000Z", "seasonId": 2, "points": 3 },
+        { "at": "2026-08-11T19:00:00.000Z", "seasonId": 2, "points": 5 }
+      ],
+      "bySeason": [
+        { "seasonId": 2, "points": 15, "rank": 2, "matches": 5 },
+        { "seasonId": 1, "points": 65, "rank": 2, "matches": 9 }
+      ]
+    }
   ]
 };

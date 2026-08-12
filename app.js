@@ -18,8 +18,14 @@ const REDUCED_MOTION_MQ = '(prefers-reduced-motion: reduce)';
  */
 function normalizeSquadData(raw) {
   const source = raw || {};
+  let seasons;
+  let players;
+  let activeSeasonId;
+  let seasonLabel;
+  let lastUpdated = source.lastUpdated || null;
+
   if (Array.isArray(source.seasons) && source.seasons.length > 0) {
-    const seasons = source.seasons.map((s) => ({
+    seasons = source.seasons.map((s) => ({
       id: Number(s.id),
       label: s.label || `Temporada ${s.id}`,
       active: Boolean(s.active),
@@ -28,35 +34,99 @@ function normalizeSquadData(raw) {
       players: Array.isArray(s.players) ? s.players : []
     }));
     const active = seasons.find((s) => s.active) || seasons[0];
-    return {
-      lastUpdated: source.lastUpdated || null,
-      activeSeasonId: source.activeSeasonId != null
-        ? Number(source.activeSeasonId)
-        : active.id,
-      season: source.season || active.label,
-      players: Array.isArray(source.players) ? source.players : active.players,
-      seasons
-    };
-  }
-
-  const players = Array.isArray(source.players) ? source.players : [];
-  const label = source.season || 'Temporada activa';
-  return {
-    lastUpdated: source.lastUpdated || null,
-    activeSeasonId: 1,
-    season: label,
-    players,
-    seasons: [
+    activeSeasonId = source.activeSeasonId != null
+      ? Number(source.activeSeasonId)
+      : active.id;
+    seasonLabel = source.season || active.label;
+    players = Array.isArray(source.players) ? source.players : active.players;
+  } else {
+    players = Array.isArray(source.players) ? source.players : [];
+    seasonLabel = source.season || 'Temporada activa';
+    activeSeasonId = 1;
+    seasons = [
       {
         id: 1,
-        label,
+        label: seasonLabel,
         active: true,
         fechaInicio: null,
         fechaFin: null,
         players
       }
-    ]
+    ];
+  }
+
+  const profiles = Array.isArray(source.profiles) && source.profiles.length
+    ? source.profiles.map(normalizeProfile)
+    : deriveProfilesFromSeasons(seasons);
+
+  return {
+    lastUpdated,
+    activeSeasonId,
+    season: seasonLabel,
+    players,
+    seasons,
+    profiles
   };
+}
+
+function normalizeProfile(profile) {
+  return {
+    name: profile.name || '',
+    bestRank: profile.bestRank != null ? Number(profile.bestRank) : null,
+    careerPoints: Number(profile.careerPoints) || 0,
+    matchesPlayed: Number(profile.matchesPlayed) || 0,
+    recentMatches: Array.isArray(profile.recentMatches)
+      ? profile.recentMatches.map((m) => ({
+          at: m.at || null,
+          seasonId: Number(m.seasonId),
+          points: Number(m.points) || 0
+        }))
+      : [],
+    bySeason: Array.isArray(profile.bySeason)
+      ? profile.bySeason.map((s) => ({
+          seasonId: Number(s.seasonId),
+          points: Number(s.points) || 0,
+          rank: s.rank != null ? Number(s.rank) : null,
+          matches: s.matches != null ? Number(s.matches) : null
+        }))
+      : []
+  };
+}
+
+function deriveProfilesFromSeasons(seasons) {
+  const byKey = new Map();
+  for (const season of seasons || []) {
+    for (const player of season.players || []) {
+      const key = normalizePlayerName(player.name);
+      if (!key) continue;
+      if (!byKey.has(key)) {
+        byKey.set(key, {
+          name: player.name,
+          bestRank: null,
+          careerPoints: 0,
+          matchesPlayed: 0,
+          recentMatches: [],
+          bySeason: []
+        });
+      }
+      const profile = byKey.get(key);
+      const points = Number(player.points) || 0;
+      const rank = Number(player.rank) || null;
+      profile.careerPoints += points;
+      if (rank != null && (profile.bestRank == null || rank < profile.bestRank)) {
+        profile.bestRank = rank;
+      }
+      profile.bySeason.push({
+        seasonId: season.id,
+        points,
+        rank,
+        matches: null
+      });
+    }
+  }
+  return [...byKey.values()].sort((a, b) =>
+    a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })
+  );
 }
 
 const squadData = normalizeSquadData(typeof SQUAD_DATA !== 'undefined' ? SQUAD_DATA : {});
@@ -188,7 +258,8 @@ function renderSpartanRow(p, options = {}) {
   const classes = [
     'spartan-row',
     `rank-${p.rank}`,
-    isHero ? 'spartan-row--hero' : ''
+    isHero ? 'spartan-row--hero' : '',
+    'spartan-row--interactive'
   ].filter(Boolean).join(' ');
 
   const gap = options.gapOverNext;
@@ -208,7 +279,8 @@ function renderSpartanRow(p, options = {}) {
       data-id="${p.id}"
       data-name="${name}"
       role="listitem"
-      aria-label="${name}, puesto ${p.rank}, ${p.points} puntos"
+      tabindex="0"
+      aria-label="${name}, puesto ${p.rank}, ${p.points} puntos. Abrir ficha."
     >
       <div class="spartan-row__glow" aria-hidden="true"></div>
       <div class="spartan-row__scan" aria-hidden="true"></div>
@@ -464,6 +536,29 @@ function renderRanking() {
 
   stack.innerHTML = html;
   wireZeroGroupToggle();
+  wireRankingRowInteractions();
+}
+
+function wireRankingRowInteractions() {
+  const stack = document.getElementById('ranking-stack');
+  if (!stack || stack.dataset.dossierWired === '1') return;
+  stack.dataset.dossierWired = '1';
+
+  stack.addEventListener('click', (event) => {
+    const row = event.target.closest('.spartan-row');
+    if (!row || !stack.contains(row)) return;
+    const name = row.getAttribute('data-name');
+    if (name) openPlayerDossier(name);
+  });
+
+  stack.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const row = event.target.closest('.spartan-row');
+    if (!row || !stack.contains(row)) return;
+    event.preventDefault();
+    const name = row.getAttribute('data-name');
+    if (name) openPlayerDossier(name);
+  });
 }
 
 function renderStats() {
@@ -639,6 +734,11 @@ function selectSeason(seasonId, options = {}) {
   playSeasonSwapMotion();
   renderRanking();
   renderStats();
+  syncUrlState({ player: openDossierName });
+
+  if (openDossierName) {
+    renderPlayerDossier(openDossierName);
+  }
 
   if (options.highlightName) {
     highlightPlayer(options.highlightName);
@@ -738,7 +838,13 @@ function initSeasonSelector() {
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isSeasonPanelOpen()) {
+    if (event.key !== 'Escape') return;
+    if (isDossierOpen()) {
+      event.preventDefault();
+      closePlayerDossier();
+      return;
+    }
+    if (isSeasonPanelOpen()) {
       event.preventDefault();
       closeSeasonPanel();
       trigger.focus();
@@ -777,6 +883,236 @@ function initSeasonSelector() {
       }
     }
   });
+}
+
+/** @type {string|null} */
+let openDossierName = null;
+/** @type {Element|null} */
+let dossierLastFocus = null;
+
+function getProfileByName(name) {
+  const target = normalizePlayerName(name);
+  return (squadData.profiles || []).find(
+    (p) => normalizePlayerName(p.name) === target
+  ) || null;
+}
+
+function findPlayerInSeason(name, seasonId) {
+  const season = getSeasonById(seasonId) || getSelectedSeason();
+  if (!season) return null;
+  const target = normalizePlayerName(name);
+  return (season.players || []).find(
+    (p) => normalizePlayerName(p.name) === target
+  ) || null;
+}
+
+function syncUrlState({ player = openDossierName, seasonId = selectedSeasonId } = {}) {
+  try {
+    const url = new URL(window.location.href);
+    if (seasonId != null) url.searchParams.set('season', String(seasonId));
+    else url.searchParams.delete('season');
+
+    if (player) url.searchParams.set('player', player);
+    else url.searchParams.delete('player');
+
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function buildSparklineSvg(points) {
+  const values = (points || []).map((n) => Number(n) || 0);
+  if (values.length < 2) {
+    return '<p class="dossier-trend__empty">Sin historial reciente</p>';
+  }
+
+  const width = 220;
+  const height = 48;
+  const pad = 4;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = Math.max(max - min, 1);
+
+  const coords = values.map((value, index) => {
+    const x = pad + (index / (values.length - 1)) * (width - pad * 2);
+    const y = height - pad - ((value - min) / span) * (height - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+
+  return `
+    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Tendencia de puntos recientes">
+      <polyline
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        points="${coords.join(' ')}"
+      />
+    </svg>
+  `;
+}
+
+function trendDeltaLabel(recentPoints) {
+  const values = (recentPoints || []).map((n) => Number(n) || 0);
+  if (values.length < 2) return { symbol: '=', text: 'Sin datos' };
+  const avg = values.reduce((sum, n) => sum + n, 0) / values.length;
+  const last = values[values.length - 1];
+  const diff = last - avg;
+  if (Math.abs(diff) < 0.25) return { symbol: '=', text: 'Estable' };
+  if (diff > 0) return { symbol: '+', text: `+${diff.toFixed(1)} vs media` };
+  return { symbol: '−', text: `${diff.toFixed(1)} vs media` };
+}
+
+function isDossierOpen() {
+  const dossier = document.getElementById('player-dossier');
+  return Boolean(dossier && !dossier.hidden);
+}
+
+function renderPlayerDossier(name) {
+  const profile = getProfileByName(name);
+  const season = getSelectedSeason();
+  const seasonPlayer = findPlayerInSeason(name, selectedSeasonId);
+  if (!seasonPlayer && !profile) return false;
+
+  const displayName = seasonPlayer?.name || profile?.name || name;
+  const rank = seasonPlayer?.rank ?? null;
+  const points = seasonPlayer?.points ?? 0;
+  const bySeason = profile?.bySeason || [];
+  const seasonStats = bySeason.find((s) => s.seasonId === selectedSeasonId) || null;
+  const matchesSeason = seasonStats && seasonStats.matches != null ? seasonStats.matches : null;
+  const bestRank = profile?.bestRank ?? rank;
+  const recent = [...(profile?.recentMatches || [])]
+    .slice()
+    .sort((a, b) => String(a.at || '').localeCompare(String(b.at || '')));
+  const recentPoints = recent.map((m) => m.points);
+  const delta = trendDeltaLabel(recentPoints);
+
+  const rankEl = document.getElementById('dossier-rank');
+  const nameEl = document.getElementById('dossier-name');
+  const seasonEl = document.getElementById('dossier-season');
+  const readouts = document.getElementById('dossier-readouts');
+  const trend = document.getElementById('dossier-trend');
+  const seasonsList = document.getElementById('dossier-seasons-list');
+  if (!rankEl || !nameEl || !seasonEl || !readouts || !trend || !seasonsList) return false;
+
+  const accent = accentForRank(rank || bestRank || 99);
+  rankEl.textContent = rank != null ? rankLabel(rank) : '—';
+  rankEl.style.color = accent;
+  nameEl.textContent = displayName;
+  seasonEl.textContent = season
+    ? (season.active ? season.label : `${season.label} · Registro archivado`)
+    : '—';
+
+  const matchesLabel = matchesSeason != null
+    ? String(matchesSeason)
+    : '—';
+  const careerMatches = profile ? String(profile.matchesPlayed) : '—';
+
+  readouts.innerHTML = `
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Puntos</span>
+      <span class="dossier-readout__value">${points.toLocaleString('es')}</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Partidas</span>
+      <span class="dossier-readout__value">${matchesLabel}</span>
+      <span class="dossier-readout__sub">Carrera ${careerMatches}</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Mejor puesto</span>
+      <span class="dossier-readout__value">${bestRank != null ? rankLabel(bestRank) : '—'}</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Tendencia</span>
+      <span class="dossier-readout__value dossier-readout__value--trend">${escapeHtml(delta.symbol)}</span>
+      <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
+    </div>
+  `;
+
+  trend.innerHTML = `
+    <p class="dossier-trend__title">Últimas partidas</p>
+    ${buildSparklineSvg(recentPoints)}
+  `;
+
+  const seasonRows = (bySeason.length ? bySeason : [{
+    seasonId: selectedSeasonId,
+    points,
+    rank,
+    matches: matchesSeason
+  }]).map((entry) => {
+    const seasonMeta = getSeasonById(entry.seasonId);
+    const label = seasonMeta ? shortSeasonLabel(seasonMeta) : `Temporada ${entry.seasonId}`;
+    const matchesText = entry.matches != null ? entry.matches : '—';
+    const rankText = entry.rank != null ? rankLabel(entry.rank) : '—';
+    return `
+      <div class="dossier-season-row${entry.seasonId === selectedSeasonId ? ' is-current' : ''}">
+        <span class="dossier-season-row__id">T${String(entry.seasonId).padStart(2, '0')}</span>
+        <span class="dossier-season-row__label">${escapeHtml(label)}</span>
+        <span class="dossier-season-row__stat">${Number(entry.points || 0).toLocaleString('es')} pts</span>
+        <span class="dossier-season-row__stat">${rankText}</span>
+        <span class="dossier-season-row__stat">${matchesText} part.</span>
+      </div>
+    `;
+  }).join('');
+
+  seasonsList.innerHTML = seasonRows;
+  return true;
+}
+
+function openPlayerDossier(name) {
+  const dossier = document.getElementById('player-dossier');
+  if (!dossier) return;
+
+  const exists = findPlayerInSeason(name, selectedSeasonId) || getProfileByName(name);
+  if (!exists) return;
+
+  dossierLastFocus = document.activeElement;
+  openDossierName = exists.name || name;
+  const ok = renderPlayerDossier(openDossierName);
+  if (!ok) {
+    openDossierName = null;
+    return;
+  }
+
+  dossier.hidden = false;
+  document.body.classList.add('is-dossier-open');
+  syncUrlState({ player: openDossierName });
+  highlightPlayer(openDossierName);
+
+  const closeBtn = document.getElementById('dossier-close');
+  requestAnimationFrame(() => {
+    try {
+      (closeBtn || dossier).focus();
+    } catch (_) {
+      /* ignore */
+    }
+  });
+}
+
+function closePlayerDossier() {
+  const dossier = document.getElementById('player-dossier');
+  if (!dossier) return;
+
+  dossier.hidden = true;
+  document.body.classList.remove('is-dossier-open');
+  openDossierName = null;
+  syncUrlState({ player: null });
+
+  if (dossierLastFocus && typeof dossierLastFocus.focus === 'function') {
+    try {
+      dossierLastFocus.focus();
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  dossierLastFocus = null;
+}
+
+function initPlayerDossier() {
+  const closeBtn = document.getElementById('dossier-close');
+  const backdrop = document.getElementById('dossier-backdrop');
+  if (closeBtn) closeBtn.addEventListener('click', () => closePlayerDossier());
+  if (backdrop) backdrop.addEventListener('click', () => closePlayerDossier());
 }
 
 /**
@@ -821,10 +1157,15 @@ document.addEventListener('DOMContentLoaded', () => {
   runBootSequence({ skip: highlightExists });
   initParticles();
   initSeasonSelector();
+  initPlayerDossier();
   renderRanking();
   renderStats();
   initNavigation();
   updateTimestamp();
   updateSeasonChrome();
   highlightPlayer(highlightName);
+
+  if (highlightExists) {
+    openPlayerDossier(highlightName);
+  }
 });
