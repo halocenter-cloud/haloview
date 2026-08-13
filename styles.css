@@ -1791,13 +1791,44 @@ body.is-dossier-open {
 }
 
 @keyframes holoUnprint {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes holoUnprintFade {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+@keyframes holoUnprintRank {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 24px rgba(0, 212, 255, 0.25);
+  }
+  58% {
+    opacity: 1;
+    text-shadow: 1px 0 #ff2bd6, -1px 0 var(--halo-cyan), 0 0 24px rgba(0, 212, 255, 0.45);
+  }
+  100% {
+    opacity: 0;
+    text-shadow: 1px 0 #ff2bd6, -1px 0 var(--halo-cyan);
+  }
 }
 
 @keyframes holoDrawStroke {
   from { stroke-dashoffset: 1; }
   to { stroke-dashoffset: 0; }
+}
+
+@keyframes holoUndrawStroke {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 1; }
 }
 
 .player-dossier.is-holo-boot .player-dossier__frame {
@@ -1877,20 +1908,75 @@ body.is-dossier-open {
   will-change: transform, opacity;
 }
 
+.player-dossier.is-holo-unprint .player-dossier__header {
+  animation: holoUnprint 0.28s ease-in 0.34s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__eyebrow {
+  animation: holoUnprint 0.28s ease-in 0.34s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__hero {
+  animation: holoUnprint 0.3s ease-in 0.3s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__rank {
+  animation: holoUnprintRank 0.32s ease-in 0.3s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__identity {
+  animation: holoUnprint 0.28s ease-in 0.26s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__compare {
+  animation: holoUnprint 0.26s ease-in 0.22s both;
+}
+
+.player-dossier.is-holo-unprint .dossier-readout,
+.player-dossier.is-holo-unprint .compare-metric {
+  animation: holoUnprint 0.26s ease-in both;
+}
+
+.player-dossier.is-holo-unprint .dossier-readout:nth-child(1),
+.player-dossier.is-holo-unprint .compare-metric:nth-child(1) { animation-delay: 0.22s; }
+.player-dossier.is-holo-unprint .dossier-readout:nth-child(2),
+.player-dossier.is-holo-unprint .compare-metric:nth-child(2) { animation-delay: 0.2s; }
+.player-dossier.is-holo-unprint .dossier-readout:nth-child(3),
+.player-dossier.is-holo-unprint .compare-metric:nth-child(3) { animation-delay: 0.18s; }
+.player-dossier.is-holo-unprint .dossier-readout:nth-child(4),
+.player-dossier.is-holo-unprint .compare-metric:nth-child(n+4) { animation-delay: 0.16s; }
+
+.player-dossier.is-holo-unprint .player-dossier__trend {
+  animation: holoUnprint 0.28s ease-in 0.14s both;
+}
+
+.player-dossier.is-holo-unprint .dossier-trend__svg polyline {
+  stroke-dasharray: 1;
+  animation: holoUndrawStroke 0.28s ease-in 0.12s both;
+}
+
+.player-dossier.is-holo-unprint .player-dossier__seasons {
+  animation: holoUnprint 0.26s ease-in 0.1s both;
+}
+
+.player-dossier.is-holo-unprint .dossier-season-row {
+  animation: holoUnprint 0.24s ease-in both;
+}
+
+.player-dossier.is-holo-unprint .dossier-season-row:nth-child(1) { animation-delay: 0.08s; }
+.player-dossier.is-holo-unprint .dossier-season-row:nth-child(2) { animation-delay: 0.04s; }
+.player-dossier.is-holo-unprint .dossier-season-row:nth-child(n+3) { animation-delay: 0s; }
+
+.player-dossier.is-holo-unprint .player-dossier__projector {
+  animation: holoUnprintFade 0.24s ease-in 0.08s both;
+}
+
 .player-dossier.is-holo-collapse .player-dossier__frame {
   animation: holoCollapseFrame var(--holo-collapse) ease-in both;
 }
 
 .player-dossier.is-holo-collapse .player-dossier__beam {
   animation: holoBeamUp var(--holo-collapse) ease-in both;
-}
-
-.player-dossier.is-holo-collapse .player-dossier__hero,
-.player-dossier.is-holo-collapse .player-dossier__compare,
-.player-dossier.is-holo-collapse .player-dossier__readouts,
-.player-dossier.is-holo-collapse .player-dossier__trend,
-.player-dossier.is-holo-collapse .player-dossier__seasons {
-  animation: holoUnprint 0.22s ease-in both;
 }
 
 .player-dossier__header {
@@ -2771,6 +2857,44 @@ body.is-dossier-open {
   .player-dossier.is-holo-boot .dossier-season-row:nth-child(2) { animation-delay: 0.4s; }
   .player-dossier.is-holo-boot .dossier-season-row:nth-child(n+3) { animation-delay: 0.42s; }
 
+  .player-dossier.is-holo-unprint .player-dossier__header,
+  .player-dossier.is-holo-unprint .player-dossier__eyebrow,
+  .player-dossier.is-holo-unprint .player-dossier__hero,
+  .player-dossier.is-holo-unprint .player-dossier__rank,
+  .player-dossier.is-holo-unprint .player-dossier__identity,
+  .player-dossier.is-holo-unprint .player-dossier__compare,
+  .player-dossier.is-holo-unprint .dossier-readout,
+  .player-dossier.is-holo-unprint .compare-metric,
+  .player-dossier.is-holo-unprint .player-dossier__trend,
+  .player-dossier.is-holo-unprint .player-dossier__seasons,
+  .player-dossier.is-holo-unprint .dossier-season-row,
+  .player-dossier.is-holo-unprint .player-dossier__projector {
+    animation-name: holoUnprintFade;
+    animation-duration: 0.22s;
+  }
+
+  .player-dossier.is-holo-unprint .dossier-season-row:nth-child(n+3) { animation-delay: 0s; }
+  .player-dossier.is-holo-unprint .dossier-season-row:nth-child(2) { animation-delay: 0.04s; }
+  .player-dossier.is-holo-unprint .dossier-season-row:nth-child(1) { animation-delay: 0.06s; }
+  .player-dossier.is-holo-unprint .player-dossier__seasons { animation-delay: 0.08s; }
+  .player-dossier.is-holo-unprint .player-dossier__projector { animation-delay: 0.08s; }
+  .player-dossier.is-holo-unprint .dossier-trend__svg polyline { animation-delay: 0.1s; }
+  .player-dossier.is-holo-unprint .player-dossier__trend { animation-delay: 0.12s; }
+  .player-dossier.is-holo-unprint .dossier-readout:nth-child(4),
+  .player-dossier.is-holo-unprint .compare-metric:nth-child(n+4) { animation-delay: 0.14s; }
+  .player-dossier.is-holo-unprint .dossier-readout:nth-child(3),
+  .player-dossier.is-holo-unprint .compare-metric:nth-child(3) { animation-delay: 0.16s; }
+  .player-dossier.is-holo-unprint .dossier-readout:nth-child(2),
+  .player-dossier.is-holo-unprint .compare-metric:nth-child(2) { animation-delay: 0.18s; }
+  .player-dossier.is-holo-unprint .dossier-readout:nth-child(1),
+  .player-dossier.is-holo-unprint .compare-metric:nth-child(1),
+  .player-dossier.is-holo-unprint .player-dossier__compare { animation-delay: 0.2s; }
+  .player-dossier.is-holo-unprint .player-dossier__identity { animation-delay: 0.24s; }
+  .player-dossier.is-holo-unprint .player-dossier__hero,
+  .player-dossier.is-holo-unprint .player-dossier__rank { animation-delay: 0.28s; }
+  .player-dossier.is-holo-unprint .player-dossier__header,
+  .player-dossier.is-holo-unprint .player-dossier__eyebrow { animation-delay: 0.32s; }
+
   .player-dossier.is-holo-live .player-dossier__frame,
   .player-dossier.is-holo-live .player-dossier__holo {
     animation: none;
@@ -2809,11 +2933,19 @@ body.is-dossier-open {
   .player-dossier.is-holo-live .player-dossier__scan,
   .player-dossier.is-holo-collapse .player-dossier__frame,
   .player-dossier.is-holo-collapse .player-dossier__beam,
-  .player-dossier.is-holo-collapse .player-dossier__hero,
-  .player-dossier.is-holo-collapse .player-dossier__compare,
-  .player-dossier.is-holo-collapse .player-dossier__readouts,
-  .player-dossier.is-holo-collapse .player-dossier__trend,
-  .player-dossier.is-holo-collapse .player-dossier__seasons {
+  .player-dossier.is-holo-unprint .player-dossier__header,
+  .player-dossier.is-holo-unprint .player-dossier__eyebrow,
+  .player-dossier.is-holo-unprint .player-dossier__hero,
+  .player-dossier.is-holo-unprint .player-dossier__rank,
+  .player-dossier.is-holo-unprint .player-dossier__identity,
+  .player-dossier.is-holo-unprint .player-dossier__compare,
+  .player-dossier.is-holo-unprint .dossier-readout,
+  .player-dossier.is-holo-unprint .compare-metric,
+  .player-dossier.is-holo-unprint .player-dossier__trend,
+  .player-dossier.is-holo-unprint .dossier-trend__svg polyline,
+  .player-dossier.is-holo-unprint .player-dossier__seasons,
+  .player-dossier.is-holo-unprint .dossier-season-row,
+  .player-dossier.is-holo-unprint .player-dossier__projector {
     animation: none !important;
   }
 

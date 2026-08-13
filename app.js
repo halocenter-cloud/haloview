@@ -1833,8 +1833,14 @@ function restartHoloBoot(dossier) {
     clearTimeout(holoBootTimer);
     holoBootTimer = null;
   }
-
-  const bootMs = holoBootDurationMs();
+  if (holoUnprintTimer) {
+    clearTimeout(holoUnprintTimer);
+    holoUnprintTimer = null;
+  }
+  if (holoCollapseTimer) {
+    clearTimeout(holoCollapseTimer);
+    holoCollapseTimer = null;
+  }
   if (bootMs <= 0) {
     dossier.classList.add('is-holo-live');
     return;
@@ -1866,7 +1872,7 @@ function teardownPlayerDossier() {
 
   if (dossier) {
     dossier.hidden = true;
-    dossier.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse');
+    dossier.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse', 'is-holo-unprint');
   }
   document.body.classList.remove('is-dossier-open');
   compareRivalName = null;
@@ -1954,6 +1960,8 @@ function closePlayerDossier() {
   const dossier = document.getElementById('player-dossier');
   if (!dossier || dossier.hidden || dossierClosing) return;
 
+  finishCloseComparePicker();
+
   if (prefersReducedMotion()) {
     teardownPlayerDossier();
     return;
@@ -1964,11 +1972,19 @@ function closePlayerDossier() {
     clearTimeout(holoBootTimer);
     holoBootTimer = null;
   }
+  if (holoUnprintTimer) {
+    clearTimeout(holoUnprintTimer);
+    holoUnprintTimer = null;
+  }
+  if (holoCollapseTimer) {
+    clearTimeout(holoCollapseTimer);
+    holoCollapseTimer = null;
+  }
 
   const frame = dossier.querySelector('.player-dossier__frame');
-  dossier.classList.remove('is-holo-boot', 'is-holo-live');
+  dossier.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse');
   if (frame) void frame.offsetWidth;
-  dossier.classList.add('is-holo-collapse');
+  dossier.classList.add('is-holo-unprint');
 
   let finished = false;
   const finish = () => {
@@ -1984,8 +2000,14 @@ function closePlayerDossier() {
     finish();
   };
 
-  if (frame) frame.addEventListener('animationend', onCollapseEnd);
-  holoCollapseTimer = setTimeout(finish, HOLO_COLLAPSE_MS);
+  const startFrameCollapse = () => {
+    holoUnprintTimer = null;
+    dossier.classList.add('is-holo-collapse');
+    if (frame) frame.addEventListener('animationend', onCollapseEnd);
+    holoCollapseTimer = setTimeout(finish, HOLO_COLLAPSE_MS);
+  };
+
+  holoUnprintTimer = setTimeout(startFrameCollapse, holoUnprintDurationMs());
 }
 
 function initPlayerDossier() {
