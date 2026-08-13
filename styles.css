@@ -1824,7 +1824,7 @@ body.is-dossier-open {
 }
 
 .player-dossier.is-holo-live .player-dossier__beam {
-  animation: holoBeamAmbient 4.7s ease-in-out infinite;
+  animation: holoBeamAmbient 5s ease-in-out infinite;
 }
 
 .player-dossier.is-holo-collapse .player-dossier__frame {
