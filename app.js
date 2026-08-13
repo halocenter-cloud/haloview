@@ -387,7 +387,9 @@ function initParticles() {
 
   function animate() {
     if (!running) return;
-    paintFrame(true);
+    if (!document.body.classList.contains('is-ranking-revealing')) {
+      paintFrame(true);
+    }
     rafId = requestAnimationFrame(animate);
   }
 
@@ -553,6 +555,31 @@ function renderRanking() {
   stack.innerHTML = html;
   wireZeroGroupToggle();
   wireRankingRowInteractions();
+  scheduleRankingSettle(stack);
+}
+
+/** @type {ReturnType<typeof setTimeout> | null} */
+let rankingSettleTimer = null;
+
+function scheduleRankingSettle(stack) {
+  if (!stack) return;
+  stack.classList.remove('is-settled');
+  document.body.classList.add('is-ranking-revealing');
+
+  if (rankingSettleTimer) {
+    clearTimeout(rankingSettleTimer);
+    rankingSettleTimer = null;
+  }
+
+  const settleMs = prefersReducedMotion()
+    ? 0
+    : (isMobileViewport() ? 420 : 720);
+
+  rankingSettleTimer = setTimeout(() => {
+    stack.classList.add('is-settled');
+    document.body.classList.remove('is-ranking-revealing');
+    rankingSettleTimer = null;
+  }, settleMs);
 }
 
 function wireRankingRowInteractions() {
