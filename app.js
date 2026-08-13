@@ -635,7 +635,7 @@ function initNavigation() {
       if (!targetSection) return;
 
       buttons.forEach(b => {
-        b.classList.remove('active');
+        b.classList.remove('active', 'is-press-sweep');
         b.setAttribute('aria-pressed', 'false');
       });
       sections.forEach(section => {
@@ -645,6 +645,11 @@ function initNavigation() {
 
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
+      void btn.offsetWidth;
+      btn.classList.add('is-press-sweep');
+      btn.addEventListener('animationend', () => {
+        btn.classList.remove('is-press-sweep');
+      }, { once: true });
       setStatusLabel(targetId);
       targetSection.classList.add('is-transitioning');
       requestAnimationFrame(() => {
