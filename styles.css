@@ -1606,6 +1606,13 @@ body.is-dossier-open {
     -webkit-backdrop-filter: none;
     background: rgba(2, 4, 10, 0.88);
   }
+
+  .compare-list,
+  .compare-list__empty {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(8, 14, 24, 0.82);
+  }
 }
 
 .player-dossier__frame {
@@ -2067,7 +2074,7 @@ body.is-dossier-open {
 
 .player-dossier__compare {
   position: relative;
-  z-index: 1;
+  z-index: 5;
   margin-bottom: 1.15rem;
 }
 
@@ -2104,10 +2111,32 @@ body.is-dossier-open {
 }
 
 .player-dossier__compare-picker {
-  margin-top: 0.7rem;
+  position: relative;
+  margin-top: 0;
+  max-width: min(22rem, 100%);
+}
+
+.player-dossier__compare-field-clip {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.player-dossier__compare-picker.is-revealing .player-dossier__compare-field-clip {
+  grid-template-rows: 1fr;
+}
+
+.player-dossier__compare-field {
+  min-height: 0;
+  overflow: hidden;
   display: grid;
   gap: 0.35rem;
-  max-width: 22rem;
+  padding-top: 0;
+  transition: padding-top 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.player-dossier__compare-picker.is-revealing .player-dossier__compare-field {
+  padding-top: 0.7rem;
 }
 
 .player-dossier__compare-label {
@@ -2132,6 +2161,108 @@ body.is-dossier-open {
   outline: none;
   border-color: var(--halo-cyan);
   box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.25);
+}
+
+.compare-list-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 6;
+  margin-top: 0.2rem;
+  max-width: min(22rem, 100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.22s;
+}
+
+.player-dossier__compare-picker.is-list-open .compare-list-panel {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.compare-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 40vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  background: rgba(8, 14, 24, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  -webkit-overflow-scrolling: touch;
+}
+
+.compare-list li {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+}
+
+.compare-list li:last-child {
+  border-bottom: 0;
+}
+
+.compare-list__option {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--halo-silver);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+  -webkit-tap-highlight-color: rgba(0, 212, 255, 0.18);
+  touch-action: manipulation;
+}
+
+.compare-list__option:focus-visible,
+.compare-list__option.is-active {
+  outline: none;
+  background: rgba(0, 212, 255, 0.12);
+  color: #fff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .compare-list__option:hover {
+    background: rgba(0, 212, 255, 0.12);
+    color: #fff;
+  }
+}
+
+.compare-list__option:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--halo-cyan);
+}
+
+.compare-list__empty {
+  margin: 0;
+  padding: 0.7rem 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: rgba(192, 208, 224, 0.7);
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  background: rgba(8, 14, 24, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.compare-list__empty[hidden] {
+  display: none !important;
 }
 
 .player-dossier__compare-error {
@@ -2649,6 +2780,12 @@ body.is-dossier-open {
 @media (prefers-reduced-motion: reduce) {
   .player-dossier__frame {
     transition: none;
+  }
+
+  .player-dossier__compare-field-clip,
+  .player-dossier__compare-field,
+  .compare-list-panel {
+    transition: none !important;
   }
 
   .player-dossier__frame,

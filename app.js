@@ -16,6 +16,9 @@ const NO_HOVER_MQ = '(hover: none)';
 const HOLO_BOOT_MS = 800;
 const HOLO_BOOT_MOBILE_MS = 500;
 const HOLO_COLLAPSE_MS = 500;
+const HOLO_UNPRINT_MS = 700;
+const HOLO_UNPRINT_MOBILE_MS = 460;
+const COMPARE_FIELD_MS = 340;
 const RANK_REVEAL_MAX_STAGGER = 11;
 const ZERO_REVEAL_MAX_STAGGER = 8;
 
@@ -178,9 +181,9 @@ function isCoarsePointer() {
     || window.matchMedia(NO_HOVER_MQ).matches;
 }
 
-function holoBootDurationMs() {
+function holoUnprintDurationMs() {
   if (prefersReducedMotion()) return 0;
-  return isCoarsePointer() || isMobileViewport() ? HOLO_BOOT_MOBILE_MS : HOLO_BOOT_MS;
+  return isCoarsePointer() || isMobileViewport() ? HOLO_UNPRINT_MOBILE_MS : HOLO_UNPRINT_MS;
 }
 
 function accentForRank(rank) {
@@ -1032,6 +1035,8 @@ function initSeasonSelector() {
 let openDossierName = null;
 /** @type {string|null} */
 let compareRivalName = null;
+/** @type {number} */
+let compareListActiveIndex = -1;
 /** @type {Element|null} */
 let dossierLastFocus = null;
 let dossierClosing = false;
@@ -1039,6 +1044,12 @@ let dossierClosing = false;
 let holoBootTimer = null;
 /** @type {ReturnType<typeof setTimeout> | null} */
 let holoCollapseTimer = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let holoUnprintTimer = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let compareRevealTimer = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let compareCloseTimer = null;
 
 function getProfileByName(name) {
   const target = normalizePlayerName(name);
@@ -1361,14 +1372,80 @@ function seasonLabelText(season) {
   return season.active ? season.label : `${season.label} · Registro archivado`;
 }
 
-function fillCompareDatalist(excludeName) {
-  const list = document.getElementById('compare-tags');
-  if (!list) return;
+function getCompareCandidates(excludeName) {
   const skip = normalizePlayerName(excludeName);
-  list.innerHTML = (squadData.profiles || [])
+  return (squadData.profiles || [])
     .filter((p) => normalizePlayerName(p.name) !== skip)
-    .map((p) => `<option value="${escapeHtml(p.name)}"></option>`)
-    .join('');
+    .map((p) => p.name);
+}
+
+function setCompareListActive(index) {
+  const list = document.getElementById('compare-listbox');
+  const input = document.getElementById('dossier-compare-input');
+  if (!list) return;
+
+  const options = [...list.querySelectorAll('[role="option"]')];
+  const max = options.length - 1;
+  if (!options.length) {
+    compareListActiveIndex = -1;
+    if (input) input.removeAttribute('aria-activedescendant');
+    return;
+  }
+
+  compareListActiveIndex = Math.max(0, Math.min(index, max));
+  options.forEach((opt, i) => {
+    const active = i === compareListActiveIndex;
+    opt.classList.toggle('is-active', active);
+    opt.setAttribute('aria-selected', String(active));
+  });
+
+  const activeEl = options[compareListActiveIndex];
+  if (input && activeEl && activeEl.id) {
+    input.setAttribute('aria-activedescendant', activeEl.id);
+  }
+  if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+    activeEl.scrollIntoView({ block: 'nearest' });
+  }
+}
+
+function renderCompareList(filterText) {
+  const list = document.getElementById('compare-listbox');
+  const empty = document.getElementById('compare-list-empty');
+  const input = document.getElementById('dossier-compare-input');
+  if (!list) return [];
+
+  const query = normalizePlayerName(filterText);
+  const names = getCompareCandidates(openDossierName).filter((name) => {
+    if (!query) return true;
+    return normalizePlayerName(name).includes(query);
+  });
+
+  list.innerHTML = names.map((name, index) => `
+    <li>
+      <button
+        type="button"
+        class="compare-list__option"
+        role="option"
+        id="compare-opt-${index}"
+        data-name="${escapeHtml(name)}"
+        aria-selected="false"
+      >${escapeHtml(name)}</button>
+    </li>
+  `).join('');
+
+  if (empty) empty.hidden = names.length > 0;
+
+  if (!names.length) {
+    compareListActiveIndex = -1;
+    if (input) input.removeAttribute('aria-activedescendant');
+  } else if (names.length === 1) {
+    setCompareListActive(0);
+  } else {
+    compareListActiveIndex = -1;
+    if (input) input.removeAttribute('aria-activedescendant');
+  }
+
+  return names;
 }
 
 function setComparePickerError(message) {
@@ -1383,33 +1460,111 @@ function setComparePickerError(message) {
   el.textContent = message;
 }
 
+function clearComparePickerTimers() {
+  if (compareRevealTimer) {
+    clearTimeout(compareRevealTimer);
+    compareRevealTimer = null;
+  }
+  if (compareCloseTimer) {
+    clearTimeout(compareCloseTimer);
+    compareCloseTimer = null;
+  }
+}
+
+function finishCloseComparePicker() {
+  const picker = document.getElementById('dossier-compare-picker');
+  const toggle = document.getElementById('dossier-compare-toggle');
+  const input = document.getElementById('dossier-compare-input');
+  const list = document.getElementById('compare-listbox');
+  const empty = document.getElementById('compare-list-empty');
+  clearComparePickerTimers();
+  if (picker) {
+    picker.hidden = true;
+    picker.classList.remove('is-revealing', 'is-list-open');
+  }
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  if (input) {
+    input.value = '';
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+  }
+  if (list) list.innerHTML = '';
+  if (empty) empty.hidden = true;
+  compareListActiveIndex = -1;
+  setComparePickerError('');
+}
+
 function openComparePicker() {
   const picker = document.getElementById('dossier-compare-picker');
   const toggle = document.getElementById('dossier-compare-toggle');
   const input = document.getElementById('dossier-compare-input');
   if (!picker || !input) return;
-  fillCompareDatalist(openDossierName);
+
+  clearComparePickerTimers();
   input.value = '';
   setComparePickerError('');
+  renderCompareList('');
   picker.hidden = false;
+  picker.classList.remove('is-revealing', 'is-list-open');
   if (toggle) toggle.setAttribute('aria-expanded', 'true');
-  requestAnimationFrame(() => {
+  input.setAttribute('aria-expanded', 'true');
+  void picker.offsetWidth;
+
+  const fieldMs = prefersReducedMotion() ? 0 : COMPARE_FIELD_MS;
+  if (fieldMs <= 0) {
+    picker.classList.add('is-revealing', 'is-list-open');
     try {
       input.focus();
     } catch (_) {
       /* ignore */
     }
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    picker.classList.add('is-revealing');
   });
+
+  compareRevealTimer = setTimeout(() => {
+    picker.classList.add('is-list-open');
+    compareRevealTimer = null;
+    try {
+      input.focus();
+    } catch (_) {
+      /* ignore */
+    }
+  }, fieldMs);
 }
 
 function closeComparePicker() {
   const picker = document.getElementById('dossier-compare-picker');
-  const toggle = document.getElementById('dossier-compare-toggle');
-  const input = document.getElementById('dossier-compare-input');
-  if (picker) picker.hidden = true;
-  if (toggle) toggle.setAttribute('aria-expanded', 'false');
-  if (input) input.value = '';
-  setComparePickerError('');
+  if (!picker || picker.hidden) {
+    finishCloseComparePicker();
+    return;
+  }
+
+  if (prefersReducedMotion()) {
+    finishCloseComparePicker();
+    return;
+  }
+
+  clearComparePickerTimers();
+  picker.classList.remove('is-list-open', 'is-revealing');
+  compareCloseTimer = setTimeout(() => {
+    finishCloseComparePicker();
+  }, COMPARE_FIELD_MS);
+}
+
+function confirmCompareFromKeyboard(inputValue) {
+  const list = document.getElementById('compare-listbox');
+  const options = list ? [...list.querySelectorAll('[role="option"]')] : [];
+  if (compareListActiveIndex >= 0 && options[compareListActiveIndex]) {
+    return tryConfirmRival(options[compareListActiveIndex].getAttribute('data-name'));
+  }
+  if (options.length === 1) {
+    return tryConfirmRival(options[0].getAttribute('data-name'));
+  }
+  return tryConfirmRival(inputValue);
 }
 
 function applyDossierCompareChrome(isCompare) {
@@ -1436,7 +1591,7 @@ function applyDossierCompareChrome(isCompare) {
   if (compareWrap) {
     const showPicker = !isCompare && canComparePlayers();
     compareWrap.hidden = !showPicker;
-    if (!showPicker) closeComparePicker();
+    if (!showPicker) finishCloseComparePicker();
   }
   if (clearBtn) clearBtn.hidden = !isCompare;
   if (eyebrow) {
@@ -1643,7 +1798,7 @@ function tryConfirmRival(raw) {
   }
 
   compareRivalName = resolved.name;
-  closeComparePicker();
+  finishCloseComparePicker();
   const ok = renderPlayerDossier(openDossierName);
   if (!ok) {
     compareRivalName = null;
@@ -1671,7 +1826,7 @@ function clearCompareRival() {
 
 function restartHoloBoot(dossier) {
   const frame = dossier.querySelector('.player-dossier__frame');
-  dossier.classList.remove('is-holo-collapse', 'is-holo-live', 'is-holo-boot');
+  dossier.classList.remove('is-holo-collapse', 'is-holo-live', 'is-holo-boot', 'is-holo-unprint');
   if (frame) void frame.offsetWidth;
 
   if (holoBootTimer) {
@@ -1700,6 +1855,10 @@ function teardownPlayerDossier() {
     clearTimeout(holoBootTimer);
     holoBootTimer = null;
   }
+  if (holoUnprintTimer) {
+    clearTimeout(holoUnprintTimer);
+    holoUnprintTimer = null;
+  }
   if (holoCollapseTimer) {
     clearTimeout(holoCollapseTimer);
     holoCollapseTimer = null;
@@ -1713,7 +1872,7 @@ function teardownPlayerDossier() {
   compareRivalName = null;
   openDossierName = null;
   dossierClosing = false;
-  closeComparePicker();
+  finishCloseComparePicker();
   applyDossierCompareChrome(false);
   syncUrlState({ player: null, rival: null });
   clearPlayerHighlights();
@@ -1835,6 +1994,7 @@ function initPlayerDossier() {
   const toggle = document.getElementById('dossier-compare-toggle');
   const clearBtn = document.getElementById('dossier-clear-rival');
   const input = document.getElementById('dossier-compare-input');
+  const list = document.getElementById('compare-listbox');
 
   if (closeBtn) closeBtn.addEventListener('click', () => closePlayerDossier());
   if (backdrop) backdrop.addEventListener('click', () => closePlayerDossier());
@@ -1847,16 +2007,54 @@ function initPlayerDossier() {
     });
   }
 
-  if (input) {
-    input.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter') return;
+  if (list) {
+    list.addEventListener('click', (event) => {
+      const option = event.target.closest('[role="option"]');
+      if (!option || !list.contains(option)) return;
       event.preventDefault();
-      tryConfirmRival(input.value);
+      tryConfirmRival(option.getAttribute('data-name'));
     });
-    input.addEventListener('change', () => {
-      const picker = document.getElementById('dossier-compare-picker');
-      if (!picker || picker.hidden || !input.value.trim()) return;
-      tryConfirmRival(input.value);
+  }
+
+  if (input) {
+    input.addEventListener('input', () => {
+      if (!isComparePickerOpen()) return;
+      setComparePickerError('');
+      renderCompareList(input.value);
+    });
+    input.addEventListener('keydown', (event) => {
+      if (!isComparePickerOpen()) return;
+      const options = list ? list.querySelectorAll('[role="option"]') : [];
+      const count = options.length;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (!count) return;
+        const next = compareListActiveIndex < 0 ? 0 : compareListActiveIndex + 1;
+        setCompareListActive(next >= count ? 0 : next);
+        return;
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!count) return;
+        const prev = compareListActiveIndex < 0 ? count - 1 : compareListActiveIndex - 1;
+        setCompareListActive(prev < 0 ? count - 1 : prev);
+        return;
+      }
+      if (event.key === 'Home') {
+        event.preventDefault();
+        if (count) setCompareListActive(0);
+        return;
+      }
+      if (event.key === 'End') {
+        event.preventDefault();
+        if (count) setCompareListActive(count - 1);
+        return;
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        confirmCompareFromKeyboard(input.value);
+      }
     });
   }
 }

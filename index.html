@@ -172,17 +172,34 @@
           Comparar con…
         </button>
         <div class="player-dossier__compare-picker" id="dossier-compare-picker" hidden>
-          <label class="player-dossier__compare-label" for="dossier-compare-input">Rival</label>
-          <input
-            id="dossier-compare-input"
-            class="player-dossier__compare-input"
-            type="text"
-            list="compare-tags"
-            autocomplete="off"
-            placeholder="Gamertag"
-          />
-          <datalist id="compare-tags"></datalist>
-          <p class="player-dossier__compare-error" id="dossier-compare-error" hidden role="alert"></p>
+          <div class="player-dossier__compare-field-clip">
+            <div class="player-dossier__compare-field">
+              <label class="player-dossier__compare-label" for="dossier-compare-input">Rival</label>
+              <input
+                id="dossier-compare-input"
+                class="player-dossier__compare-input"
+                type="text"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-controls="compare-listbox"
+                aria-expanded="false"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                placeholder="Filtrar gamertag"
+              />
+              <p class="player-dossier__compare-error" id="dossier-compare-error" hidden role="alert"></p>
+            </div>
+          </div>
+          <div class="compare-list-panel" id="compare-list-panel">
+            <ul
+              id="compare-listbox"
+              class="compare-list"
+              role="listbox"
+              aria-label="Spartans del registro"
+            ></ul>
+            <p class="compare-list__empty" id="compare-list-empty" hidden role="status">Ningún Spartan coincide.</p>
+          </div>
         </div>
       </div>
       <div class="player-dossier__readouts" id="dossier-readouts"></div>
