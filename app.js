@@ -11,6 +11,11 @@ const RANK_COLORS = {
 const RANK_COLOR_DEFAULT = '#4FD1FF';
 const MOBILE_MQ = '(max-width: 768px)';
 const REDUCED_MOTION_MQ = '(prefers-reduced-motion: reduce)';
+const COARSE_POINTER_MQ = '(pointer: coarse)';
+const NO_HOVER_MQ = '(hover: none)';
+const HOLO_BOOT_MS = 800;
+const HOLO_BOOT_MOBILE_MS = 500;
+const HOLO_COLLAPSE_MS = 500;
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -164,6 +169,16 @@ function prefersReducedMotion() {
 
 function isMobileViewport() {
   return window.matchMedia(MOBILE_MQ).matches;
+}
+
+function isCoarsePointer() {
+  return window.matchMedia(COARSE_POINTER_MQ).matches
+    || window.matchMedia(NO_HOVER_MQ).matches;
+}
+
+function holoBootDurationMs() {
+  if (prefersReducedMotion()) return 0;
+  return isCoarsePointer() || isMobileViewport() ? HOLO_BOOT_MOBILE_MS : HOLO_BOOT_MS;
 }
 
 function accentForRank(rank) {
@@ -896,6 +911,11 @@ function initSeasonSelector() {
 let openDossierName = null;
 /** @type {Element|null} */
 let dossierLastFocus = null;
+let dossierClosing = false;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let holoBootTimer = null;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let holoCollapseTimer = null;
 
 function getProfileByName(name) {
   const target = normalizePlayerName(name);
@@ -953,6 +973,7 @@ function buildSparklineSvg(points) {
         fill="none"
         stroke="currentColor"
         stroke-width="2"
+        pathLength="1"
         points="${coords.join(' ')}"
       />
     </svg>
@@ -1066,43 +1087,48 @@ function renderPlayerDossier(name) {
   return true;
 }
 
-function openPlayerDossier(name) {
-  const dossier = document.getElementById('player-dossier');
-  if (!dossier) return;
+function restartHoloBoot(dossier) {
+  const frame = dossier.querySelector('.player-dossier__frame');
+  dossier.classList.remove('is-holo-collapse', 'is-holo-live', 'is-holo-boot');
+  if (frame) void frame.offsetWidth;
 
-  const exists = findPlayerInSeason(name, selectedSeasonId) || getProfileByName(name);
-  if (!exists) return;
+  if (holoBootTimer) {
+    clearTimeout(holoBootTimer);
+    holoBootTimer = null;
+  }
 
-  dossierLastFocus = document.activeElement;
-  openDossierName = exists.name || name;
-  const ok = renderPlayerDossier(openDossierName);
-  if (!ok) {
-    openDossierName = null;
+  const bootMs = holoBootDurationMs();
+  if (bootMs <= 0) {
+    dossier.classList.add('is-holo-live');
     return;
   }
 
-  dossier.hidden = false;
-  document.body.classList.add('is-dossier-open');
-  syncUrlState({ player: openDossierName });
-  clearPlayerHighlights();
-
-  const closeBtn = document.getElementById('dossier-close');
-  requestAnimationFrame(() => {
-    try {
-      (closeBtn || dossier).focus();
-    } catch (_) {
-      /* ignore */
-    }
-  });
+  dossier.classList.add('is-holo-boot');
+  holoBootTimer = setTimeout(() => {
+    dossier.classList.remove('is-holo-boot');
+    dossier.classList.add('is-holo-live');
+    holoBootTimer = null;
+  }, bootMs);
 }
 
-function closePlayerDossier() {
+function teardownPlayerDossier() {
   const dossier = document.getElementById('player-dossier');
-  if (!dossier) return;
+  if (holoBootTimer) {
+    clearTimeout(holoBootTimer);
+    holoBootTimer = null;
+  }
+  if (holoCollapseTimer) {
+    clearTimeout(holoCollapseTimer);
+    holoCollapseTimer = null;
+  }
 
-  dossier.hidden = true;
+  if (dossier) {
+    dossier.hidden = true;
+    dossier.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse');
+  }
   document.body.classList.remove('is-dossier-open');
   openDossierName = null;
+  dossierClosing = false;
   syncUrlState({ player: null });
   clearPlayerHighlights();
 
@@ -1131,6 +1157,79 @@ function closePlayerDossier() {
       /* ignore */
     }
   }
+}
+
+function openPlayerDossier(name) {
+  const dossier = document.getElementById('player-dossier');
+  if (!dossier || dossierClosing) return;
+
+  const exists = findPlayerInSeason(name, selectedSeasonId) || getProfileByName(name);
+  if (!exists) return;
+
+  const alreadyOpen = !dossier.hidden;
+  if (!alreadyOpen) {
+    dossierLastFocus = document.activeElement;
+  }
+
+  openDossierName = exists.name || name;
+  const ok = renderPlayerDossier(openDossierName);
+  if (!ok) {
+    openDossierName = null;
+    return;
+  }
+
+  dossier.hidden = false;
+  document.body.classList.add('is-dossier-open');
+  syncUrlState({ player: openDossierName });
+  clearPlayerHighlights();
+  restartHoloBoot(dossier);
+
+  const closeBtn = document.getElementById('dossier-close');
+  requestAnimationFrame(() => {
+    try {
+      (closeBtn || dossier).focus();
+    } catch (_) {
+      /* ignore */
+    }
+  });
+}
+
+function closePlayerDossier() {
+  const dossier = document.getElementById('player-dossier');
+  if (!dossier || dossier.hidden || dossierClosing) return;
+
+  if (prefersReducedMotion()) {
+    teardownPlayerDossier();
+    return;
+  }
+
+  dossierClosing = true;
+  if (holoBootTimer) {
+    clearTimeout(holoBootTimer);
+    holoBootTimer = null;
+  }
+
+  const frame = dossier.querySelector('.player-dossier__frame');
+  dossier.classList.remove('is-holo-boot', 'is-holo-live');
+  if (frame) void frame.offsetWidth;
+  dossier.classList.add('is-holo-collapse');
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    if (frame) frame.removeEventListener('animationend', onCollapseEnd);
+    teardownPlayerDossier();
+  };
+
+  const onCollapseEnd = (event) => {
+    if (event.target !== frame) return;
+    if (event.animationName !== 'holoCollapseFrame') return;
+    finish();
+  };
+
+  if (frame) frame.addEventListener('animationend', onCollapseEnd);
+  holoCollapseTimer = setTimeout(finish, HOLO_COLLAPSE_MS);
 }
 
 function initPlayerDossier() {

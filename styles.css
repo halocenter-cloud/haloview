@@ -1590,46 +1590,254 @@ body.is-dossier-open {
 }
 
 .player-dossier__frame {
+  --holo-boot: 0.7s;
+  --holo-collapse: 0.42s;
   position: relative;
   z-index: 1;
   width: min(720px, 100%);
   max-height: min(92vh, 900px);
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 1.25rem 1.35rem 1.5rem;
-  border: 1px solid rgba(0, 212, 255, 0.4);
+  border: 1px solid rgba(0, 212, 255, 0.45);
   border-radius: 0;
+  transform-origin: center center;
   background:
-    linear-gradient(180deg, rgba(10, 18, 28, 0.98), rgba(6, 8, 16, 0.99)),
-    var(--halo-panel);
+    linear-gradient(180deg, rgba(0, 212, 255, 0.05), transparent 38%),
+    linear-gradient(180deg, rgba(10, 18, 28, 0.92), rgba(6, 8, 16, 0.95));
   box-shadow:
     0 24px 80px rgba(0, 0, 0, 0.65),
-    inset 0 0 0 1px rgba(0, 212, 255, 0.08);
-  animation: dossierIn 0.2s ease-out both;
+    0 0 40px rgba(0, 212, 255, 0.08),
+    inset 0 0 0 1px rgba(0, 212, 255, 0.12),
+    inset 0 0 48px rgba(0, 212, 255, 0.05);
+}
+
+.player-dossier__holo {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  container-type: size;
 }
 
 .player-dossier__scan {
   pointer-events: none;
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: repeating-linear-gradient(
     0deg,
     transparent,
     transparent 3px,
-    rgba(0, 212, 255, 0.03) 3px,
-    rgba(0, 212, 255, 0.03) 4px
+    rgba(0, 212, 255, 0.04) 3px,
+    rgba(0, 212, 255, 0.04) 4px
   );
+  background-size: 100% 8px;
   opacity: 0.55;
 }
 
-@keyframes dossierIn {
+.player-dossier.is-holo-live .player-dossier__scan {
+  animation: holoScanDrift 10s linear infinite;
+}
+
+.player-dossier__beam {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent, var(--halo-cyan), transparent);
+  box-shadow: 0 0 16px var(--halo-cyan), 0 0 4px #fff;
+  opacity: 0;
+  transform: translateY(0);
+}
+
+.player-dossier__projector {
+  pointer-events: none;
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 0;
+  height: 2px;
+  z-index: 1;
+  background: linear-gradient(90deg, transparent, var(--halo-cyan), transparent);
+  box-shadow: 0 0 18px var(--halo-cyan);
+  opacity: 0.55;
+}
+
+@keyframes holoBootFrame {
+  from {
+    opacity: 0.4;
+    transform: scaleY(0.04);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes holoCollapseFrame {
+  from {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.04);
+  }
+}
+
+@keyframes holoFlicker {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 1; }
+  49% { opacity: 0.97; }
+  51% { opacity: 1; }
+  74% { opacity: 0.98; }
+  76% { opacity: 1; }
+}
+
+@keyframes holoScanDrift {
+  from { background-position: 0 0; }
+  to { background-position: 0 8px; }
+}
+
+@keyframes holoBeamDown {
+  0% { opacity: 0; transform: translateY(0); }
+  10% { opacity: 1; }
+  100% { opacity: 0.25; transform: translateY(calc(100cqh - 3px)); }
+}
+
+@keyframes holoBeamUp {
+  0% { opacity: 0.8; transform: translateY(calc(100cqh - 3px)); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+
+@keyframes holoBeamAmbient {
+  0%, 72% { opacity: 0; transform: translateY(0); }
+  76% { opacity: 0.65; }
+  100% { opacity: 0; transform: translateY(calc(100cqh - 3px)); }
+}
+
+@keyframes holoPrint {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes holoPrintFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes holoPrintRank {
+  0% {
+    opacity: 0;
+    text-shadow: 1px 0 #ff2bd6, -1px 0 var(--halo-cyan);
+  }
+  42% {
+    opacity: 1;
+    text-shadow: 1px 0 #ff2bd6, -1px 0 var(--halo-cyan), 0 0 24px rgba(0, 212, 255, 0.45);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 24px rgba(0, 212, 255, 0.25);
+  }
+}
+
+@keyframes holoUnprint {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes holoDrawStroke {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+.player-dossier.is-holo-boot .player-dossier__frame {
+  animation: holoBootFrame var(--holo-boot) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.player-dossier.is-holo-boot .player-dossier__beam {
+  animation: holoBeamDown var(--holo-boot) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.player-dossier.is-holo-boot .player-dossier__eyebrow {
+  animation: holoPrint 0.35s ease-out 0.1s both;
+}
+
+.player-dossier.is-holo-boot .player-dossier__hero {
+  animation: holoPrint 0.4s ease-out 0.16s both;
+}
+
+.player-dossier.is-holo-boot .player-dossier__rank {
+  animation: holoPrintRank 0.45s ease-out 0.16s both;
+}
+
+.player-dossier.is-holo-boot .player-dossier__identity {
+  animation: holoPrint 0.4s ease-out 0.24s both;
+}
+
+.player-dossier.is-holo-boot .dossier-readout {
+  animation: holoPrint 0.35s ease-out both;
+}
+
+.player-dossier.is-holo-boot .dossier-readout:nth-child(1) { animation-delay: 0.28s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(2) { animation-delay: 0.32s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(3) { animation-delay: 0.36s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(4) { animation-delay: 0.4s; }
+
+.player-dossier.is-holo-boot .player-dossier__trend {
+  animation: holoPrint 0.4s ease-out 0.44s both;
+}
+
+.player-dossier.is-holo-boot .dossier-trend__svg polyline {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: holoDrawStroke 0.4s ease-out 0.48s forwards;
+}
+
+.player-dossier.is-holo-boot .player-dossier__seasons {
+  animation: holoPrint 0.4s ease-out 0.52s both;
+}
+
+.player-dossier.is-holo-boot .dossier-season-row {
+  animation: holoPrint 0.32s ease-out both;
+}
+
+.player-dossier.is-holo-boot .dossier-season-row:nth-child(1) { animation-delay: 0.54s; }
+.player-dossier.is-holo-boot .dossier-season-row:nth-child(2) { animation-delay: 0.58s; }
+.player-dossier.is-holo-boot .dossier-season-row:nth-child(n+3) { animation-delay: 0.62s; }
+
+.player-dossier.is-holo-live .player-dossier__frame {
+  animation: holoFlicker 4s ease-in-out infinite;
+}
+
+.player-dossier.is-holo-live .player-dossier__beam {
+  animation: holoBeamAmbient 9s ease-in-out infinite;
+}
+
+.player-dossier.is-holo-collapse .player-dossier__frame {
+  animation: holoCollapseFrame var(--holo-collapse) ease-in both;
+}
+
+.player-dossier.is-holo-collapse .player-dossier__beam {
+  animation: holoBeamUp var(--holo-collapse) ease-in both;
+}
+
+.player-dossier.is-holo-collapse .player-dossier__hero,
+.player-dossier.is-holo-collapse .player-dossier__readouts,
+.player-dossier.is-holo-collapse .player-dossier__trend,
+.player-dossier.is-holo-collapse .player-dossier__seasons {
+  animation: holoUnprint 0.22s ease-in both;
 }
 
 .player-dossier__header {
@@ -1880,6 +2088,8 @@ body.is-dossier-open {
   }
 
   .player-dossier__frame {
+    --holo-boot: 0.45s;
+    --holo-collapse: 0.32s;
     width: 100%;
     max-height: 100%;
     padding: 1rem 0.9rem 1.2rem;
@@ -1899,8 +2109,101 @@ body.is-dossier-open {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media (hover: none), (pointer: coarse) {
   .player-dossier__frame {
+    --holo-boot: 0.45s;
+    --holo-collapse: 0.32s;
+  }
+
+  .player-dossier__beam {
+    height: 2px;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__rank {
+    animation: holoPrintFade 0.28s ease-out 0.1s both;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__hero,
+  .player-dossier.is-holo-boot .player-dossier__identity,
+  .player-dossier.is-holo-boot .player-dossier__eyebrow,
+  .player-dossier.is-holo-boot .dossier-readout,
+  .player-dossier.is-holo-boot .player-dossier__trend,
+  .player-dossier.is-holo-boot .player-dossier__seasons,
+  .player-dossier.is-holo-boot .dossier-season-row {
+    animation-name: holoPrintFade;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__eyebrow {
+    animation-delay: 0.06s;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__hero,
+  .player-dossier.is-holo-boot .player-dossier__rank {
+    animation-delay: 0.1s;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__identity {
+    animation-delay: 0.14s;
+  }
+
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(1) { animation-delay: 0.16s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(2) { animation-delay: 0.2s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(3) { animation-delay: 0.24s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(4) { animation-delay: 0.28s; }
+
+  .player-dossier.is-holo-boot .player-dossier__trend {
+    animation-delay: 0.3s;
+  }
+
+  .player-dossier.is-holo-boot .dossier-trend__svg polyline {
+    animation-delay: 0.32s;
+  }
+
+  .player-dossier.is-holo-boot .player-dossier__seasons {
+    animation-delay: 0.34s;
+  }
+
+  .player-dossier.is-holo-boot .dossier-season-row:nth-child(1) { animation-delay: 0.36s; }
+  .player-dossier.is-holo-boot .dossier-season-row:nth-child(2) { animation-delay: 0.4s; }
+  .player-dossier.is-holo-boot .dossier-season-row:nth-child(n+3) { animation-delay: 0.42s; }
+
+  .player-dossier.is-holo-live .player-dossier__frame {
     animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-dossier__frame,
+  .player-dossier__beam,
+  .player-dossier__scan,
+  .player-dossier.is-holo-boot .player-dossier__frame,
+  .player-dossier.is-holo-boot .player-dossier__beam,
+  .player-dossier.is-holo-boot .player-dossier__eyebrow,
+  .player-dossier.is-holo-boot .player-dossier__hero,
+  .player-dossier.is-holo-boot .player-dossier__rank,
+  .player-dossier.is-holo-boot .player-dossier__identity,
+  .player-dossier.is-holo-boot .dossier-readout,
+  .player-dossier.is-holo-boot .player-dossier__trend,
+  .player-dossier.is-holo-boot .dossier-trend__svg polyline,
+  .player-dossier.is-holo-boot .player-dossier__seasons,
+  .player-dossier.is-holo-boot .dossier-season-row,
+  .player-dossier.is-holo-live .player-dossier__frame,
+  .player-dossier.is-holo-live .player-dossier__beam,
+  .player-dossier.is-holo-live .player-dossier__scan,
+  .player-dossier.is-holo-collapse .player-dossier__frame,
+  .player-dossier.is-holo-collapse .player-dossier__beam,
+  .player-dossier.is-holo-collapse .player-dossier__hero,
+  .player-dossier.is-holo-collapse .player-dossier__readouts,
+  .player-dossier.is-holo-collapse .player-dossier__trend,
+  .player-dossier.is-holo-collapse .player-dossier__seasons {
+    animation: none !important;
+  }
+
+  .player-dossier__scan {
+    opacity: 0.55;
+  }
+
+  .player-dossier.is-holo-boot .dossier-trend__svg polyline {
+    stroke-dashoffset: 0;
   }
 }
