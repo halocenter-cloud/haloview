@@ -226,6 +226,28 @@ function getHighlightedPlayerName() {
 }
 
 /**
+ * Lee ?compare=ALPHA,BRAVO de la URL.
+ * @returns {{ a: string, b: string }|null}
+ */
+function getComparePairFromUrl() {
+  try {
+    const fromQuery = new URLSearchParams(window.location.search).get('compare');
+    if (!fromQuery || !fromQuery.trim()) return null;
+    const parts = fromQuery.split(',').map((part) => {
+      try {
+        return decodeURIComponent(part.trim());
+      } catch (_) {
+        return part.trim();
+      }
+    }).filter(Boolean);
+    if (parts.length < 2) return null;
+    return { a: parts[0], b: parts[1] };
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
  * Lee ?season= o #season= de la URL.
  * @returns {number|null}
  */
@@ -951,6 +973,15 @@ function initSeasonSelector() {
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
+    if (isDossierOpen() && isComparePickerOpen()) {
+      event.preventDefault();
+      closeComparePicker();
+      const toggle = document.getElementById('dossier-compare-toggle');
+      if (toggle) {
+        try { toggle.focus(); } catch (_) { /* ignore */ }
+      }
+      return;
+    }
     if (isDossierOpen()) {
       event.preventDefault();
       closePlayerDossier();
@@ -999,6 +1030,8 @@ function initSeasonSelector() {
 
 /** @type {string|null} */
 let openDossierName = null;
+/** @type {string|null} */
+let compareRivalName = null;
 /** @type {Element|null} */
 let dossierLastFocus = null;
 let dossierClosing = false;
@@ -1023,14 +1056,30 @@ function findPlayerInSeason(name, seasonId) {
   ) || null;
 }
 
-function syncUrlState({ player = openDossierName, seasonId = selectedSeasonId } = {}) {
+function resolvePlayerRef(name) {
+  return findPlayerInSeason(name, selectedSeasonId) || getProfileByName(name) || null;
+}
+
+function syncUrlState({
+  player = openDossierName,
+  rival = compareRivalName,
+  seasonId = selectedSeasonId
+} = {}) {
   try {
     const url = new URL(window.location.href);
     if (seasonId != null) url.searchParams.set('season', String(seasonId));
     else url.searchParams.delete('season');
 
-    if (player) url.searchParams.set('player', player);
-    else url.searchParams.delete('player');
+    if (player && rival) {
+      url.searchParams.delete('player');
+      url.searchParams.set('compare', `${player},${rival}`);
+    } else if (player) {
+      url.searchParams.delete('compare');
+      url.searchParams.set('player', player);
+    } else {
+      url.searchParams.delete('player');
+      url.searchParams.delete('compare');
+    }
 
     window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
   } catch (_) {
@@ -1058,16 +1107,65 @@ function pickAxisLabels(items) {
   return [items[0], mid, items[items.length - 1]];
 }
 
-function buildSparklineSvg(matches) {
-  const rows = (matches || []).map((m) => ({
+function matchRows(matches) {
+  return (matches || []).map((m) => ({
     points: Number(m && m.points) || 0,
-    at: m && m.at ? m.at : null
+    at: m && m.at ? m.at : null,
+    time: (() => {
+      if (!m || !m.at) return null;
+      const t = new Date(m.at).getTime();
+      return Number.isNaN(t) ? null : t;
+    })()
   }));
-  if (rows.length < 2) {
+}
+
+function sparklineCoords(rows, min, span, minT, spanT, padL, padT, plotW, plotH) {
+  const useTime = minT != null && spanT > 0;
+  return rows.map((row, index) => {
+    let x;
+    if (useTime && row.time != null) {
+      x = padL + ((row.time - minT) / spanT) * plotW;
+    } else if (rows.length < 2) {
+      x = padL + plotW / 2;
+    } else {
+      x = padL + (index / (rows.length - 1)) * plotW;
+    }
+    const y = padT + plotH - ((row.points - min) / span) * plotH;
+    return { x, y, points: row.points, at: row.at };
+  });
+}
+
+function polylineMarkup(coords, className, stroke) {
+  if (!coords || coords.length < 2) return '';
+  const pointsAttr = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  return `
+    <polyline
+      class="${className}"
+      fill="none"
+      stroke="${stroke}"
+      stroke-width="2"
+      pathLength="1"
+      points="${pointsAttr}"
+    />
+  `;
+}
+
+/**
+ * @param {object[]} matches
+ * @param {object[]|null} [secondMatches]
+ */
+function buildSparklineSvg(matches, secondMatches) {
+  const rowsA = matchRows(matches);
+  const rowsB = secondMatches == null ? null : matchRows(secondMatches);
+  const dual = rowsB != null;
+  const canDrawA = rowsA.length >= 2;
+  const canDrawB = dual && rowsB.length >= 2;
+
+  if (!canDrawA && !canDrawB) {
     return '<p class="dossier-trend__empty">Sin historial reciente</p>';
   }
 
-  const width = 320;
+  const width = dual ? 480 : 320;
   const height = 92;
   const padL = 30;
   const padR = 10;
@@ -1075,17 +1173,30 @@ function buildSparklineSvg(matches) {
   const padB = 22;
   const plotW = width - padL - padR;
   const plotH = height - padT - padB;
-  const values = rows.map((r) => r.points);
+
+  const values = [
+    ...(canDrawA ? rowsA : []),
+    ...(canDrawB ? rowsB : [])
+  ].map((r) => r.points);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = Math.max(max - min, 1);
   const yMid = min + (max - min) / 2;
 
-  const coords = rows.map((row, index) => {
-    const x = padL + (index / (rows.length - 1)) * plotW;
-    const y = padT + plotH - ((row.points - min) / span) * plotH;
-    return { x, y, points: row.points, at: row.at };
-  });
+  const times = [
+    ...(canDrawA ? rowsA : []),
+    ...(canDrawB ? rowsB : [])
+  ].map((r) => r.time).filter((t) => t != null);
+  const minT = times.length ? Math.min(...times) : null;
+  const maxT = times.length ? Math.max(...times) : null;
+  const spanT = minT != null && maxT != null ? Math.max(maxT - minT, 1) : 0;
+
+  const coordsA = canDrawA
+    ? sparklineCoords(rowsA, min, span, minT, spanT, padL, padT, plotW, plotH)
+    : [];
+  const coordsB = canDrawB
+    ? sparklineCoords(rowsB, min, span, minT, spanT, padL, padT, plotW, plotH)
+    : [];
 
   const yTicks = min === max
     ? [{ value: max, y: padT + plotH / 2 }]
@@ -1095,7 +1206,8 @@ function buildSparklineSvg(matches) {
         { value: min, y: padT + plotH }
       ];
 
-  const xTicks = pickAxisLabels(coords);
+  const xSource = [...coordsA, ...coordsB].sort((a, b) => a.x - b.x);
+  const xTicks = pickAxisLabels(xSource);
 
   const yLabels = yTicks.map((tick) => `
     <text class="dossier-trend__label dossier-trend__label--y" x="${padL - 4}" y="${tick.y + 3}" text-anchor="end">${tick.value.toLocaleString('es')}</text>
@@ -1106,20 +1218,24 @@ function buildSparklineSvg(matches) {
     <text class="dossier-trend__label dossier-trend__label--x" x="${tick.x.toFixed(1)}" y="${height - 6}" text-anchor="middle">${escapeHtml(formatMatchAxisLabel(tick.at))}</text>
   `).join('');
 
-  const pointsAttr = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  const lineA = polylineMarkup(
+    coordsA,
+    dual ? 'dossier-trend__line dossier-trend__line--alpha' : '',
+    dual ? 'var(--halo-cyan)' : 'currentColor'
+  );
+  const lineB = polylineMarkup(
+    coordsB,
+    'dossier-trend__line dossier-trend__line--bravo',
+    'var(--halo-orange)'
+  );
 
   return `
     <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X tiempo">
       ${yLabels}
       <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
       <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
-      <polyline
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        pathLength="1"
-        points="${pointsAttr}"
-      />
+      ${lineA}
+      ${lineB}
       ${xLabels}
     </svg>
   `;
@@ -1147,50 +1263,223 @@ function isDossierOpen() {
   return Boolean(dossier && !dossier.hidden);
 }
 
-function renderPlayerDossier(name) {
-  const profile = getProfileByName(name);
-  const season = getSelectedSeason();
-  const seasonPlayer = findPlayerInSeason(name, selectedSeasonId);
-  if (!seasonPlayer && !profile) return false;
+function isComparePickerOpen() {
+  const picker = document.getElementById('dossier-compare-picker');
+  return Boolean(picker && !picker.hidden);
+}
 
-  const displayName = seasonPlayer?.name || profile?.name || name;
-  const rank = seasonPlayer?.rank ?? null;
-  const points = seasonPlayer?.points ?? 0;
+function canComparePlayers() {
+  return (squadData.profiles || []).length > 1;
+}
+
+function getCompareSide(name) {
+  const profile = getProfileByName(name);
+  const seasonPlayer = findPlayerInSeason(name, selectedSeasonId);
+  if (!profile && !seasonPlayer) return null;
+
   const bySeason = profile?.bySeason || [];
   const seasonStats = bySeason.find((s) => s.seasonId === selectedSeasonId) || null;
-  const matchesSeason = seasonStats && seasonStats.matches != null ? seasonStats.matches : null;
-  const bestRank = profile?.bestRank ?? rank;
+  const rank = seasonPlayer?.rank ?? null;
+  const points = seasonPlayer?.points ?? 0;
   const recent = [...(profile?.recentMatches || [])]
     .slice()
     .sort((a, b) => String(a.at || '').localeCompare(String(b.at || '')));
-  const recentPoints = recent.map((m) => m.points);
-  const delta = trendDeltaLabel(recentPoints);
 
-  const rankEl = document.getElementById('dossier-rank');
-  const nameEl = document.getElementById('dossier-name');
-  const seasonEl = document.getElementById('dossier-season');
+  return {
+    name: seasonPlayer?.name || profile?.name || name,
+    rank,
+    points,
+    matches: seasonStats && seasonStats.matches != null ? seasonStats.matches : null,
+    bestRank: profile?.bestRank ?? rank,
+    careerPoints: profile ? Number(profile.careerPoints) || 0 : 0,
+    matchesPlayed: profile ? Number(profile.matchesPlayed) || 0 : 0,
+    recent,
+    bySeason
+  };
+}
+
+function metricWinner(aVal, bVal, better) {
+  if (aVal == null || bVal == null) return 'tie';
+  if (aVal === bVal) return 'tie';
+  if (better === 'lower') return aVal < bVal ? 'a' : 'b';
+  return aVal > bVal ? 'a' : 'b';
+}
+
+function formatMetricDelta(aVal, bVal, better) {
+  if (aVal == null || bVal == null) return '—';
+  const diff = aVal - bVal;
+  if (diff === 0) return '=';
+  const abs = Math.abs(diff);
+  const formatted = Number.isInteger(abs) ? abs.toLocaleString('es') : abs.toFixed(1);
+  if (better === 'lower') {
+    return diff < 0 ? `−${formatted}` : `+${formatted}`;
+  }
+  return diff > 0 ? `+${formatted}` : `−${formatted}`;
+}
+
+const COMPARE_METRICS = [
+  {
+    key: 'points',
+    label: 'Puntos',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  },
+  {
+    key: 'rank',
+    label: 'Puesto',
+    better: 'lower',
+    format: (n) => (n != null ? rankLabel(n) : '—')
+  },
+  {
+    key: 'matches',
+    label: 'Partidas',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : String(n))
+  },
+  {
+    key: 'careerPoints',
+    label: 'Pts carrera',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  },
+  {
+    key: 'bestRank',
+    label: 'Mejor puesto',
+    better: 'lower',
+    format: (n) => (n != null ? rankLabel(n) : '—')
+  },
+  {
+    key: 'matchesPlayed',
+    label: 'Part. carrera',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  }
+];
+
+function seasonLabelText(season) {
+  if (!season) return '—';
+  return season.active ? season.label : `${season.label} · Registro archivado`;
+}
+
+function fillCompareDatalist(excludeName) {
+  const list = document.getElementById('compare-tags');
+  if (!list) return;
+  const skip = normalizePlayerName(excludeName);
+  list.innerHTML = (squadData.profiles || [])
+    .filter((p) => normalizePlayerName(p.name) !== skip)
+    .map((p) => `<option value="${escapeHtml(p.name)}"></option>`)
+    .join('');
+}
+
+function setComparePickerError(message) {
+  const el = document.getElementById('dossier-compare-error');
+  if (!el) return;
+  if (!message) {
+    el.hidden = true;
+    el.textContent = '';
+    return;
+  }
+  el.hidden = false;
+  el.textContent = message;
+}
+
+function openComparePicker() {
+  const picker = document.getElementById('dossier-compare-picker');
+  const toggle = document.getElementById('dossier-compare-toggle');
+  const input = document.getElementById('dossier-compare-input');
+  if (!picker || !input) return;
+  fillCompareDatalist(openDossierName);
+  input.value = '';
+  setComparePickerError('');
+  picker.hidden = false;
+  if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  requestAnimationFrame(() => {
+    try {
+      input.focus();
+    } catch (_) {
+      /* ignore */
+    }
+  });
+}
+
+function closeComparePicker() {
+  const picker = document.getElementById('dossier-compare-picker');
+  const toggle = document.getElementById('dossier-compare-toggle');
+  const input = document.getElementById('dossier-compare-input');
+  if (picker) picker.hidden = true;
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  if (input) input.value = '';
+  setComparePickerError('');
+}
+
+function applyDossierCompareChrome(isCompare) {
+  const dossier = document.getElementById('player-dossier');
+  const slotAlpha = document.getElementById('dossier-slot-alpha');
+  const vs = document.getElementById('dossier-vs');
+  const bravo = document.getElementById('dossier-bravo');
+  const compareWrap = document.getElementById('dossier-compare');
+  const clearBtn = document.getElementById('dossier-clear-rival');
+  const eyebrow = document.getElementById('dossier-eyebrow');
+  const readouts = document.getElementById('dossier-readouts');
+  const trend = document.getElementById('dossier-trend');
+
+  if (dossier) {
+    dossier.classList.toggle('player-dossier--compare', isCompare);
+    dossier.setAttribute(
+      'aria-labelledby',
+      isCompare ? 'dossier-name dossier-name-b' : 'dossier-name'
+    );
+  }
+  if (slotAlpha) slotAlpha.hidden = !isCompare;
+  if (vs) vs.hidden = !isCompare;
+  if (bravo) bravo.hidden = !isCompare;
+  if (compareWrap) {
+    const showPicker = !isCompare && canComparePlayers();
+    compareWrap.hidden = !showPicker;
+    if (!showPicker) closeComparePicker();
+  }
+  if (clearBtn) clearBtn.hidden = !isCompare;
+  if (eyebrow) {
+    eyebrow.textContent = isCompare ? 'UNSC PERSONNEL FILE · COMPARE' : 'UNSC PERSONNEL FILE';
+  }
+  if (readouts) readouts.classList.toggle('player-dossier__readouts--compare', isCompare);
+  if (trend) trend.classList.toggle('player-dossier__trend--compare', isCompare);
+}
+
+function paintDossierSide(side, suffix) {
+  const rankEl = document.getElementById(suffix ? `dossier-rank-${suffix}` : 'dossier-rank');
+  const nameEl = document.getElementById(suffix ? `dossier-name-${suffix}` : 'dossier-name');
+  const seasonEl = document.getElementById(suffix ? `dossier-season-${suffix}` : 'dossier-season');
+  if (!rankEl || !nameEl || !seasonEl || !side) return;
+
+  const season = getSelectedSeason();
+  const accent = suffix === 'b'
+    ? 'var(--halo-orange)'
+    : accentForRank(side.rank || side.bestRank || 99);
+  rankEl.textContent = side.rank != null ? rankLabel(side.rank) : '—';
+  rankEl.style.color = accent;
+  nameEl.textContent = side.name;
+  seasonEl.textContent = seasonLabelText(season);
+}
+
+function renderDossierSingle(side) {
+  paintDossierSide(side, '');
+  applyDossierCompareChrome(false);
+
   const readouts = document.getElementById('dossier-readouts');
   const trend = document.getElementById('dossier-trend');
   const seasonsList = document.getElementById('dossier-seasons-list');
-  if (!rankEl || !nameEl || !seasonEl || !readouts || !trend || !seasonsList) return false;
+  if (!readouts || !trend || !seasonsList) return false;
 
-  const accent = accentForRank(rank || bestRank || 99);
-  rankEl.textContent = rank != null ? rankLabel(rank) : '—';
-  rankEl.style.color = accent;
-  nameEl.textContent = displayName;
-  seasonEl.textContent = season
-    ? (season.active ? season.label : `${season.label} · Registro archivado`)
-    : '—';
-
-  const matchesLabel = matchesSeason != null
-    ? String(matchesSeason)
-    : '—';
-  const careerMatches = profile ? String(profile.matchesPlayed) : '—';
+  const recentPoints = side.recent.map((m) => m.points);
+  const delta = trendDeltaLabel(recentPoints);
+  const matchesLabel = side.matches != null ? String(side.matches) : '—';
+  const careerMatches = String(side.matchesPlayed);
 
   readouts.innerHTML = `
     <div class="dossier-readout">
       <span class="dossier-readout__label">Puntos</span>
-      <span class="dossier-readout__value">${points.toLocaleString('es')}</span>
+      <span class="dossier-readout__value">${side.points.toLocaleString('es')}</span>
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Partidas</span>
@@ -1199,7 +1488,7 @@ function renderPlayerDossier(name) {
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Mejor puesto</span>
-      <span class="dossier-readout__value">${bestRank != null ? rankLabel(bestRank) : '—'}</span>
+      <span class="dossier-readout__value">${side.bestRank != null ? rankLabel(side.bestRank) : '—'}</span>
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Tendencia</span>
@@ -1211,15 +1500,17 @@ function renderPlayerDossier(name) {
   trend.innerHTML = `
     <p class="dossier-trend__title">Últimas partidas</p>
     <p class="dossier-trend__axes">Y puntos · X tiempo</p>
-    ${buildSparklineSvg(recent)}
+    ${buildSparklineSvg(side.recent)}
   `;
 
-  const seasonRows = (bySeason.length ? bySeason : [{
+  const bySeason = side.bySeason.length ? side.bySeason : [{
     seasonId: selectedSeasonId,
-    points,
-    rank,
-    matches: matchesSeason
-  }]).map((entry) => {
+    points: side.points,
+    rank: side.rank,
+    matches: side.matches
+  }];
+
+  seasonsList.innerHTML = bySeason.map((entry) => {
     const seasonMeta = getSeasonById(entry.seasonId);
     const label = seasonMeta ? shortSeasonLabel(seasonMeta) : `Temporada ${entry.seasonId}`;
     const matchesText = entry.matches != null ? entry.matches : '—';
@@ -1235,8 +1526,144 @@ function renderPlayerDossier(name) {
     `;
   }).join('');
 
-  seasonsList.innerHTML = seasonRows;
   return true;
+}
+
+function renderDossierCompare(alpha, bravo) {
+  paintDossierSide(alpha, '');
+  paintDossierSide(bravo, 'b');
+  applyDossierCompareChrome(true);
+
+  const readouts = document.getElementById('dossier-readouts');
+  const trend = document.getElementById('dossier-trend');
+  const seasonsList = document.getElementById('dossier-seasons-list');
+  if (!readouts || !trend || !seasonsList) return false;
+
+  readouts.innerHTML = COMPARE_METRICS.map((metric) => {
+    const aVal = alpha[metric.key];
+    const bVal = bravo[metric.key];
+    const winner = metricWinner(aVal, bVal, metric.better);
+    const delta = formatMetricDelta(aVal, bVal, metric.better);
+    return `
+      <div class="compare-metric is-win-${winner}">
+        <span class="compare-metric__label">${escapeHtml(metric.label)}</span>
+        <span class="compare-metric__value compare-metric__value--a">${escapeHtml(metric.format(aVal))}</span>
+        <span class="compare-metric__delta">${escapeHtml(delta)}</span>
+        <span class="compare-metric__value compare-metric__value--b">${escapeHtml(metric.format(bVal))}</span>
+      </div>
+    `;
+  }).join('');
+
+  const chart = buildSparklineSvg(alpha.recent, bravo.recent);
+  const drewAny = alpha.recent.length >= 2 || bravo.recent.length >= 2;
+  const emptyA = drewAny && alpha.recent.length < 2
+    ? '<p class="dossier-trend__empty">ALPHA: sin historial reciente</p>'
+    : '';
+  const emptyB = drewAny && bravo.recent.length < 2
+    ? '<p class="dossier-trend__empty">BRAVO: sin historial reciente</p>'
+    : '';
+
+  trend.innerHTML = `
+    <p class="dossier-trend__title">Últimas partidas</p>
+    <p class="dossier-trend__axes">Y puntos · X tiempo</p>
+    <p class="dossier-trend__legend">
+      <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">ALPHA</span>
+      <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">BRAVO</span>
+    </p>
+    ${chart}
+    ${emptyA}${emptyB}
+  `;
+
+  const seasonIds = new Set();
+  [...alpha.bySeason, ...bravo.bySeason].forEach((entry) => {
+    if (entry && entry.seasonId != null) seasonIds.add(Number(entry.seasonId));
+  });
+  if (!seasonIds.size) seasonIds.add(selectedSeasonId);
+
+  const orderedIds = [...seasonIds].sort((a, b) => a - b);
+  seasonsList.innerHTML = orderedIds.map((seasonId) => {
+    const seasonMeta = getSeasonById(seasonId);
+    const label = seasonMeta ? shortSeasonLabel(seasonMeta) : `Temporada ${seasonId}`;
+    const aEntry = alpha.bySeason.find((s) => s.seasonId === seasonId);
+    const bEntry = bravo.bySeason.find((s) => s.seasonId === seasonId);
+    const aPts = Number(aEntry?.points || 0).toLocaleString('es');
+    const bPts = Number(bEntry?.points || 0).toLocaleString('es');
+    const aRank = aEntry?.rank != null ? rankLabel(aEntry.rank) : '—';
+    const bRank = bEntry?.rank != null ? rankLabel(bEntry.rank) : '—';
+    const aMatches = aEntry?.matches != null ? aEntry.matches : '—';
+    const bMatches = bEntry?.matches != null ? bEntry.matches : '—';
+    return `
+      <div class="dossier-season-row dossier-season-row--compare${seasonId === selectedSeasonId ? ' is-current' : ''}">
+        <span class="dossier-season-row__id">T${String(seasonId).padStart(2, '0')}</span>
+        <span class="dossier-season-row__label">${escapeHtml(label)}</span>
+        <span class="dossier-season-row__pair dossier-season-row__pair--a">${aPts} pts · ${aRank} · ${aMatches} part.</span>
+        <span class="dossier-season-row__pair dossier-season-row__pair--b">${bPts} pts · ${bRank} · ${bMatches} part.</span>
+      </div>
+    `;
+  }).join('');
+
+  return true;
+}
+
+function renderPlayerDossier(name) {
+  const alpha = getCompareSide(name);
+  if (!alpha) return false;
+
+  let rival = null;
+  if (compareRivalName) {
+    rival = getCompareSide(compareRivalName);
+    if (!rival || normalizePlayerName(rival.name) === normalizePlayerName(alpha.name)) {
+      compareRivalName = null;
+      rival = null;
+    } else {
+      compareRivalName = rival.name;
+    }
+  }
+
+  return rival ? renderDossierCompare(alpha, rival) : renderDossierSingle(alpha);
+}
+
+function tryConfirmRival(raw) {
+  const value = String(raw || '').trim();
+  if (!value) {
+    setComparePickerError('Elige un gamertag del registro.');
+    return false;
+  }
+  const resolved = resolvePlayerRef(value);
+  if (!resolved) {
+    setComparePickerError('Ese gamertag no está en el registro.');
+    return false;
+  }
+  if (normalizePlayerName(resolved.name) === normalizePlayerName(openDossierName)) {
+    setComparePickerError('Elige un Spartan distinto.');
+    return false;
+  }
+
+  compareRivalName = resolved.name;
+  closeComparePicker();
+  const ok = renderPlayerDossier(openDossierName);
+  if (!ok) {
+    compareRivalName = null;
+    return false;
+  }
+  syncUrlState();
+  return true;
+}
+
+function clearCompareRival() {
+  compareRivalName = null;
+  closeComparePicker();
+  if (!openDossierName) return;
+  renderPlayerDossier(openDossierName);
+  syncUrlState();
+  const toggle = document.getElementById('dossier-compare-toggle');
+  requestAnimationFrame(() => {
+    try {
+      if (toggle) toggle.focus();
+    } catch (_) {
+      /* ignore */
+    }
+  });
 }
 
 function restartHoloBoot(dossier) {
@@ -1280,9 +1707,12 @@ function teardownPlayerDossier() {
     dossier.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse');
   }
   document.body.classList.remove('is-dossier-open');
+  compareRivalName = null;
   openDossierName = null;
   dossierClosing = false;
-  syncUrlState({ player: null });
+  closeComparePicker();
+  applyDossierCompareChrome(false);
+  syncUrlState({ player: null, rival: null });
   clearPlayerHighlights();
 
   const last = dossierLastFocus;
@@ -1312,11 +1742,11 @@ function teardownPlayerDossier() {
   }
 }
 
-function openPlayerDossier(name) {
+function openPlayerDossier(name, options = {}) {
   const dossier = document.getElementById('player-dossier');
   if (!dossier || dossierClosing) return;
 
-  const exists = findPlayerInSeason(name, selectedSeasonId) || getProfileByName(name);
+  const exists = resolvePlayerRef(name);
   if (!exists) return;
 
   const alreadyOpen = !dossier.hidden;
@@ -1324,16 +1754,27 @@ function openPlayerDossier(name) {
     dossierLastFocus = document.activeElement;
   }
 
-  openDossierName = exists.name || name;
+  const nextName = exists.name || name;
+  if (Object.prototype.hasOwnProperty.call(options, 'rival')) {
+    const rival = options.rival ? resolvePlayerRef(options.rival) : null;
+    compareRivalName = rival && normalizePlayerName(rival.name) !== normalizePlayerName(nextName)
+      ? rival.name
+      : null;
+  } else if (!alreadyOpen) {
+    compareRivalName = null;
+  }
+
+  openDossierName = nextName;
   const ok = renderPlayerDossier(openDossierName);
   if (!ok) {
     openDossierName = null;
+    compareRivalName = null;
     return;
   }
 
   dossier.hidden = false;
   document.body.classList.add('is-dossier-open');
-  syncUrlState({ player: openDossierName });
+  syncUrlState();
   clearPlayerHighlights();
   restartHoloBoot(dossier);
 
@@ -1388,8 +1829,33 @@ function closePlayerDossier() {
 function initPlayerDossier() {
   const closeBtn = document.getElementById('dossier-close');
   const backdrop = document.getElementById('dossier-backdrop');
+  const toggle = document.getElementById('dossier-compare-toggle');
+  const clearBtn = document.getElementById('dossier-clear-rival');
+  const input = document.getElementById('dossier-compare-input');
+
   if (closeBtn) closeBtn.addEventListener('click', () => closePlayerDossier());
   if (backdrop) backdrop.addEventListener('click', () => closePlayerDossier());
+  if (clearBtn) clearBtn.addEventListener('click', () => clearCompareRival());
+
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      if (isComparePickerOpen()) closeComparePicker();
+      else openComparePicker();
+    });
+  }
+
+  if (input) {
+    input.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      tryConfirmRival(input.value);
+    });
+    input.addEventListener('change', () => {
+      const picker = document.getElementById('dossier-compare-picker');
+      if (!picker || picker.hidden || !input.value.trim()) return;
+      tryConfirmRival(input.value);
+    });
+  }
 }
 
 /**
@@ -1423,6 +1889,15 @@ function runBootSequence(options = {}) {
 document.addEventListener('DOMContentLoaded', () => {
   selectedSeasonId = resolveInitialSeasonId();
 
+  const comparePair = getComparePairFromUrl();
+  const compareAlpha = comparePair ? resolvePlayerRef(comparePair.a) : null;
+  const compareBravo = comparePair ? resolvePlayerRef(comparePair.b) : null;
+  const compareReady = Boolean(
+    compareAlpha &&
+    compareBravo &&
+    normalizePlayerName(compareAlpha.name) !== normalizePlayerName(compareBravo.name)
+  );
+
   const highlightName = getHighlightedPlayerName();
   const highlightExists = Boolean(
     highlightName &&
@@ -1431,7 +1906,7 @@ document.addEventListener('DOMContentLoaded', () => {
     )
   );
 
-  runBootSequence({ skip: highlightExists });
+  runBootSequence({ skip: compareReady || highlightExists });
   initParticles();
   initSeasonSelector();
   initPlayerDossier();
@@ -1440,7 +1915,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   updateTimestamp();
   updateSeasonChrome();
-  if (highlightExists) {
+  if (compareReady) {
+    openPlayerDossier(compareAlpha.name, { rival: compareBravo.name });
+  } else if (highlightExists) {
     openPlayerDossier(highlightName);
   } else {
     highlightPlayer(highlightName);

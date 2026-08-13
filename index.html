@@ -123,19 +123,66 @@
         <div class="player-dossier__beam"></div>
       </div>
       <header class="player-dossier__header">
-        <p class="player-dossier__eyebrow">UNSC PERSONNEL FILE</p>
-        <button type="button" class="player-dossier__close" id="dossier-close" aria-label="Cerrar ficha">
-          Cerrar
-          <svg class="player-dossier__close-x" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M1.2 0.2 L8 7 L14.8 0.2 L15.8 1.2 L9 8 L15.8 14.8 L14.8 15.8 L8 9 L1.2 15.8 L0.2 14.8 L7 8 L0.2 1.2 Z"/>
-          </svg>
-        </button>
+        <p class="player-dossier__eyebrow" id="dossier-eyebrow">UNSC PERSONNEL FILE</p>
+        <div class="player-dossier__header-actions">
+          <button type="button" class="player-dossier__clear-rival" id="dossier-clear-rival" hidden>
+            Quitar rival
+          </button>
+          <button type="button" class="player-dossier__close" id="dossier-close" aria-label="Cerrar ficha">
+            Cerrar
+            <svg class="player-dossier__close-x" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1.2 0.2 L8 7 L14.8 0.2 L15.8 1.2 L9 8 L15.8 14.8 L14.8 15.8 L8 9 L1.2 15.8 L0.2 14.8 L7 8 L0.2 1.2 Z"/>
+            </svg>
+          </button>
+        </div>
       </header>
-      <div class="player-dossier__hero">
-        <span class="player-dossier__rank" id="dossier-rank">—</span>
-        <div class="player-dossier__identity">
-          <h2 class="player-dossier__name" id="dossier-name">—</h2>
-          <p class="player-dossier__season" id="dossier-season">—</p>
+      <div class="player-dossier__hero" id="dossier-hero">
+        <div class="player-dossier__side player-dossier__side--alpha" id="dossier-alpha">
+          <p class="player-dossier__slot-tag" id="dossier-slot-alpha" hidden>ALPHA</p>
+          <div class="player-dossier__side-main">
+            <span class="player-dossier__rank" id="dossier-rank">—</span>
+            <div class="player-dossier__identity">
+              <h2 class="player-dossier__name" id="dossier-name">—</h2>
+              <p class="player-dossier__season" id="dossier-season">—</p>
+            </div>
+          </div>
+        </div>
+        <div class="player-dossier__vs" id="dossier-vs" hidden aria-hidden="true">
+          <span class="player-dossier__vs-label">VS</span>
+        </div>
+        <div class="player-dossier__side player-dossier__side--bravo" id="dossier-bravo" hidden>
+          <p class="player-dossier__slot-tag">BRAVO</p>
+          <div class="player-dossier__side-main">
+            <span class="player-dossier__rank" id="dossier-rank-b">—</span>
+            <div class="player-dossier__identity">
+              <h2 class="player-dossier__name" id="dossier-name-b">—</h2>
+              <p class="player-dossier__season" id="dossier-season-b">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="player-dossier__compare" id="dossier-compare">
+        <button
+          type="button"
+          class="player-dossier__compare-toggle"
+          id="dossier-compare-toggle"
+          aria-expanded="false"
+          aria-controls="dossier-compare-picker"
+        >
+          Comparar con…
+        </button>
+        <div class="player-dossier__compare-picker" id="dossier-compare-picker" hidden>
+          <label class="player-dossier__compare-label" for="dossier-compare-input">Rival</label>
+          <input
+            id="dossier-compare-input"
+            class="player-dossier__compare-input"
+            type="text"
+            list="compare-tags"
+            autocomplete="off"
+            placeholder="Gamertag"
+          />
+          <datalist id="compare-tags"></datalist>
+          <p class="player-dossier__compare-error" id="dossier-compare-error" hidden role="alert"></p>
         </div>
       </div>
       <div class="player-dossier__readouts" id="dossier-readouts"></div>
