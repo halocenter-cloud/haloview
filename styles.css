@@ -25,6 +25,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -677,6 +678,8 @@ main:has(.section--ranking.active) {
   border-left: 4px solid var(--row-accent);
   border-radius: 0;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s ease,
@@ -769,19 +772,6 @@ main:has(.section--ranking.active) {
   opacity: 0;
   pointer-events: none;
   z-index: 3;
-}
-
-.spartan-row:active {
-  transform: translateX(4px);
-  border-color: color-mix(in srgb, var(--row-accent) 60%, var(--halo-border));
-}
-
-.spartan-row:active::before {
-  transform: translateX(120%);
-}
-
-.spartan-row:active::after {
-  opacity: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1221,8 +1211,7 @@ main:has(.section--ranking.active) + .footer {
     transition-duration: 0.01ms !important;
   }
 
-  .spartan-row:hover,
-  .spartan-row:active {
+  .spartan-row:hover {
     transform: none;
   }
 }
@@ -1572,6 +1561,15 @@ body.is-dossier-open {
   inset: 0;
   background: rgba(2, 4, 10, 0.72);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .player-dossier__backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(2, 4, 10, 0.88);
+  }
 }
 
 .player-dossier__frame {

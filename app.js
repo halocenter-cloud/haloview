@@ -548,6 +548,7 @@ function wireRankingRowInteractions() {
   stack.addEventListener('click', (event) => {
     const row = event.target.closest('.spartan-row');
     if (!row || !stack.contains(row)) return;
+    if (typeof row.blur === 'function') row.blur();
     const name = row.getAttribute('data-name');
     if (name) openPlayerDossier(name);
   });
@@ -741,7 +742,7 @@ function selectSeason(seasonId, options = {}) {
     renderPlayerDossier(openDossierName);
   }
 
-  if (options.highlightName) {
+  if (options.highlightName && !isDossierOpen()) {
     highlightPlayer(options.highlightName);
   }
 }
@@ -1078,7 +1079,7 @@ function openPlayerDossier(name) {
   dossier.hidden = false;
   document.body.classList.add('is-dossier-open');
   syncUrlState({ player: openDossierName });
-  highlightPlayer(openDossierName);
+  clearPlayerHighlights();
 
   const closeBtn = document.getElementById('dossier-close');
   requestAnimationFrame(() => {
@@ -1182,9 +1183,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   updateTimestamp();
   updateSeasonChrome();
-  highlightPlayer(highlightName);
-
   if (highlightExists) {
     openPlayerDossier(highlightName);
+  } else {
+    highlightPlayer(highlightName);
   }
 });
