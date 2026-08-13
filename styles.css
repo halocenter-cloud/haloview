@@ -1620,7 +1620,6 @@ body.is-dossier-open {
   inset: 0;
   z-index: 3;
   overflow: hidden;
-  container-type: size;
 }
 
 .player-dossier__scan {
@@ -1649,12 +1648,18 @@ body.is-dossier-open {
   left: 0;
   right: 0;
   top: 0;
-  height: 3px;
+  height: 100%;
   z-index: 2;
-  background: linear-gradient(90deg, transparent, var(--halo-cyan), transparent);
-  box-shadow: 0 0 16px var(--halo-cyan), 0 0 4px #fff;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 212, 255, 0.55) 0,
+    rgba(0, 212, 255, 0.28) 2px,
+    rgba(0, 212, 255, 0.1) 8px,
+    transparent 14px
+  );
+  background-repeat: no-repeat;
   opacity: 0;
-  transform: translateY(0);
+  transform: translate3d(0, -18px, 0);
 }
 
 .player-dossier__projector {
@@ -1707,20 +1712,20 @@ body.is-dossier-open {
 }
 
 @keyframes holoBeamDown {
-  0% { opacity: 0; transform: translateY(0); }
-  10% { opacity: 1; }
-  100% { opacity: 0.25; transform: translateY(calc(100cqh - 3px)); }
+  0% { opacity: 0; transform: translate3d(0, -18px, 0); }
+  10% { opacity: 0.45; }
+  100% { opacity: 0.12; transform: translate3d(0, 100%, 0); }
 }
 
 @keyframes holoBeamUp {
-  0% { opacity: 0.8; transform: translateY(calc(100cqh - 3px)); }
-  100% { opacity: 0; transform: translateY(0); }
+  0% { opacity: 0.35; transform: translate3d(0, 100%, 0); }
+  100% { opacity: 0; transform: translate3d(0, -18px, 0); }
 }
 
 @keyframes holoBeamAmbient {
-  0%, 72% { opacity: 0; transform: translateY(0); }
-  76% { opacity: 0.65; }
-  100% { opacity: 0; transform: translateY(calc(100cqh - 3px)); }
+  0%, 55% { opacity: 0; transform: translate3d(0, -18px, 0); }
+  62% { opacity: 0.38; }
+  100% { opacity: 0; transform: translate3d(0, 100%, 0); }
 }
 
 @keyframes holoPrint {
@@ -1824,7 +1829,8 @@ body.is-dossier-open {
 }
 
 .player-dossier.is-holo-live .player-dossier__beam {
-  animation: holoBeamAmbient 5s ease-in-out infinite;
+  animation: holoBeamAmbient 5s linear infinite;
+  will-change: transform, opacity;
 }
 
 .player-dossier.is-holo-collapse .player-dossier__frame {
@@ -2167,8 +2173,16 @@ body.is-dossier-open {
     --holo-collapse: 0.32s;
   }
 
-  .player-dossier__beam {
-    height: 2px;
+  .player-dossier__holo {
+    contain: strict;
+  }
+
+  .player-dossier.is-holo-live .player-dossier__scan {
+    animation: none;
+  }
+
+  .player-dossier.is-holo-live .player-dossier__beam {
+    animation: holoBeamAmbient 5s linear infinite;
   }
 
   .player-dossier.is-holo-boot .player-dossier__rank {
