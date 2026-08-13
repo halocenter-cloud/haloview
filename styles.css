@@ -1636,16 +1636,27 @@ body.is-dossier-open {
 }
 
 .player-dossier__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   border: 1px solid rgba(0, 212, 255, 0.35);
   background: rgba(0, 212, 255, 0.06);
-  color: var(--halo-silver);
+  color: var(--halo-cyan);
   font-family: var(--font-display);
   font-size: 0.58rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 0.45rem 0.75rem;
+  padding: 0.45rem 0.7rem 0.45rem 0.8rem;
   cursor: pointer;
   border-radius: 0;
+}
+
+.player-dossier__close-x {
+  width: 0.72rem;
+  height: 0.72rem;
+  flex: 0 0 auto;
+  fill: currentColor;
+  filter: drop-shadow(0 0 5px var(--halo-glow));
 }
 
 .player-dossier__close:hover,
@@ -1653,6 +1664,12 @@ body.is-dossier-open {
   outline: none;
   border-color: rgba(0, 212, 255, 0.7);
   background: rgba(0, 212, 255, 0.12);
+  color: #fff;
+}
+
+.player-dossier__close:hover .player-dossier__close-x,
+.player-dossier__close:focus-visible .player-dossier__close-x {
+  filter: drop-shadow(0 0 7px var(--halo-cyan));
 }
 
 .player-dossier__hero {
