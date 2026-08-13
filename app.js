@@ -437,11 +437,18 @@ function expandZeroGroup() {
   list.hidden = false;
 }
 
+function clearPlayerHighlights() {
+  document.querySelectorAll('.spartan-row.is-highlighted').forEach((row) => {
+    row.classList.remove('is-highlighted');
+  });
+}
+
 /**
  * Resalta la fila del jugador de la query y hace scroll.
  * @param {string|null} queryName
  */
 function highlightPlayer(queryName) {
+  clearPlayerHighlights();
   if (!queryName) return;
 
   const players = getCurrentPlayers();
@@ -459,16 +466,10 @@ function highlightPlayer(queryName) {
   if (!row) return;
 
   row.classList.add('is-highlighted');
-  row.setAttribute('tabindex', '0');
 
   const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
   requestAnimationFrame(() => {
     row.scrollIntoView({ block: 'center', behavior });
-    try {
-      row.focus({ preventScroll: true });
-    } catch (_) {
-      /* older browsers */
-    }
   });
 }
 
@@ -1097,15 +1098,33 @@ function closePlayerDossier() {
   document.body.classList.remove('is-dossier-open');
   openDossierName = null;
   syncUrlState({ player: null });
+  clearPlayerHighlights();
 
-  if (dossierLastFocus && typeof dossierLastFocus.focus === 'function') {
+  const last = dossierLastFocus;
+  dossierLastFocus = null;
+
+  if (last && last.classList && last.classList.contains('spartan-row')) {
+    if (typeof last.blur === 'function') {
+      last.blur();
+    }
+    const stack = document.getElementById('ranking-stack');
+    if (stack) {
+      try {
+        stack.focus({ preventScroll: true });
+      } catch (_) {
+        /* ignore */
+      }
+    }
+    return;
+  }
+
+  if (last && typeof last.focus === 'function') {
     try {
-      dossierLastFocus.focus();
+      last.focus();
     } catch (_) {
       /* ignore */
     }
   }
-  dossierLastFocus = null;
 }
 
 function initPlayerDossier() {

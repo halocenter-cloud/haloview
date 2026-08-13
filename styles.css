@@ -655,6 +655,10 @@ main:has(.section--ranking.active) {
   padding: 0;
 }
 
+.ranking-stack:focus {
+  outline: none;
+}
+
 .spartan-row {
   --row-accent: #4FD1FF;
   position: relative;
@@ -767,34 +771,43 @@ main:has(.section--ranking.active) {
   z-index: 3;
 }
 
-.spartan-row:hover,
-.spartan-row:focus-visible {
+.spartan-row:active {
   transform: translateX(4px);
   border-color: color-mix(in srgb, var(--row-accent) 60%, var(--halo-border));
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--row-accent) 12%, transparent) 0%, transparent 45%),
-    linear-gradient(180deg, rgba(16, 28, 44, 0.98) 0%, rgba(10, 18, 30, 1) 100%);
-  outline: none;
 }
 
-.spartan-row:hover::before,
-.spartan-row:focus-visible::before {
+.spartan-row:active::before {
   transform: translateX(120%);
 }
 
-.spartan-row:hover::after,
-.spartan-row:focus-visible::after {
+.spartan-row:active::after {
   opacity: 1;
 }
 
-.spartan-row:hover .spartan-row__name,
-.spartan-row:focus-visible .spartan-row__name {
-  color: #fff;
-}
+@media (hover: hover) and (pointer: fine) {
+  .spartan-row:hover {
+    transform: translateX(4px);
+    border-color: color-mix(in srgb, var(--row-accent) 60%, var(--halo-border));
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--row-accent) 12%, transparent) 0%, transparent 45%),
+      linear-gradient(180deg, rgba(16, 28, 44, 0.98) 0%, rgba(10, 18, 30, 1) 100%);
+  }
 
-.spartan-row:hover .spartan-row__points-value,
-.spartan-row:focus-visible .spartan-row__points-value {
-  color: var(--row-accent);
+  .spartan-row:hover::before {
+    transform: translateX(120%);
+  }
+
+  .spartan-row:hover::after {
+    opacity: 1;
+  }
+
+  .spartan-row:hover .spartan-row__name {
+    color: #fff;
+  }
+
+  .spartan-row:hover .spartan-row__points-value {
+    color: var(--row-accent);
+  }
 }
 
 .spartan-row.rank-1 {
@@ -1209,7 +1222,7 @@ main:has(.section--ranking.active) + .footer {
   }
 
   .spartan-row:hover,
-  .spartan-row:focus-visible {
+  .spartan-row:active {
     transform: none;
   }
 }
