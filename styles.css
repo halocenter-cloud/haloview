@@ -13,6 +13,8 @@
   --halo-border: rgba(0, 212, 255, 0.25);
   --halo-neon-green: #39ff14;
   --halo-neon-red: #ff2a4a;
+  --halo-rival: #ff2a4a;
+  --halo-rival-soft: #c45d6c;
   --halo-neon-gray: #b8c4d0;
   --font-display: 'Orbitron', sans-serif;
   --font-body: 'Rajdhani', sans-serif;
@@ -1949,9 +1951,9 @@ body.is-dossier-open {
 .player-dossier__clear-rival {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(255, 107, 53, 0.4);
-  background: rgba(255, 107, 53, 0.08);
-  color: var(--halo-orange);
+  border: 1px solid rgba(255, 42, 74, 0.45);
+  background: rgba(255, 42, 74, 0.08);
+  color: var(--halo-rival);
   font-family: var(--font-display);
   font-size: 0.58rem;
   letter-spacing: 0.14em;
@@ -1964,8 +1966,8 @@ body.is-dossier-open {
 .player-dossier__clear-rival:hover,
 .player-dossier__clear-rival:focus-visible {
   outline: none;
-  border-color: rgba(255, 107, 53, 0.75);
-  background: rgba(255, 107, 53, 0.16);
+  border-color: rgba(255, 42, 74, 0.8);
+  background: rgba(255, 42, 74, 0.16);
   color: #fff;
 }
 
@@ -1992,13 +1994,19 @@ body.is-dossier-open {
 .player-dossier__slot-tag {
   margin: 0 0 0.45rem;
   font-family: var(--font-display);
-  font-size: 0.5rem;
-  letter-spacing: 0.22em;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
   color: var(--halo-cyan);
+  overflow-wrap: anywhere;
 }
 
-.player-dossier__side--bravo .player-dossier__slot-tag {
-  color: var(--halo-orange);
+.player-dossier__side--bravo .player-dossier__slot-tag,
+.player-dossier--compare .player-dossier__side--bravo .player-dossier__name {
+  color: var(--halo-rival);
+}
+
+.player-dossier--compare .player-dossier__side--bravo .player-dossier__name {
+  text-shadow: 0 0 16px rgba(255, 42, 74, 0.35);
 }
 
 .player-dossier--compare .player-dossier__hero {
@@ -2026,7 +2034,7 @@ body.is-dossier-open {
   left: 50%;
   width: 1px;
   transform: translateX(-50%);
-  background: linear-gradient(to bottom, var(--halo-cyan), var(--halo-orange));
+  background: linear-gradient(to bottom, var(--halo-cyan), var(--halo-rival));
   opacity: 0.7;
 }
 
@@ -2202,6 +2210,8 @@ body.is-dossier-open {
 
 .compare-metric__value--b {
   text-align: right;
+  color: var(--halo-rival);
+  text-shadow: 0 0 12px rgba(255, 42, 74, 0.45);
 }
 
 .compare-metric__delta {
@@ -2209,32 +2219,20 @@ body.is-dossier-open {
   font-size: 0.62rem;
   letter-spacing: 0.08em;
   text-align: center;
-  color: var(--halo-silver);
+  color: var(--halo-rival-soft);
   min-width: 4.5rem;
 }
 
-.compare-metric.is-win-a .compare-metric__value--a,
-.compare-metric.is-win-a .compare-metric__delta {
+.compare-metric.is-win-a .compare-metric__value--a {
   color: var(--halo-cyan);
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.35);
-}
-
-.compare-metric.is-win-a .compare-metric__value--b {
-  opacity: 0.45;
-}
-
-.compare-metric.is-win-b .compare-metric__value--b,
-.compare-metric.is-win-b .compare-metric__delta {
-  color: var(--halo-orange);
-  text-shadow: 0 0 10px rgba(255, 107, 53, 0.35);
 }
 
 .compare-metric.is-win-b .compare-metric__value--a {
   opacity: 0.45;
 }
 
-.compare-metric.is-win-tie .compare-metric__value,
-.compare-metric.is-win-tie .compare-metric__delta {
+.compare-metric.is-win-tie .compare-metric__value--a {
   color: var(--halo-silver);
 }
 
@@ -2322,8 +2320,9 @@ body.is-dossier-open {
 
 .dossier-trend__legend-item {
   font-family: var(--font-display);
-  font-size: 0.48rem;
-  letter-spacing: 0.16em;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
 }
 
 .dossier-trend__legend-item--alpha {
@@ -2331,7 +2330,7 @@ body.is-dossier-open {
 }
 
 .dossier-trend__legend-item--bravo {
-  color: var(--halo-orange);
+  color: var(--halo-rival);
 }
 
 .dossier-trend__title {
@@ -2465,7 +2464,7 @@ body.is-dossier-open {
 }
 
 .dossier-season-row__pair--b {
-  color: var(--halo-orange);
+  color: var(--halo-rival);
   text-align: right;
 }
 
@@ -2533,7 +2532,7 @@ body.is-dossier-open {
     width: auto;
     height: 1px;
     transform: translateY(-50%);
-    background: linear-gradient(to right, var(--halo-cyan), var(--halo-orange));
+    background: linear-gradient(to right, var(--halo-cyan), var(--halo-rival));
   }
 
   .compare-metric {

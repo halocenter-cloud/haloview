@@ -1226,7 +1226,7 @@ function buildSparklineSvg(matches, secondMatches) {
   const lineB = polylineMarkup(
     coordsB,
     'dossier-trend__line dossier-trend__line--bravo',
-    'var(--halo-orange)'
+    'var(--halo-rival)'
   );
 
   return `
@@ -1454,12 +1454,15 @@ function paintDossierSide(side, suffix) {
 
   const season = getSelectedSeason();
   const accent = suffix === 'b'
-    ? 'var(--halo-orange)'
+    ? 'var(--halo-rival)'
     : accentForRank(side.rank || side.bestRank || 99);
   rankEl.textContent = side.rank != null ? rankLabel(side.rank) : '—';
   rankEl.style.color = accent;
   nameEl.textContent = side.name;
   seasonEl.textContent = seasonLabelText(season);
+
+  const slotEl = document.getElementById(suffix === 'b' ? 'dossier-slot-bravo' : 'dossier-slot-alpha');
+  if (slotEl) slotEl.textContent = side.name;
 }
 
 function renderDossierSingle(side) {
@@ -1557,18 +1560,18 @@ function renderDossierCompare(alpha, bravo) {
   const chart = buildSparklineSvg(alpha.recent, bravo.recent);
   const drewAny = alpha.recent.length >= 2 || bravo.recent.length >= 2;
   const emptyA = drewAny && alpha.recent.length < 2
-    ? '<p class="dossier-trend__empty">ALPHA: sin historial reciente</p>'
+    ? `<p class="dossier-trend__empty">${escapeHtml(alpha.name)}: sin historial reciente</p>`
     : '';
   const emptyB = drewAny && bravo.recent.length < 2
-    ? '<p class="dossier-trend__empty">BRAVO: sin historial reciente</p>'
+    ? `<p class="dossier-trend__empty">${escapeHtml(bravo.name)}: sin historial reciente</p>`
     : '';
 
   trend.innerHTML = `
     <p class="dossier-trend__title">Últimas partidas</p>
     <p class="dossier-trend__axes">Y puntos · X tiempo</p>
     <p class="dossier-trend__legend">
-      <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">ALPHA</span>
-      <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">BRAVO</span>
+      <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">${escapeHtml(alpha.name)}</span>
+      <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">${escapeHtml(bravo.name)}</span>
     </p>
     ${chart}
     ${emptyA}${emptyB}
