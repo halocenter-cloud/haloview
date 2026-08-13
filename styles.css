@@ -1607,6 +1607,8 @@ body.is-dossier-open {
   border: 1px solid rgba(0, 212, 255, 0.45);
   border-radius: 0;
   transform-origin: center center;
+  opacity: 1;
+  transform: scaleY(1);
   background:
     linear-gradient(180deg, rgba(0, 212, 255, 0.05), transparent 38%),
     linear-gradient(180deg, rgba(10, 18, 28, 0.92), rgba(6, 8, 16, 0.95));
@@ -1827,7 +1829,11 @@ body.is-dossier-open {
 .player-dossier.is-holo-boot .dossier-season-row:nth-child(2) { animation-delay: 0.58s; }
 .player-dossier.is-holo-boot .dossier-season-row:nth-child(n+3) { animation-delay: 0.62s; }
 
-.player-dossier.is-holo-live .player-dossier__frame {
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__frame {
+  animation: holoBootFrame var(--holo-boot) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.player-dossier.is-holo-live .player-dossier__holo {
   animation: holoFlicker 4s ease-in-out infinite;
 }
 
@@ -2236,7 +2242,8 @@ body.is-dossier-open {
   .player-dossier.is-holo-boot .dossier-season-row:nth-child(2) { animation-delay: 0.4s; }
   .player-dossier.is-holo-boot .dossier-season-row:nth-child(n+3) { animation-delay: 0.42s; }
 
-  .player-dossier.is-holo-live .player-dossier__frame {
+  .player-dossier.is-holo-live .player-dossier__frame,
+  .player-dossier.is-holo-live .player-dossier__holo {
     animation: none;
   }
 }
@@ -2257,6 +2264,7 @@ body.is-dossier-open {
   .player-dossier.is-holo-boot .player-dossier__seasons,
   .player-dossier.is-holo-boot .dossier-season-row,
   .player-dossier.is-holo-live .player-dossier__frame,
+  .player-dossier.is-holo-live .player-dossier__holo,
   .player-dossier.is-holo-live .player-dossier__beam,
   .player-dossier.is-holo-live .player-dossier__scan,
   .player-dossier.is-holo-collapse .player-dossier__frame,
