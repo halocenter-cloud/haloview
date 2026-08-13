@@ -948,34 +948,89 @@ function syncUrlState({ player = openDossierName, seasonId = selectedSeasonId } 
   }
 }
 
-function buildSparklineSvg(points) {
-  const values = (points || []).map((n) => Number(n) || 0);
-  if (values.length < 2) {
+function formatMatchAxisLabel(iso) {
+  if (!iso) return '—';
+  const fecha = new Date(iso);
+  if (Number.isNaN(fecha.getTime())) return '—';
+  return fecha.toLocaleString('es', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function pickAxisLabels(items) {
+  if (!items.length) return [];
+  if (items.length === 1) return [items[0]];
+  if (items.length === 2) return [items[0], items[items.length - 1]];
+  const mid = items[Math.floor((items.length - 1) / 2)];
+  return [items[0], mid, items[items.length - 1]];
+}
+
+function buildSparklineSvg(matches) {
+  const rows = (matches || []).map((m) => ({
+    points: Number(m && m.points) || 0,
+    at: m && m.at ? m.at : null
+  }));
+  if (rows.length < 2) {
     return '<p class="dossier-trend__empty">Sin historial reciente</p>';
   }
 
-  const width = 220;
-  const height = 48;
-  const pad = 4;
+  const width = 320;
+  const height = 92;
+  const padL = 30;
+  const padR = 10;
+  const padT = 10;
+  const padB = 22;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+  const values = rows.map((r) => r.points);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = Math.max(max - min, 1);
+  const yMid = min + (max - min) / 2;
 
-  const coords = values.map((value, index) => {
-    const x = pad + (index / (values.length - 1)) * (width - pad * 2);
-    const y = height - pad - ((value - min) / span) * (height - pad * 2);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  const coords = rows.map((row, index) => {
+    const x = padL + (index / (rows.length - 1)) * plotW;
+    const y = padT + plotH - ((row.points - min) / span) * plotH;
+    return { x, y, points: row.points, at: row.at };
   });
 
+  const yTicks = min === max
+    ? [{ value: max, y: padT + plotH / 2 }]
+    : [
+        { value: max, y: padT },
+        { value: yMid, y: padT + plotH / 2 },
+        { value: min, y: padT + plotH }
+      ];
+
+  const xTicks = pickAxisLabels(coords);
+
+  const yLabels = yTicks.map((tick) => `
+    <text class="dossier-trend__label dossier-trend__label--y" x="${padL - 4}" y="${tick.y + 3}" text-anchor="end">${tick.value.toLocaleString('es')}</text>
+    <line class="dossier-trend__grid" x1="${padL}" y1="${tick.y}" x2="${width - padR}" y2="${tick.y}" />
+  `).join('');
+
+  const xLabels = xTicks.map((tick) => `
+    <text class="dossier-trend__label dossier-trend__label--x" x="${tick.x.toFixed(1)}" y="${height - 6}" text-anchor="middle">${escapeHtml(formatMatchAxisLabel(tick.at))}</text>
+  `).join('');
+
+  const pointsAttr = coords.map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+
   return `
-    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Tendencia de puntos recientes">
+    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X tiempo">
+      ${yLabels}
+      <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
+      <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
       <polyline
         fill="none"
         stroke="currentColor"
         stroke-width="2"
         pathLength="1"
-        points="${coords.join(' ')}"
+        points="${pointsAttr}"
       />
+      ${xLabels}
     </svg>
   `;
 }
@@ -1059,7 +1114,8 @@ function renderPlayerDossier(name) {
 
   trend.innerHTML = `
     <p class="dossier-trend__title">Últimas partidas</p>
-    ${buildSparklineSvg(recentPoints)}
+    <p class="dossier-trend__axes">Y puntos · X tiempo</p>
+    ${buildSparklineSvg(recent)}
   `;
 
   const seasonRows = (bySeason.length ? bySeason : [{
