@@ -1747,12 +1747,12 @@ body.is-dossier-open {
 
 .player-dossier__projector {
   pointer-events: none;
-  position: absolute;
-  left: 14%;
-  right: 14%;
-  bottom: 0;
-  height: 2px;
+  position: relative;
   z-index: 1;
+  width: 72%;
+  height: 2px;
+  margin: 1rem auto 0;
+  flex-shrink: 0;
   background: linear-gradient(90deg, transparent, var(--halo-cyan), transparent);
   box-shadow: 0 0 18px var(--halo-cyan);
   opacity: 0.55;
@@ -2229,7 +2229,7 @@ body.is-dossier-open {
 @media (max-width: 767px) {
   .player-dossier {
     padding: 0.5rem;
-    align-items: stretch;
+    align-items: center;
   }
 
   .player-dossier__frame {
@@ -2237,7 +2237,7 @@ body.is-dossier-open {
     --holo-collapse: 0.32s;
     width: 100%;
     max-height: 100%;
-    padding: 1rem 0.9rem 1.2rem;
+    padding: 1rem 0.9rem 1.35rem;
   }
 
   .player-dossier__readouts {
