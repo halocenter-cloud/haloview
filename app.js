@@ -16,6 +16,8 @@ const NO_HOVER_MQ = '(hover: none)';
 const HOLO_BOOT_MS = 800;
 const HOLO_BOOT_MOBILE_MS = 500;
 const HOLO_COLLAPSE_MS = 500;
+const RANK_REVEAL_MAX_STAGGER = 11;
+const ZERO_REVEAL_MAX_STAGGER = 8;
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -263,17 +265,19 @@ function hasTiedRanks(list) {
 
 /**
  * @param {{ id: number, name: string, rank: number, points: number }} p
- * @param {{ variant?: 'hero' | 'row', gapOverNext?: number, nextRank?: number }} [options]
+ * @param {{ variant?: 'hero' | 'row', gapOverNext?: number, nextRank?: number, index?: number }} [options]
  */
 function renderSpartanRow(p, options = {}) {
   const variant = options.variant || 'row';
   const accent = accentForRank(p.rank);
   const name = escapeHtml(p.name);
   const isHero = variant === 'hero';
+  const rowIndex = Number.isFinite(options.index) ? options.index : 0;
   const classes = [
     'spartan-row',
     `rank-${p.rank}`,
     isHero ? 'spartan-row--hero' : '',
+    p.points <= 0 ? 'spartan-row--standby' : '',
     'spartan-row--interactive'
   ].filter(Boolean).join(' ');
 
@@ -290,7 +294,7 @@ function renderSpartanRow(p, options = {}) {
   return `
     <article
       class="${classes}"
-      style="--row-accent: ${accent}"
+      style="--row-accent: ${accent}; --row-i: ${rowIndex}"
       data-id="${p.id}"
       data-name="${name}"
       role="listitem"
@@ -434,24 +438,72 @@ function initParticles() {
   start();
 }
 
-function wireZeroGroupToggle() {
-  const toggle = document.getElementById('zero-group-toggle');
-  const list = document.getElementById('zero-group-list');
-  if (!toggle || !list) return;
+/** @type {ReturnType<typeof setTimeout> | null} */
+let zeroRevealTimer = null;
 
-  toggle.addEventListener('click', () => {
-    const expanded = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!expanded));
-    list.hidden = expanded;
-  });
+function rankingRevealTiming() {
+  const mobile = isMobileViewport();
+  return {
+    step: mobile ? 28 : 42,
+    duration: mobile ? 360 : 460
+  };
+}
+
+function applyRankingRevealVars(stack) {
+  const { step, duration } = rankingRevealTiming();
+  stack.style.setProperty('--reveal-step', `${step}ms`);
+  stack.style.setProperty('--reveal-duration', `${duration}ms`);
+}
+
+/**
+ * @param {boolean} open
+ * @param {{ instant?: boolean }} [options]
+ */
+function setZeroGroupOpen(open, options = {}) {
+  const group = document.querySelector('.zero-group');
+  const toggle = document.getElementById('zero-group-toggle');
+  const panel = document.getElementById('zero-group-list');
+  if (!group || !toggle || !panel) return;
+
+  const instant = Boolean(options.instant) || prefersReducedMotion();
+  toggle.setAttribute('aria-expanded', String(open));
+  group.classList.toggle('is-open', open);
+  group.classList.toggle('is-instant', instant && open);
+  panel.inert = !open;
+  panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+  if (zeroRevealTimer) {
+    clearTimeout(zeroRevealTimer);
+    zeroRevealTimer = null;
+  }
+
+  if (!open) {
+    panel.classList.remove('is-rows-in', 'is-rows-settled');
+    group.classList.remove('is-instant');
+    return;
+  }
+
+  if (instant) {
+    panel.classList.remove('is-rows-in');
+    panel.classList.add('is-rows-settled');
+    return;
+  }
+
+  panel.classList.remove('is-rows-settled', 'is-rows-in');
+  void panel.offsetWidth;
+  panel.classList.add('is-rows-in');
+
+  const count = panel.querySelectorAll('.spartan-row').length;
+  const lastDelay = Math.min(Math.max(count - 1, 0), ZERO_REVEAL_MAX_STAGGER) * 28;
+  zeroRevealTimer = setTimeout(() => {
+    panel.classList.add('is-rows-settled');
+    panel.classList.remove('is-rows-in');
+    zeroRevealTimer = null;
+  }, lastDelay + 360 + 32);
 }
 
 function expandZeroGroup() {
-  const toggle = document.getElementById('zero-group-toggle');
-  const list = document.getElementById('zero-group-list');
-  if (!toggle || !list) return;
-  toggle.setAttribute('aria-expanded', 'true');
-  list.hidden = false;
+  setZeroGroupOpen(true, { instant: true });
 }
 
 function clearPlayerHighlights() {
@@ -517,16 +569,17 @@ function renderRanking() {
       ? {
           variant: 'hero',
           gapOverNext,
-          nextRank: next ? next.rank : undefined
+          nextRank: next ? next.rank : undefined,
+          index
         }
-      : { variant: 'row' }
+      : { variant: 'row', index }
     );
   });
 
   if (zeroPoints.length) {
-    const zeroRows = zeroPoints.map(p => renderSpartanRow(p)).join('');
+    const zeroRows = zeroPoints.map((p, index) => renderSpartanRow(p, { index })).join('');
     html += `
-      <div class="zero-group" role="listitem">
+      <div class="zero-group" role="listitem" style="--row-i: ${withPoints.length}">
         <button
           type="button"
           class="zero-group__toggle"
@@ -537,8 +590,16 @@ function renderRanking() {
           <span class="zero-group__label">Sin puntos aún (${zeroPoints.length})</span>
           <span class="zero-group__chevron" aria-hidden="true"></span>
         </button>
-        <div class="zero-group__list" id="zero-group-list" role="list" hidden>
-          ${zeroRows}
+        <div
+          class="zero-group__panel"
+          id="zero-group-list"
+          role="list"
+          inert
+          aria-hidden="true"
+        >
+          <div class="zero-group__panel-inner">
+            ${zeroRows}
+          </div>
         </div>
       </div>
     `;
@@ -552,8 +613,13 @@ function renderRanking() {
     `;
   }
 
+  if (zeroRevealTimer) {
+    clearTimeout(zeroRevealTimer);
+    zeroRevealTimer = null;
+  }
+
+  applyRankingRevealVars(stack);
   stack.innerHTML = html;
-  wireZeroGroupToggle();
   wireRankingRowInteractions();
   scheduleRankingSettle(stack);
 }
@@ -564,16 +630,23 @@ let rankingSettleTimer = null;
 function scheduleRankingSettle(stack) {
   if (!stack) return;
   stack.classList.remove('is-settled');
-  document.body.classList.add('is-ranking-revealing');
 
   if (rankingSettleTimer) {
     clearTimeout(rankingSettleTimer);
     rankingSettleTimer = null;
   }
 
-  const settleMs = prefersReducedMotion()
-    ? 0
-    : (isMobileViewport() ? 420 : 720);
+  if (prefersReducedMotion()) {
+    stack.classList.add('is-settled');
+    document.body.classList.remove('is-ranking-revealing');
+    return;
+  }
+
+  document.body.classList.add('is-ranking-revealing');
+  const { step, duration } = rankingRevealTiming();
+  const visibleCount = stack.querySelectorAll(':scope > .spartan-row, :scope > .zero-group').length;
+  const lastDelay = Math.min(Math.max(visibleCount - 1, 0), RANK_REVEAL_MAX_STAGGER) * step;
+  const settleMs = lastDelay + duration + 48;
 
   rankingSettleTimer = setTimeout(() => {
     stack.classList.add('is-settled');
@@ -588,6 +661,12 @@ function wireRankingRowInteractions() {
   stack.dataset.dossierWired = '1';
 
   stack.addEventListener('click', (event) => {
+    const toggle = event.target.closest('.zero-group__toggle');
+    if (toggle && stack.contains(toggle)) {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      setZeroGroupOpen(open);
+      return;
+    }
     const row = event.target.closest('.spartan-row');
     if (!row || !stack.contains(row)) return;
     if (typeof row.blur === 'function') row.blur();

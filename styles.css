@@ -697,13 +697,23 @@ main:has(.section--ranking.active) {
   border-left: 4px solid var(--row-accent);
   border-radius: 0;
   overflow: hidden;
+  contain: layout style;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s ease,
     background 0.25s ease;
-  animation: rowReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.ranking-stack > .spartan-row {
+  animation: rowReveal var(--reveal-duration, 0.46s) cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(min(var(--row-i, 0), 11) * var(--reveal-step, 42ms));
+}
+
+.ranking-stack > .spartan-row--hero {
+  animation-name: heroReveal;
+  animation-duration: calc(var(--reveal-duration, 0.46s) + 0.06s);
 }
 
 .spartan-row__glow,
@@ -724,24 +734,48 @@ main:has(.section--ranking.active) {
   padding: 2rem;
 }
 
-.spartan-row:nth-child(1) { animation-delay: 0.02s; }
-.spartan-row:nth-child(2) { animation-delay: 0.06s; }
-.spartan-row:nth-child(3) { animation-delay: 0.10s; }
-.spartan-row:nth-child(4) { animation-delay: 0.14s; }
-.spartan-row:nth-child(5) { animation-delay: 0.18s; }
-.spartan-row:nth-child(6) { animation-delay: 0.22s; }
-.spartan-row:nth-child(7) { animation-delay: 0.26s; }
-.spartan-row:nth-child(8) { animation-delay: 0.30s; }
-.spartan-row:nth-child(n+9) { animation-delay: 0.34s; }
-
-.ranking-stack.is-settled .spartan-row {
+.ranking-stack.is-settled > .spartan-row,
+.ranking-stack.is-settled > .zero-group {
   animation: none;
 }
 
 @keyframes rowReveal {
   from {
     opacity: 0;
-    transform: translate3d(-28px, 0, 0);
+    transform: translate3d(-16px, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(-22px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes zeroRowReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes zeroGroupIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
   }
   to {
     opacity: 1;
@@ -954,10 +988,29 @@ main:has(.section--ranking.active) {
   opacity: 0.9;
 }
 
+.spartan-row--standby {
+  --row-accent: #7a8b99;
+  border-left-color: rgba(192, 208, 224, 0.35);
+  background:
+    linear-gradient(90deg, rgba(122, 139, 153, 0.05) 0%, transparent 35%),
+    linear-gradient(180deg, rgba(10, 14, 20, 0.92) 0%, rgba(8, 12, 18, 0.96) 100%);
+}
+
+.spartan-row--standby .spartan-row__rank,
+.spartan-row--standby .spartan-row__points-value {
+  color: rgba(192, 208, 224, 0.58);
+  text-shadow: none;
+}
+
 /* ===== ZERO POINTS GROUP ===== */
 .zero-group {
   margin-top: 0.5rem;
   border-top: 1px solid var(--halo-border);
+}
+
+.ranking-stack > .zero-group {
+  animation: zeroGroupIn var(--reveal-duration, 0.46s) cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(min(var(--row-i, 0), 11) * var(--reveal-step, 42ms));
 }
 
 .zero-group__toggle {
@@ -992,22 +1045,48 @@ main:has(.section--ranking.active) {
   border-right: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
   transform: rotate(45deg);
-  transition: transform 0.25s ease;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
 }
 
-.zero-group__toggle[aria-expanded="true"] .zero-group__chevron {
+.zero-group.is-open .zero-group__chevron {
   transform: rotate(-135deg);
 }
 
-.zero-group__list {
+.zero-group__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zero-group.is-open .zero-group__panel {
+  grid-template-rows: 1fr;
+}
+
+.zero-group.is-instant .zero-group__panel {
+  transition: none;
+}
+
+.zero-group__panel-inner {
+  overflow: hidden;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.zero-group__list[hidden] {
-  display: none;
+.zero-group .spartan-row {
+  animation: none;
+}
+
+.zero-group.is-open .zero-group__panel.is-rows-in .spartan-row {
+  animation: zeroRowReveal 0.36s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: calc(min(var(--row-i, 0), 8) * 28ms);
+}
+
+.zero-group.is-open .zero-group__panel.is-rows-settled .spartan-row {
+  animation: none;
 }
 
 /* ===== STATS ===== */
@@ -1373,7 +1452,6 @@ main:has(.section--ranking.active) + .footer {
     gap: 0.65rem;
     min-height: 52px;
     height: 52px;
-    animation-duration: 0.36s;
   }
 
   .spartan-row--hero {
