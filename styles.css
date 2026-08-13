@@ -1089,14 +1089,6 @@ main:has(.section--ranking.active) {
   animation: none;
 }
 
-/* ===== STATS ===== */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
 /* ===== PODIUM ===== */
 .podium {
   display: grid;
@@ -1156,45 +1148,6 @@ main:has(.section--ranking.active) {
   font-size: 0.8rem;
   letter-spacing: 0.08em;
   color: var(--halo-cyan);
-}
-
-.stat-card {
-  padding: 1.5rem;
-  background: var(--halo-panel);
-  border: 1px solid var(--halo-border);
-  text-align: center;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-  animation: fadeIn 0.45s ease backwards;
-}
-
-.stat-card:hover {
-  border-color: var(--halo-cyan);
-  box-shadow: 0 0 25px rgba(0, 212, 255, 0.1);
-}
-
-.stat-card .stat-value {
-  font-family: var(--font-display);
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--halo-cyan);
-  text-shadow: 0 0 20px var(--halo-glow);
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.stat-card .stat-value--text {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  line-height: 1.35;
-  text-shadow: none;
-  color: #fff;
-}
-
-.stat-card .stat-label {
-  font-size: 0.8rem;
-  letter-spacing: 0.15em;
-  color: rgba(192, 208, 224, 0.6);
 }
 
 .charts-row {
@@ -1266,11 +1219,6 @@ main:has(.section--ranking.active) {
 @keyframes barGrow {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .bar-value {
@@ -1515,20 +1463,6 @@ main:has(.section--ranking.active) + .footer {
 
   .section-title {
     font-size: 1.35rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .stat-card {
-    padding: 1rem 0.75rem;
-  }
-
-  .stat-card .stat-value {
-    font-size: 1.6rem;
   }
 
   .podium {

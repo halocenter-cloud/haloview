@@ -686,24 +686,8 @@ function wireRankingRowInteractions() {
 
 function renderStats() {
   const players = getCurrentPlayers();
-  const spartanCount = players.length;
   const withPoints = players.filter(p => p.points > 0);
-  const leader = withPoints[0] || null;
-  const second = withPoints[1] || null;
-  const leaderPoints = leader ? leader.points : 0;
-  const totalPoints = players.reduce((sum, p) => sum + p.points, 0);
-  const gapToSecond = leader && second ? leader.points - second.points : 0;
-  const avgPoints = withPoints.length
-    ? Math.round(totalPoints / withPoints.length)
-    : 0;
-
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card"><span class="stat-value">${spartanCount}</span><span class="stat-label">SPARTANS</span></div>
-    <div class="stat-card"><span class="stat-value">${leaderPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS LÍDER</span></div>
-    <div class="stat-card"><span class="stat-value">${totalPoints.toLocaleString('es')}</span><span class="stat-label">PUNTOS TOTALES</span></div>
-    <div class="stat-card"><span class="stat-value">${gapToSecond.toLocaleString('es')}</span><span class="stat-label">VENTAJA SOBRE EL 2º</span></div>
-    <div class="stat-card"><span class="stat-value">${avgPoints.toLocaleString('es')}</span><span class="stat-label">MEDIA DE PUNTOS</span></div>
-  `;
+  const leaderPoints = withPoints[0] ? withPoints[0].points : 0;
 
   const podium = document.getElementById('podium');
   const top3 = withPoints.filter(p => p.rank <= 3).slice(0, 3);
