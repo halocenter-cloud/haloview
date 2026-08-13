@@ -1037,13 +1037,19 @@ function buildSparklineSvg(matches) {
 
 function trendDeltaLabel(recentPoints) {
   const values = (recentPoints || []).map((n) => Number(n) || 0);
-  if (values.length < 2) return { symbol: '=', text: 'Sin datos' };
+  if (values.length < 2) {
+    return { tone: 'flat', label: '=', text: 'Sin datos' };
+  }
   const avg = values.reduce((sum, n) => sum + n, 0) / values.length;
   const last = values[values.length - 1];
   const diff = last - avg;
-  if (Math.abs(diff) < 0.25) return { symbol: '=', text: 'Estable' };
-  if (diff > 0) return { symbol: '+', text: `+${diff.toFixed(1)} vs media` };
-  return { symbol: '−', text: `${diff.toFixed(1)} vs media` };
+  if (Math.abs(diff) < 0.25) {
+    return { tone: 'flat', label: '=', text: 'Estable' };
+  }
+  if (diff > 0) {
+    return { tone: 'up', label: '+ POSITIVA', text: `+${diff.toFixed(1)} vs media` };
+  }
+  return { tone: 'down', label: '− NEGATIVA', text: `${diff.toFixed(1)} vs media` };
 }
 
 function isDossierOpen() {
@@ -1107,7 +1113,7 @@ function renderPlayerDossier(name) {
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Tendencia</span>
-      <span class="dossier-readout__value dossier-readout__value--trend">${escapeHtml(delta.symbol)}</span>
+      <span class="dossier-readout__value dossier-readout__value--trend dossier-readout__value--trend-${delta.tone}">${escapeHtml(delta.label)}</span>
       <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
     </div>
   `;

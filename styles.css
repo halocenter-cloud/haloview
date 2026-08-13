@@ -11,7 +11,9 @@
   --halo-darker: #060810;
   --halo-panel: rgba(12, 20, 32, 0.85);
   --halo-border: rgba(0, 212, 255, 0.25);
-  --halo-glow: rgba(0, 212, 255, 0.4);
+  --halo-neon-green: #39ff14;
+  --halo-neon-red: #ff2a4a;
+  --halo-neon-gray: #b8c4d0;
   --font-display: 'Orbitron', sans-serif;
   --font-body: 'Rajdhani', sans-serif;
   --transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1968,7 +1970,24 @@ body.is-dossier-open {
 }
 
 .dossier-readout__value--trend {
-  color: var(--halo-orange);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.dossier-readout__value--trend-up {
+  color: var(--halo-neon-green);
+  text-shadow: 0 0 8px var(--halo-neon-green), 0 0 18px rgba(57, 255, 20, 0.55);
+}
+
+.dossier-readout__value--trend-down {
+  color: var(--halo-neon-red);
+  text-shadow: 0 0 8px var(--halo-neon-red), 0 0 18px rgba(255, 42, 74, 0.55);
+}
+
+.dossier-readout__value--trend-flat {
+  color: var(--halo-neon-gray);
+  text-shadow: 0 0 8px var(--halo-neon-gray), 0 0 16px rgba(184, 196, 208, 0.4);
 }
 
 .dossier-readout__sub {
