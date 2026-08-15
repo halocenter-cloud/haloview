@@ -1139,26 +1139,15 @@ function pickAxisLabels(items) {
 function matchRows(matches) {
   return (matches || []).map((m) => ({
     points: Number(m && m.points) || 0,
-    at: m && m.at ? m.at : null,
-    time: (() => {
-      if (!m || !m.at) return null;
-      const t = new Date(m.at).getTime();
-      return Number.isNaN(t) ? null : t;
-    })()
+    at: m && m.at ? m.at : null
   }));
 }
 
-function sparklineCoords(rows, min, span, minT, spanT, padL, padT, plotW, plotH, useTime) {
-  const timed = Boolean(useTime && minT != null && spanT > 0);
+function sparklineCoords(rows, min, span, padL, padT, plotW, plotH) {
   return rows.map((row, index) => {
-    let x;
-    if (timed && row.time != null) {
-      x = padL + ((row.time - minT) / spanT) * plotW;
-    } else if (rows.length < 2) {
-      x = padL + plotW / 2;
-    } else {
-      x = padL + (index / (rows.length - 1)) * plotW;
-    }
+    const x = rows.length < 2
+      ? padL + plotW / 2
+      : padL + (index / (rows.length - 1)) * plotW;
     const y = padT + plotH - ((row.points - min) / span) * plotH;
     return { x, y, points: row.points, at: row.at };
   });
@@ -1179,23 +1168,51 @@ function polylineMarkup(coords, className, stroke) {
   `;
 }
 
-function circlesMarkup(coords, className, fill) {
-  return (coords || []).map((c) => `
-    <circle
-      class="${className}"
-      cx="${c.x.toFixed(1)}"
-      cy="${c.y.toFixed(1)}"
-      r="2.2"
-      fill="${fill}"
-    />
-  `).join('');
+function circlesMarkup(coords, className, fill, seriesName, series) {
+  return (coords || []).map((c) => {
+    const at = c.at ? escapeHtml(String(c.at)) : '';
+    const name = seriesName ? escapeHtml(seriesName) : '';
+    const pts = Number(c.points) || 0;
+    const labelParts = [
+      seriesName || '',
+      formatMatchAxisLabel(c.at),
+      `${pts.toLocaleString('es')} pts`
+    ].filter(Boolean);
+    return `
+      <g class="dossier-trend__pt">
+        <circle
+          class="dossier-trend__hit"
+          cx="${c.x.toFixed(1)}"
+          cy="${c.y.toFixed(1)}"
+          r="8"
+          fill="transparent"
+          tabindex="0"
+          role="img"
+          aria-label="${escapeHtml(labelParts.join(' · '))}"
+          data-at="${at}"
+          data-points="${pts}"
+          data-name="${name}"
+          data-series="${series || ''}"
+        />
+        <circle
+          class="${className}"
+          cx="${c.x.toFixed(1)}"
+          cy="${c.y.toFixed(1)}"
+          r="2.2"
+          fill="${fill}"
+          pointer-events="none"
+        />
+      </g>
+    `;
+  }).join('');
 }
 
 /**
  * @param {object[]} matches
  * @param {object[]|null} [secondMatches]
+ * @param {{ a?: string, b?: string }} [names]
  */
-function buildSparklineSvg(matches, secondMatches) {
+function buildSparklineSvg(matches, secondMatches, names) {
   const rowsA = matchRows(matches);
   const rowsB = secondMatches == null ? null : matchRows(secondMatches);
   const dual = rowsB != null;
@@ -1224,20 +1241,11 @@ function buildSparklineSvg(matches, secondMatches) {
   const span = Math.max(max - min, 1);
   const yMid = min + (max - min) / 2;
 
-  const times = [
-    ...(canDrawA ? rowsA : []),
-    ...(canDrawB ? rowsB : [])
-  ].map((r) => r.time).filter((t) => t != null);
-  const minT = times.length ? Math.min(...times) : null;
-  const maxT = times.length ? Math.max(...times) : null;
-  const spanT = minT != null && maxT != null ? Math.max(maxT - minT, 1) : 0;
-  const useTime = dual && minT != null && spanT > 0;
-
   const coordsA = canDrawA
-    ? sparklineCoords(rowsA, min, span, minT, spanT, padL, padT, plotW, plotH, useTime)
+    ? sparklineCoords(rowsA, min, span, padL, padT, plotW, plotH)
     : [];
   const coordsB = canDrawB
-    ? sparklineCoords(rowsB, min, span, minT, spanT, padL, padT, plotW, plotH, useTime)
+    ? sparklineCoords(rowsB, min, span, padL, padT, plotW, plotH)
     : [];
 
   const yTicks = min === max
@@ -1248,7 +1256,7 @@ function buildSparklineSvg(matches, secondMatches) {
         { value: min, y: padT + plotH }
       ];
 
-  const xSource = [...coordsA, ...coordsB];
+  const xSource = coordsA.length >= coordsB.length ? coordsA : coordsB;
   const xTicks = pickAxisLabels(xSource);
 
   const yLabels = yTicks.map((tick) => `
@@ -1262,6 +1270,8 @@ function buildSparklineSvg(matches, secondMatches) {
 
   const strokeA = dual ? 'var(--halo-cyan)' : 'currentColor';
   const strokeB = 'var(--halo-rival)';
+  const nameA = dual ? (names && names.a) || '' : '';
+  const nameB = dual ? (names && names.b) || '' : '';
   const lineA = polylineMarkup(
     coordsA,
     dual ? 'dossier-trend__line dossier-trend__line--alpha' : '',
@@ -1275,26 +1285,105 @@ function buildSparklineSvg(matches, secondMatches) {
   const dotsA = circlesMarkup(
     coordsA,
     dual ? 'dossier-trend__dot dossier-trend__dot--alpha' : 'dossier-trend__dot',
-    strokeA
+    strokeA,
+    nameA,
+    dual ? 'alpha' : ''
   );
   const dotsB = circlesMarkup(
     coordsB,
     'dossier-trend__dot dossier-trend__dot--bravo',
-    strokeB
+    strokeB,
+    nameB,
+    'bravo'
   );
 
   return `
-    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X ${useTime ? 'tiempo' : 'partidas'}">
-      ${yLabels}
-      <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
-      <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
-      ${lineA}
-      ${lineB}
-      ${dotsA}
-      ${dotsB}
-      ${xLabels}
-    </svg>
+    <div class="dossier-trend__chart">
+      <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X partidas">
+        ${yLabels}
+        <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
+        <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
+        ${lineA}
+        ${lineB}
+        ${dotsA}
+        ${dotsB}
+        ${xLabels}
+      </svg>
+      <div class="dossier-trend__tip" id="dossier-trend-tip" hidden></div>
+    </div>
   `;
+}
+
+let sparklineTipsAbort = null;
+
+function formatTrendTip(hit) {
+  const when = formatMatchAxisLabel(hit.getAttribute('data-at'));
+  const pts = Number(hit.getAttribute('data-points')) || 0;
+  const name = hit.getAttribute('data-name') || '';
+  const body = `${when} · ${pts.toLocaleString('es')} pts`;
+  return name ? `${name} · ${body}` : body;
+}
+
+function positionTrendTip(svg, host, tip, hit) {
+  const pt = svg.createSVGPoint();
+  pt.x = Number(hit.getAttribute('cx'));
+  pt.y = Number(hit.getAttribute('cy'));
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return;
+  const screen = pt.matrixTransform(ctm);
+  const hostRect = host.getBoundingClientRect();
+  tip.style.left = `${screen.x - hostRect.left}px`;
+  tip.style.top = `${screen.y - hostRect.top}px`;
+  tip.style.transform = '';
+}
+
+function wireSparklineTips(trend) {
+  sparklineTipsAbort?.abort();
+  const chart = trend.querySelector('.dossier-trend__chart');
+  const svg = trend.querySelector('.dossier-trend__svg');
+  const tip = trend.querySelector('.dossier-trend__tip');
+  if (!chart || !svg || !tip) return;
+
+  sparklineTipsAbort = new AbortController();
+  const { signal } = sparklineTipsAbort;
+  const hits = [...svg.querySelectorAll('.dossier-trend__hit')];
+  const coarse = window.matchMedia('(hover: none)').matches;
+  let active = null;
+
+  const hide = () => {
+    active = null;
+    tip.hidden = true;
+    tip.classList.remove('is-bravo');
+  };
+
+  const show = (hit) => {
+    active = hit;
+    tip.textContent = formatTrendTip(hit);
+    tip.hidden = false;
+    tip.classList.toggle('is-bravo', hit.getAttribute('data-series') === 'bravo');
+    positionTrendTip(svg, chart, tip, hit);
+  };
+
+  hits.forEach((hit) => {
+    hit.addEventListener('pointerenter', () => {
+      if (!coarse) show(hit);
+    }, { signal });
+    hit.addEventListener('pointerleave', () => {
+      if (!coarse) hide();
+    }, { signal });
+    hit.addEventListener('focus', () => show(hit), { signal });
+    hit.addEventListener('blur', () => hide(), { signal });
+    hit.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (!coarse) return;
+      if (active === hit) hide();
+      else show(hit);
+    }, { signal });
+  });
+
+  document.addEventListener('pointerdown', (event) => {
+    if (!event.target.closest('.dossier-trend__hit')) hide();
+  }, { signal });
 }
 
 function trendDeltaLabel(recentPoints) {
@@ -1338,7 +1427,7 @@ function getCompareSide(name) {
   const rank = seasonPlayer?.rank ?? null;
   const points = seasonPlayer?.points ?? 0;
   const recent = [...(profile?.recentMatches || [])]
-    .slice()
+    .filter((m) => Number(m.seasonId) === Number(selectedSeasonId))
     .sort((a, b) => String(a.at || '').localeCompare(String(b.at || '')));
 
   return {
@@ -1614,7 +1703,6 @@ function confirmCompareFromKeyboard(inputValue) {
 
 function applyDossierCompareChrome(isCompare) {
   const dossier = document.getElementById('player-dossier');
-  const slotAlpha = document.getElementById('dossier-slot-alpha');
   const vs = document.getElementById('dossier-vs');
   const bravo = document.getElementById('dossier-bravo');
   const compareWrap = document.getElementById('dossier-compare');
@@ -1630,7 +1718,6 @@ function applyDossierCompareChrome(isCompare) {
       isCompare ? 'dossier-name dossier-name-b' : 'dossier-name'
     );
   }
-  if (slotAlpha) slotAlpha.hidden = !isCompare;
   if (vs) vs.hidden = !isCompare;
   if (bravo) bravo.hidden = !isCompare;
   if (compareWrap) {
@@ -1660,9 +1747,6 @@ function paintDossierSide(side, suffix) {
   rankEl.style.color = accent;
   nameEl.textContent = side.name;
   seasonEl.textContent = seasonLabelText(season);
-
-  const slotEl = document.getElementById(suffix === 'b' ? 'dossier-slot-bravo' : 'dossier-slot-alpha');
-  if (slotEl) slotEl.textContent = side.name;
 }
 
 function renderDossierSingle(side) {
@@ -1702,9 +1786,10 @@ function renderDossierSingle(side) {
 
   trend.innerHTML = `
     <p class="dossier-trend__title">Últimas partidas</p>
-    <p class="dossier-trend__axes">Y puntos · X tiempo</p>
+    <p class="dossier-trend__axes">Y puntos · X partidas</p>
     ${buildSparklineSvg(side.recent)}
   `;
+  wireSparklineTips(trend);
 
   const bySeason = side.bySeason.length ? side.bySeason : [{
     seasonId: selectedSeasonId,
@@ -1757,7 +1842,10 @@ function renderDossierCompare(alpha, bravo) {
     `;
   }).join('');
 
-  const chart = buildSparklineSvg(alpha.recent, bravo.recent);
+  const chart = buildSparklineSvg(alpha.recent, bravo.recent, {
+    a: alpha.name,
+    b: bravo.name
+  });
   const drewAny = alpha.recent.length >= 2 || bravo.recent.length >= 2;
   const emptyA = drewAny && alpha.recent.length < 2
     ? `<p class="dossier-trend__empty">${escapeHtml(alpha.name)}: sin historial reciente</p>`
@@ -1768,7 +1856,7 @@ function renderDossierCompare(alpha, bravo) {
 
   trend.innerHTML = `
     <p class="dossier-trend__title">Últimas partidas</p>
-    <p class="dossier-trend__axes">Y puntos · X tiempo</p>
+    <p class="dossier-trend__axes">Y puntos · X partidas</p>
     <p class="dossier-trend__legend">
       <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">${escapeHtml(alpha.name)}</span>
       <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">${escapeHtml(bravo.name)}</span>
@@ -1776,6 +1864,7 @@ function renderDossierCompare(alpha, bravo) {
     ${chart}
     ${emptyA}${emptyB}
   `;
+  wireSparklineTips(trend);
 
   const seasonIds = new Set();
   [...alpha.bySeason, ...bravo.bySeason].forEach((entry) => {
@@ -1904,6 +1993,9 @@ function teardownPlayerDossier() {
     clearTimeout(holoCollapseTimer);
     holoCollapseTimer = null;
   }
+
+  sparklineTipsAbort?.abort();
+  sparklineTipsAbort = null;
 
   if (dossier) {
     dossier.hidden = true;

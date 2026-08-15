@@ -1998,21 +1998,8 @@ body.is-dossier-open {
   min-width: 0;
 }
 
-.player-dossier__slot-tag {
-  margin: 0 0 0.45rem;
-  font-family: var(--font-display);
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
-  color: var(--halo-cyan);
-  overflow-wrap: anywhere;
-}
-
-.player-dossier__side--bravo .player-dossier__slot-tag,
 .player-dossier--compare .player-dossier__side--bravo .player-dossier__name {
   color: var(--halo-rival);
-}
-
-.player-dossier--compare .player-dossier__side--bravo .player-dossier__name {
   text-shadow: 0 0 16px rgba(255, 42, 74, 0.35);
 }
 
@@ -2082,8 +2069,7 @@ body.is-dossier-open {
 .player-dossier__compare-picker[hidden],
 .player-dossier__clear-rival[hidden],
 .player-dossier__vs[hidden],
-.player-dossier__side--bravo[hidden],
-.player-dossier__slot-tag[hidden] {
+.player-dossier__side--bravo[hidden] {
   display: none !important;
 }
 
@@ -2481,11 +2467,70 @@ body.is-dossier-open {
   color: rgba(255, 107, 53, 0.65);
 }
 
+.dossier-trend__chart {
+  position: relative;
+}
+
 .dossier-trend__svg {
   display: block;
   width: 100%;
   max-width: 100%;
   height: auto;
+  overflow: visible;
+}
+
+.dossier-trend__svg polyline,
+.dossier-trend__axis,
+.dossier-trend__grid,
+.dossier-trend__label,
+.dossier-trend__dot {
+  pointer-events: none;
+}
+
+.dossier-trend__hit {
+  cursor: pointer;
+  outline: none;
+}
+
+.dossier-trend__hit:focus-visible {
+  stroke: var(--halo-cyan);
+  stroke-width: 1.2;
+}
+
+.dossier-trend__tip {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  max-width: min(16rem, calc(100% - 8px));
+  padding: 0.28rem 0.5rem;
+  background: rgba(6, 8, 16, 0.94);
+  border: 1px solid var(--halo-cyan);
+  color: #e8f4ff;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+}
+
+.dossier-trend__tip.is-bravo {
+  border-color: var(--halo-rival);
+  box-shadow: 0 0 12px rgba(255, 42, 74, 0.22);
+}
+
+.dossier-trend__tip[hidden] {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dossier-trend__tip:not([hidden]) {
+    animation: dossier-trend-tip-in 0.14s ease-out;
+  }
+}
+
+@keyframes dossier-trend-tip-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .dossier-trend__axis,
