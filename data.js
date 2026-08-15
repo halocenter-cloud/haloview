@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-08-15T05:42:49.082Z",
+  "lastUpdated": "2026-08-15T21:09:49.711Z",
   "activeSeasonId": 1,
   "season": "Temporada 1 — desde 8 ago 2026",
   "players": [
@@ -232,42 +232,162 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-15T05:42:49.042Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "53b8b0656e078dd8",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:24:07.544Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "41e7ae56f0ea4fec",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:06:55.375Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "72ac430c453f198f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:52:10.964Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "ade65efb6e592c38",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:37:08.540Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "65feffee63c953f5",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:23:03.673Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "162c50ac3d4205ca",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -275,7 +395,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 66,
           "rank": 5,
-          "matches": 20
+          "matches": 20,
+          "bestGame": 8,
+          "avgPoints": 3.3,
+          "matchesPerWeek": 17.8,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -288,42 +413,178 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-15T05:42:49.042Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "53b8b0656e078dd8",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:24:07.544Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "41e7ae56f0ea4fec",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:06:55.375Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "72ac430c453f198f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:52:10.964Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "ade65efb6e592c38",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:37:08.540Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "65feffee63c953f5",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:23:03.673Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "162c50ac3d4205ca",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -331,7 +592,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 104,
           "rank": 2,
-          "matches": 22
+          "matches": 22,
+          "bestGame": 10,
+          "avgPoints": 4.7,
+          "matchesPerWeek": 19.6,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -344,42 +610,66 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-09T05:49:49.085Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:30:14.535Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:12:53.461Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:52:51.157Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:22:59.822Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:06:40.930Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T03:56:06.679Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T03:39:10.534Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -387,7 +677,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 30,
           "rank": 7,
-          "matches": 8
+          "matches": 8,
+          "bestGame": 8,
+          "avgPoints": 3.8,
+          "matchesPerWeek": 7.1,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -400,42 +695,106 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:49:49.085Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:30:14.535Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:12:53.461Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:52:51.157Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:22:59.822Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T06:04:55.745Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -443,7 +802,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 26,
           "rank": 8,
-          "matches": 13
+          "matches": 13,
+          "bestGame": 5,
+          "avgPoints": 2,
+          "matchesPerWeek": 11.6,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -458,7 +822,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -471,42 +840,130 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:49:49.085Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:30:14.535Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:12:53.461Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:52:51.157Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:22:59.822Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T04:06:40.930Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -514,7 +971,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 45,
           "rank": 6,
-          "matches": 16
+          "matches": 16,
+          "bestGame": 10,
+          "avgPoints": 2.8,
+          "matchesPerWeek": 14.3,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -527,42 +989,154 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-15T05:42:49.042Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "53b8b0656e078dd8",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:24:07.544Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "41e7ae56f0ea4fec",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:06:55.375Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "72ac430c453f198f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:52:10.964Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "ade65efb6e592c38",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:37:08.540Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "65feffee63c953f5",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:23:03.673Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "162c50ac3d4205ca",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 3,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -570,7 +1144,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 95,
           "rank": 3,
-          "matches": 19
+          "matches": 19,
+          "bestGame": 10,
+          "avgPoints": 5,
+          "matchesPerWeek": 16.9,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -585,7 +1164,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -598,42 +1182,178 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-15T05:42:49.042Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "53b8b0656e078dd8",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:24:07.544Z",
           "seasonId": 1,
-          "points": 3
+          "points": 3,
+          "matchId": "41e7ae56f0ea4fec",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:06:55.375Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "72ac430c453f198f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:52:10.964Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "ade65efb6e592c38",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:37:08.540Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "65feffee63c953f5",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:23:03.673Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "162c50ac3d4205ca",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 6
+          "points": 6,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 3,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -641,7 +1361,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 84,
           "rank": 4,
-          "matches": 22
+          "matches": 22,
+          "bestGame": 10,
+          "avgPoints": 3.8,
+          "matchesPerWeek": 19.6,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -656,7 +1381,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -671,7 +1401,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -684,32 +1419,50 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-08T06:04:55.745Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T05:45:14.523Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T05:28:30.938Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T05:16:05.083Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T05:01:20.605Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-08T04:43:15.610Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -717,7 +1470,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "rank": 10,
-          "matches": 6
+          "matches": 6,
+          "bestGame": 2,
+          "avgPoints": 1.3,
+          "matchesPerWeek": 5.3,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -730,42 +1488,178 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-15T05:42:49.042Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "53b8b0656e078dd8",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:24:07.544Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "41e7ae56f0ea4fec",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T05:06:55.375Z",
           "seasonId": 1,
-          "points": 8
+          "points": 8,
+          "matchId": "72ac430c453f198f",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:52:10.964Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "ade65efb6e592c38",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:37:08.540Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "65feffee63c953f5",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-15T04:23:03.673Z",
           "seasonId": 1,
-          "points": 4
+          "points": 4,
+          "matchId": "162c50ac3d4205ca",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 10
+          "points": 10,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:49:49.085Z",
+          "seasonId": 1,
+          "points": 2,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:30:14.535Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T05:12:53.461Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "e76ad22cc086ed92",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:52:51.157Z",
+          "seasonId": 1,
+          "points": 1,
+          "matchId": "631a2f639bccd955",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:22:59.822Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "38a5b7c76ecc5ffa",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T04:06:40.930Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "c7a4c0ab0a2e9809",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:56:06.679Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "d0b32ac0eebc2a9f",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-09T03:39:10.534Z",
+          "seasonId": 1,
+          "points": 10,
+          "matchId": "a6968b08278478d6",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T06:04:55.745Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "f23306221844a386",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:45:14.523Z",
+          "seasonId": 1,
+          "points": 5,
+          "matchId": "d54ff40fff929204",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:28:30.938Z",
+          "seasonId": 1,
+          "points": 8,
+          "matchId": "70ce607e71ea934d",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:16:05.083Z",
+          "seasonId": 1,
+          "points": 6,
+          "matchId": "022f332fa6492430",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T05:01:20.605Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "0080c4cbc990959b",
+          "modo": null,
+          "result": null
+        },
+        {
+          "at": "2026-08-08T04:43:15.610Z",
+          "seasonId": 1,
+          "points": 4,
+          "matchId": "7dafe9e272a74616",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -773,7 +1667,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 136,
           "rank": 1,
-          "matches": 22
+          "matches": 22,
+          "bestGame": 10,
+          "avgPoints": 6.2,
+          "matchesPerWeek": 19.6,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -788,7 +1687,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -803,7 +1707,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -816,22 +1725,34 @@ const SQUAD_DATA = {
         {
           "at": "2026-08-09T07:24:48.754Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "3a2cd2985e80fb30",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:23:53.117Z",
           "seasonId": 1,
-          "points": 2
+          "points": 2,
+          "matchId": "5745e798daed99da",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T07:00:31.863Z",
           "seasonId": 1,
-          "points": 5
+          "points": 5,
+          "matchId": "31bab3ab1db1dc82",
+          "modo": null,
+          "result": null
         },
         {
           "at": "2026-08-09T05:30:14.535Z",
           "seasonId": 1,
-          "points": 1
+          "points": 1,
+          "matchId": "c24826178cd9ab54",
+          "modo": null,
+          "result": null
         }
       ],
       "bySeason": [
@@ -839,7 +1760,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "rank": 9,
-          "matches": 4
+          "matches": 4,
+          "bestGame": 5,
+          "avgPoints": 2.5,
+          "matchesPerWeek": 3.6,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     },
@@ -854,7 +1780,12 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 0,
           "rank": 11,
-          "matches": 0
+          "matches": 0,
+          "bestGame": null,
+          "avgPoints": null,
+          "matchesPerWeek": 0,
+          "wins": 0,
+          "teamMatches": 0
         }
       ]
     }
