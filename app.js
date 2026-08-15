@@ -1107,11 +1107,33 @@ function formatMatchAxisLabel(iso) {
 }
 
 function pickAxisLabels(items) {
+  const minGap = 56;
   if (!items.length) return [];
-  if (items.length === 1) return [items[0]];
-  if (items.length === 2) return [items[0], items[items.length - 1]];
-  const mid = items[Math.floor((items.length - 1) / 2)];
-  return [items[0], mid, items[items.length - 1]];
+  const sorted = [...items].sort((a, b) => a.x - b.x);
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+
+  if (sorted.length === 1 || Math.abs(last.x - first.x) < minGap) {
+    return [{ ...first, anchor: 'middle' }];
+  }
+
+  const plotMid = (first.x + last.x) / 2;
+  let mid = first;
+  let midDist = Infinity;
+  for (const item of sorted) {
+    const d = Math.abs(item.x - plotMid);
+    if (d < midDist) {
+      midDist = d;
+      mid = item;
+    }
+  }
+
+  const ticks = [{ ...first, anchor: 'start' }];
+  if (Math.abs(mid.x - first.x) >= minGap && Math.abs(last.x - mid.x) >= minGap) {
+    ticks.push({ ...mid, anchor: 'middle' });
+  }
+  ticks.push({ ...last, anchor: 'end' });
+  return ticks;
 }
 
 function matchRows(matches) {
@@ -1126,11 +1148,11 @@ function matchRows(matches) {
   }));
 }
 
-function sparklineCoords(rows, min, span, minT, spanT, padL, padT, plotW, plotH) {
-  const useTime = minT != null && spanT > 0;
+function sparklineCoords(rows, min, span, minT, spanT, padL, padT, plotW, plotH, useTime) {
+  const timed = Boolean(useTime && minT != null && spanT > 0);
   return rows.map((row, index) => {
     let x;
-    if (useTime && row.time != null) {
+    if (timed && row.time != null) {
       x = padL + ((row.time - minT) / spanT) * plotW;
     } else if (rows.length < 2) {
       x = padL + plotW / 2;
@@ -1157,6 +1179,18 @@ function polylineMarkup(coords, className, stroke) {
   `;
 }
 
+function circlesMarkup(coords, className, fill) {
+  return (coords || []).map((c) => `
+    <circle
+      class="${className}"
+      cx="${c.x.toFixed(1)}"
+      cy="${c.y.toFixed(1)}"
+      r="2.2"
+      fill="${fill}"
+    />
+  `).join('');
+}
+
 /**
  * @param {object[]} matches
  * @param {object[]|null} [secondMatches]
@@ -1175,7 +1209,7 @@ function buildSparklineSvg(matches, secondMatches) {
   const width = dual ? 480 : 320;
   const height = 92;
   const padL = 30;
-  const padR = 10;
+  const padR = 36;
   const padT = 10;
   const padB = 22;
   const plotW = width - padL - padR;
@@ -1197,12 +1231,13 @@ function buildSparklineSvg(matches, secondMatches) {
   const minT = times.length ? Math.min(...times) : null;
   const maxT = times.length ? Math.max(...times) : null;
   const spanT = minT != null && maxT != null ? Math.max(maxT - minT, 1) : 0;
+  const useTime = dual && minT != null && spanT > 0;
 
   const coordsA = canDrawA
-    ? sparklineCoords(rowsA, min, span, minT, spanT, padL, padT, plotW, plotH)
+    ? sparklineCoords(rowsA, min, span, minT, spanT, padL, padT, plotW, plotH, useTime)
     : [];
   const coordsB = canDrawB
-    ? sparklineCoords(rowsB, min, span, minT, spanT, padL, padT, plotW, plotH)
+    ? sparklineCoords(rowsB, min, span, minT, spanT, padL, padT, plotW, plotH, useTime)
     : [];
 
   const yTicks = min === max
@@ -1213,7 +1248,7 @@ function buildSparklineSvg(matches, secondMatches) {
         { value: min, y: padT + plotH }
       ];
 
-  const xSource = [...coordsA, ...coordsB].sort((a, b) => a.x - b.x);
+  const xSource = [...coordsA, ...coordsB];
   const xTicks = pickAxisLabels(xSource);
 
   const yLabels = yTicks.map((tick) => `
@@ -1222,27 +1257,41 @@ function buildSparklineSvg(matches, secondMatches) {
   `).join('');
 
   const xLabels = xTicks.map((tick) => `
-    <text class="dossier-trend__label dossier-trend__label--x" x="${tick.x.toFixed(1)}" y="${height - 6}" text-anchor="middle">${escapeHtml(formatMatchAxisLabel(tick.at))}</text>
+    <text class="dossier-trend__label dossier-trend__label--x" x="${tick.x.toFixed(1)}" y="${height - 6}" text-anchor="${tick.anchor || 'middle'}">${escapeHtml(formatMatchAxisLabel(tick.at))}</text>
   `).join('');
 
+  const strokeA = dual ? 'var(--halo-cyan)' : 'currentColor';
+  const strokeB = 'var(--halo-rival)';
   const lineA = polylineMarkup(
     coordsA,
     dual ? 'dossier-trend__line dossier-trend__line--alpha' : '',
-    dual ? 'var(--halo-cyan)' : 'currentColor'
+    strokeA
   );
   const lineB = polylineMarkup(
     coordsB,
     'dossier-trend__line dossier-trend__line--bravo',
-    'var(--halo-rival)'
+    strokeB
+  );
+  const dotsA = circlesMarkup(
+    coordsA,
+    dual ? 'dossier-trend__dot dossier-trend__dot--alpha' : 'dossier-trend__dot',
+    strokeA
+  );
+  const dotsB = circlesMarkup(
+    coordsB,
+    'dossier-trend__dot dossier-trend__dot--bravo',
+    strokeB
   );
 
   return `
-    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X tiempo">
+    <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X ${useTime ? 'tiempo' : 'partidas'}">
       ${yLabels}
       <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
       <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
       ${lineA}
       ${lineB}
+      ${dotsA}
+      ${dotsB}
       ${xLabels}
     </svg>
   `;
