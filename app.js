@@ -1107,7 +1107,7 @@ function formatMatchAxisLabel(iso) {
 }
 
 function pickAxisLabels(items) {
-  const minGap = 56;
+  const minGap = 88;
   if (!items.length) return [];
   const sorted = [...items].sort((a, b) => a.x - b.x);
   const first = sorted[0];
@@ -1117,20 +1117,12 @@ function pickAxisLabels(items) {
     return [{ ...first, anchor: 'middle' }];
   }
 
-  const plotMid = (first.x + last.x) / 2;
-  let mid = first;
-  let midDist = Infinity;
-  for (const item of sorted) {
-    const d = Math.abs(item.x - plotMid);
-    if (d < midDist) {
-      midDist = d;
-      mid = item;
-    }
-  }
-
   const ticks = [{ ...first, anchor: 'start' }];
-  if (Math.abs(mid.x - first.x) >= minGap && Math.abs(last.x - mid.x) >= minGap) {
-    ticks.push({ ...mid, anchor: 'middle' });
+  for (const item of sorted.slice(1, -1)) {
+    const prev = ticks[ticks.length - 1];
+    if (item.x - prev.x >= minGap && last.x - item.x >= minGap) {
+      ticks.push({ ...item, anchor: 'middle' });
+    }
   }
   ticks.push({ ...last, anchor: 'end' });
   return ticks;
@@ -1211,8 +1203,10 @@ function circlesMarkup(coords, className, fill, seriesName, series) {
  * @param {object[]} matches
  * @param {object[]|null} [secondMatches]
  * @param {{ a?: string, b?: string }} [names]
+ * @param {number} [measuredWidth]
+ * @param {number} [measuredHeight]
  */
-function buildSparklineSvg(matches, secondMatches, names) {
+function buildSparklineSvg(matches, secondMatches, names, measuredWidth, measuredHeight) {
   const rowsA = matchRows(matches);
   const rowsB = secondMatches == null ? null : matchRows(secondMatches);
   const dual = rowsB != null;
@@ -1223,12 +1217,19 @@ function buildSparklineSvg(matches, secondMatches, names) {
     return '<p class="dossier-trend__empty">Sin historial reciente</p>';
   }
 
-  const width = dual ? 480 : 320;
-  const height = 92;
   const padL = 30;
   const padR = 36;
-  const padT = 10;
-  const padB = 22;
+  const padT = 14;
+  const padB = 24;
+  const measuredW = Math.max(0, Math.floor(Number(measuredWidth) || 0));
+  const measuredH = Math.max(0, Math.floor(Number(measuredHeight) || 0));
+  const height = Math.max(measuredH || 200, 168);
+  const pointCount = Math.max(
+    canDrawA ? rowsA.length : 0,
+    canDrawB ? rowsB.length : 0
+  );
+  const minByPoints = padL + padR + Math.max(0, pointCount - 1) * 36;
+  const width = Math.max(measuredW || (dual ? 480 : 320), minByPoints);
   const plotW = width - padL - padR;
   const plotH = height - padT - padB;
 
@@ -1299,17 +1300,19 @@ function buildSparklineSvg(matches, secondMatches, names) {
 
   return `
     <div class="dossier-trend__chart">
-      <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" role="group" aria-label="Últimas partidas: eje Y puntos ${min} a ${max}, eje X partidas">
-        ${yLabels}
-        <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
-        <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
-        ${lineA}
-        ${lineB}
-        ${dotsA}
-        ${dotsB}
-        ${xLabels}
-      </svg>
-      <div class="dossier-trend__tip" id="dossier-trend-tip" hidden></div>
+      <div class="dossier-trend__plot" style="width:${width}px;height:${height}px" data-layout-width="${measuredW || width}" data-layout-height="${measuredH || height}">
+        <svg class="dossier-trend__svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="group" aria-label="Partidas de la temporada: eje Y puntos ${min} a ${max}, eje X partidas">
+          ${yLabels}
+          <line class="dossier-trend__axis" x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT + plotH}" />
+          <line class="dossier-trend__axis" x1="${padL}" y1="${padT + plotH}" x2="${width - padR}" y2="${padT + plotH}" />
+          ${lineA}
+          ${lineB}
+          ${dotsA}
+          ${dotsB}
+          ${xLabels}
+        </svg>
+        <div class="dossier-trend__tip" id="dossier-trend-tip" hidden></div>
+      </div>
     </div>
   `;
 }
@@ -1340,9 +1343,10 @@ function positionTrendTip(svg, host, tip, hit) {
 function wireSparklineTips(trend) {
   sparklineTipsAbort?.abort();
   const chart = trend.querySelector('.dossier-trend__chart');
+  const plot = trend.querySelector('.dossier-trend__plot');
   const svg = trend.querySelector('.dossier-trend__svg');
   const tip = trend.querySelector('.dossier-trend__tip');
-  if (!chart || !svg || !tip) return;
+  if (!chart || !plot || !svg || !tip) return;
 
   sparklineTipsAbort = new AbortController();
   const { signal } = sparklineTipsAbort;
@@ -1361,7 +1365,7 @@ function wireSparklineTips(trend) {
     tip.textContent = formatTrendTip(hit);
     tip.hidden = false;
     tip.classList.toggle('is-bravo', hit.getAttribute('data-series') === 'bravo');
-    positionTrendTip(svg, chart, tip, hit);
+    positionTrendTip(svg, plot, tip, hit);
   };
 
   hits.forEach((hit) => {
@@ -1384,6 +1388,66 @@ function wireSparklineTips(trend) {
   document.addEventListener('pointerdown', (event) => {
     if (!event.target.closest('.dossier-trend__hit')) hide();
   }, { signal });
+}
+
+let sparklineObserver = null;
+let sparklineLayoutRaf = 0;
+
+function disconnectSparklineLayout() {
+  if (sparklineLayoutRaf) {
+    cancelAnimationFrame(sparklineLayoutRaf);
+    sparklineLayoutRaf = 0;
+  }
+  sparklineObserver?.disconnect();
+  sparklineObserver = null;
+}
+
+function scheduleSparklineLayout(trend, buildChart) {
+  disconnectSparklineLayout();
+  if (!trend || typeof buildChart !== 'function') return;
+
+  const run = () => {
+    sparklineLayoutRaf = 0;
+    const chart = trend.querySelector('.dossier-trend__chart');
+    if (!chart) return;
+
+    const availableW = Math.floor(chart.clientWidth);
+    const styles = window.getComputedStyle(chart);
+    const padY = (parseFloat(styles.paddingTop) || 0) + (parseFloat(styles.paddingBottom) || 0);
+    const availableH = Math.max(0, Math.floor(chart.clientHeight - padY));
+    if (availableW < 8 || availableH < 8) {
+      observeSparklineChart(chart, run);
+      return;
+    }
+
+    const plot = chart.querySelector('.dossier-trend__plot');
+    const fittedW = plot ? Number(plot.getAttribute('data-layout-width')) || 0 : 0;
+    const fittedH = plot ? Number(plot.getAttribute('data-layout-height')) || 0 : 0;
+    if (plot && Math.abs(fittedW - availableW) < 4 && Math.abs(fittedH - availableH) < 4) {
+      observeSparklineChart(chart, run);
+      return;
+    }
+
+    sparklineObserver?.disconnect();
+    sparklineObserver = null;
+    chart.outerHTML = buildChart(availableW, availableH);
+    wireSparklineTips(trend);
+    const nextChart = trend.querySelector('.dossier-trend__chart');
+    observeSparklineChart(nextChart, run);
+  };
+
+  sparklineLayoutRaf = requestAnimationFrame(run);
+}
+
+function observeSparklineChart(chart, run) {
+  sparklineObserver?.disconnect();
+  sparklineObserver = null;
+  if (!chart || typeof ResizeObserver === 'undefined') return;
+  sparklineObserver = new ResizeObserver(() => {
+    if (sparklineLayoutRaf) return;
+    sparklineLayoutRaf = requestAnimationFrame(run);
+  });
+  sparklineObserver.observe(chart);
 }
 
 function trendDeltaLabel(recentPoints) {
@@ -1785,11 +1849,12 @@ function renderDossierSingle(side) {
   `;
 
   trend.innerHTML = `
-    <p class="dossier-trend__title">Últimas partidas</p>
+    <p class="dossier-trend__title">Partidas de la temporada</p>
     <p class="dossier-trend__axes">Y puntos · X partidas</p>
     ${buildSparklineSvg(side.recent)}
   `;
   wireSparklineTips(trend);
+  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(side.recent, null, null, width, height));
 
   const bySeason = side.bySeason.length ? side.bySeason : [{
     seasonId: selectedSeasonId,
@@ -1855,7 +1920,7 @@ function renderDossierCompare(alpha, bravo) {
     : '';
 
   trend.innerHTML = `
-    <p class="dossier-trend__title">Últimas partidas</p>
+    <p class="dossier-trend__title">Partidas de la temporada</p>
     <p class="dossier-trend__axes">Y puntos · X partidas</p>
     <p class="dossier-trend__legend">
       <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">${escapeHtml(alpha.name)}</span>
@@ -1865,6 +1930,10 @@ function renderDossierCompare(alpha, bravo) {
     ${emptyA}${emptyB}
   `;
   wireSparklineTips(trend);
+  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(alpha.recent, bravo.recent, {
+    a: alpha.name,
+    b: bravo.name
+  }, width, height));
 
   const seasonIds = new Set();
   [...alpha.bySeason, ...bravo.bySeason].forEach((entry) => {
@@ -1996,6 +2065,7 @@ function teardownPlayerDossier() {
 
   sparklineTipsAbort?.abort();
   sparklineTipsAbort = null;
+  disconnectSparklineLayout();
 
   if (dossier) {
     dossier.hidden = true;
