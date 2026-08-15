@@ -2431,6 +2431,48 @@ body.is-dossier-open {
   color: rgba(192, 208, 224, 0.75);
 }
 
+.dossier-trend__modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.55rem;
+}
+
+.dossier-trend__mode {
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  background: rgba(0, 212, 255, 0.05);
+  color: rgba(192, 208, 224, 0.8);
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.5rem;
+  cursor: pointer;
+}
+
+.dossier-trend__mode:hover,
+.dossier-trend__mode:focus-visible {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.7);
+  color: var(--halo-cyan);
+}
+
+.dossier-trend__mode.is-active {
+  border-color: var(--halo-cyan);
+  background: rgba(0, 212, 255, 0.14);
+  color: var(--halo-cyan);
+}
+
+.player-dossier__trend--compare .dossier-trend__mode {
+  border-color: rgba(255, 42, 74, 0.28);
+}
+
+.player-dossier__trend--compare .dossier-trend__mode.is-active {
+  border-color: var(--halo-rival);
+  background: rgba(255, 42, 74, 0.12);
+  color: #ffd0d6;
+}
+
 .dossier-trend__legend {
   display: flex;
   gap: 1rem;

@@ -87,7 +87,10 @@ function normalizeProfile(profile) {
       ? profile.recentMatches.map((m) => ({
           at: m.at || null,
           seasonId: Number(m.seasonId),
-          points: Number(m.points) || 0
+          points: Number(m.points) || 0,
+          matchId: m.matchId ? String(m.matchId) : null,
+          modo: m.modo || null,
+          result: m.result === 'ganador' || m.result === 'perdedor' ? m.result : null
         }))
       : [],
     bySeason: Array.isArray(profile.bySeason)
@@ -95,7 +98,12 @@ function normalizeProfile(profile) {
           seasonId: Number(s.seasonId),
           points: Number(s.points) || 0,
           rank: s.rank != null ? Number(s.rank) : null,
-          matches: s.matches != null ? Number(s.matches) : null
+          matches: s.matches != null ? Number(s.matches) : null,
+          bestGame: s.bestGame != null ? Number(s.bestGame) : null,
+          avgPoints: s.avgPoints != null ? Number(s.avgPoints) : null,
+          matchesPerWeek: s.matchesPerWeek != null ? Number(s.matchesPerWeek) : null,
+          wins: s.wins != null ? Number(s.wins) : 0,
+          teamMatches: s.teamMatches != null ? Number(s.teamMatches) : 0
         }))
       : []
   };
@@ -1031,6 +1039,16 @@ function initSeasonSelector() {
 
 /** @type {string|null} */
 let openDossierName = null;
+/** @type {string} */
+let dossierMatchMode = 'all';
+
+const MATCH_MODES = [
+  { id: 'all', label: 'Todas' },
+  { id: 'ffa', label: 'FFA' },
+  { id: 'arcade', label: 'Arcade' },
+  { id: 'equipos', label: 'Equipos' },
+  { id: 'multiequipo', label: 'Multiequipo' }
+];
 /** @type {string|null} */
 let compareRivalName = null;
 /** @type {number} */
@@ -1131,7 +1149,8 @@ function pickAxisLabels(items) {
 function matchRows(matches) {
   return (matches || []).map((m) => ({
     points: Number(m && m.points) || 0,
-    at: m && m.at ? m.at : null
+    at: m && m.at ? m.at : null,
+    modo: m && m.modo ? m.modo : null
   }));
 }
 
@@ -1141,7 +1160,7 @@ function sparklineCoords(rows, min, span, padL, padT, plotW, plotH) {
       ? padL + plotW / 2
       : padL + (index / (rows.length - 1)) * plotW;
     const y = padT + plotH - ((row.points - min) / span) * plotH;
-    return { x, y, points: row.points, at: row.at };
+    return { x, y, points: row.points, at: row.at, modo: row.modo };
   });
 }
 
@@ -1168,7 +1187,8 @@ function circlesMarkup(coords, className, fill, seriesName, series) {
     const labelParts = [
       seriesName || '',
       formatMatchAxisLabel(c.at),
-      `${pts.toLocaleString('es')} pts`
+      `${pts.toLocaleString('es')} pts`,
+      modeLabel(c.modo)
     ].filter(Boolean);
     return `
       <g class="dossier-trend__pt">
@@ -1185,6 +1205,7 @@ function circlesMarkup(coords, className, fill, seriesName, series) {
           data-points="${pts}"
           data-name="${name}"
           data-series="${series || ''}"
+          data-modo="${c.modo ? escapeHtml(String(c.modo)) : ''}"
         />
         <circle
           class="${className}"
@@ -1319,11 +1340,29 @@ function buildSparklineSvg(matches, secondMatches, names, measuredWidth, measure
 
 let sparklineTipsAbort = null;
 
-function formatTrendTip(hit) {
+function formatTrendTip(hit, svg) {
   const when = formatMatchAxisLabel(hit.getAttribute('data-at'));
   const pts = Number(hit.getAttribute('data-points')) || 0;
   const name = hit.getAttribute('data-name') || '';
-  const body = `${when} · ${pts.toLocaleString('es')} pts`;
+  const modo = modeLabel(hit.getAttribute('data-modo'));
+  const parts = [when, `${pts.toLocaleString('es')} pts`];
+  if (modo) parts.push(modo);
+  if (svg) {
+    const at = hit.getAttribute('data-at');
+    const other = [...svg.querySelectorAll('.dossier-trend__hit')].find((node) => (
+      node !== hit
+      && at
+      && node.getAttribute('data-at') === at
+      && node.getAttribute('data-series')
+      && node.getAttribute('data-series') !== hit.getAttribute('data-series')
+    ));
+    if (other) {
+      const otherName = other.getAttribute('data-name') || '';
+      const otherPts = Number(other.getAttribute('data-points')) || 0;
+      parts.push(`${otherName} ${otherPts.toLocaleString('es')} pts`);
+    }
+  }
+  const body = parts.join(' · ');
   return name ? `${name} · ${body}` : body;
 }
 
@@ -1362,7 +1401,7 @@ function wireSparklineTips(trend) {
 
   const show = (hit) => {
     active = hit;
-    tip.textContent = formatTrendTip(hit);
+    tip.textContent = formatTrendTip(hit, svg);
     tip.hidden = false;
     tip.classList.toggle('is-bravo', hit.getAttribute('data-series') === 'bravo');
     positionTrendTip(svg, plot, tip, hit);
@@ -1481,6 +1520,81 @@ function canComparePlayers() {
   return (squadData.profiles || []).length > 1;
 }
 
+function modeLabel(modo) {
+  const found = MATCH_MODES.find((mode) => mode.id === modo);
+  return found && found.id !== 'all' ? found.label : '';
+}
+
+function filterRecentByMode(recent) {
+  if (!dossierMatchMode || dossierMatchMode === 'all') return recent || [];
+  return (recent || []).filter((m) => m.modo === dossierMatchMode);
+}
+
+function summarizeRecent(recent) {
+  const list = recent || [];
+  const pointsList = list.map((m) => Number(m.points) || 0);
+  const bestGame = pointsList.length ? Math.max(...pointsList) : null;
+  const avgPoints = pointsList.length
+    ? Number((pointsList.reduce((sum, n) => sum + n, 0) / pointsList.length).toFixed(1))
+    : null;
+  const teamRows = list.filter((m) => (
+    m.modo === 'equipos' && (m.result === 'ganador' || m.result === 'perdedor')
+  ));
+  const wins = teamRows.filter((m) => m.result === 'ganador').length;
+  const teamMatches = teamRows.length;
+  return {
+    bestGame,
+    avgPoints,
+    wins,
+    teamMatches,
+    winRate: teamMatches > 0 ? wins / teamMatches : null
+  };
+}
+
+function sharedMatchPairs(recentA, recentB) {
+  const mapB = new Map();
+  (recentB || []).forEach((m) => {
+    if (m && m.matchId) mapB.set(m.matchId, m);
+  });
+  return (recentA || [])
+    .filter((m) => m && m.matchId && mapB.has(m.matchId))
+    .sort((a, b) => String(a.at || '').localeCompare(String(b.at || '')))
+    .map((a) => ({ a, b: mapB.get(a.matchId) }));
+}
+
+function modeFilterMarkup() {
+  return `
+    <div class="dossier-trend__modes" role="group" aria-label="Filtro de modo">
+      ${MATCH_MODES.map((mode) => `
+        <button
+          type="button"
+          class="dossier-trend__mode${dossierMatchMode === mode.id ? ' is-active' : ''}"
+          data-match-mode="${mode.id}"
+          aria-pressed="${dossierMatchMode === mode.id ? 'true' : 'false'}"
+        >${escapeHtml(mode.label)}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function formatWinRate(n) {
+  if (n == null) return '—';
+  return `${Math.round(Number(n) * 100)}%`;
+}
+
+function applyViewStats(side, recentView) {
+  const fromRecent = summarizeRecent(recentView);
+  const filtered = dossierMatchMode !== 'all';
+  side.bestGame = filtered ? fromRecent.bestGame : (side.bestGame ?? fromRecent.bestGame);
+  side.avgPoints = filtered ? fromRecent.avgPoints : (side.avgPoints ?? fromRecent.avgPoints);
+  side.wins = filtered ? fromRecent.wins : (side.wins ?? fromRecent.wins);
+  side.teamMatches = filtered ? fromRecent.teamMatches : (side.teamMatches ?? fromRecent.teamMatches);
+  side.winRate = fromRecent.winRate != null
+    ? fromRecent.winRate
+    : (side.teamMatches > 0 ? side.wins / side.teamMatches : null);
+  side.recentView = recentView;
+}
+
 function getCompareSide(name) {
   const profile = getProfileByName(name);
   const seasonPlayer = findPlayerInSeason(name, selectedSeasonId);
@@ -1502,6 +1616,11 @@ function getCompareSide(name) {
     bestRank: profile?.bestRank ?? rank,
     careerPoints: profile ? Number(profile.careerPoints) || 0 : 0,
     matchesPlayed: profile ? Number(profile.matchesPlayed) || 0 : 0,
+    bestGame: seasonStats && seasonStats.bestGame != null ? Number(seasonStats.bestGame) : null,
+    avgPoints: seasonStats && seasonStats.avgPoints != null ? Number(seasonStats.avgPoints) : null,
+    matchesPerWeek: seasonStats && seasonStats.matchesPerWeek != null ? Number(seasonStats.matchesPerWeek) : null,
+    wins: seasonStats && seasonStats.wins != null ? Number(seasonStats.wins) : 0,
+    teamMatches: seasonStats && seasonStats.teamMatches != null ? Number(seasonStats.teamMatches) : 0,
     recent,
     bySeason
   };
@@ -1560,6 +1679,42 @@ const COMPARE_METRICS = [
   {
     key: 'matchesPlayed',
     label: 'Part. carrera',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  },
+  {
+    key: 'bestGame',
+    label: 'Mejor partida',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  },
+  {
+    key: 'avgPoints',
+    label: 'Media',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toFixed(1))
+  },
+  {
+    key: 'matchesPerWeek',
+    label: 'Part./semana',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toFixed(1))
+  },
+  {
+    key: 'winRate',
+    label: 'Winrate eq.',
+    better: 'higher',
+    format: formatWinRate
+  },
+  {
+    key: 'h2hCount',
+    label: 'Enfrentamientos',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : String(n))
+  },
+  {
+    key: 'h2hPoints',
+    label: 'Pts en duelo',
     better: 'higher',
     format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
   }
@@ -1822,10 +1977,16 @@ function renderDossierSingle(side) {
   const seasonsList = document.getElementById('dossier-seasons-list');
   if (!readouts || !trend || !seasonsList) return false;
 
-  const recentPoints = side.recent.map((m) => m.points);
+  const recentView = filterRecentByMode(side.recent);
+  applyViewStats(side, recentView);
+  const recentPoints = recentView.map((m) => m.points);
   const delta = trendDeltaLabel(recentPoints);
   const matchesLabel = side.matches != null ? String(side.matches) : '—';
   const careerMatches = String(side.matchesPlayed);
+  const modeSub = dossierMatchMode !== 'all'
+    ? `${recentView.length} en ${modeLabel(dossierMatchMode)}`
+    : `Carrera ${careerMatches}`;
+  const showWinRate = side.teamMatches > 0 || dossierMatchMode === 'equipos';
 
   readouts.innerHTML = `
     <div class="dossier-readout">
@@ -1835,7 +1996,7 @@ function renderDossierSingle(side) {
     <div class="dossier-readout">
       <span class="dossier-readout__label">Partidas</span>
       <span class="dossier-readout__value">${matchesLabel}</span>
-      <span class="dossier-readout__sub">Carrera ${careerMatches}</span>
+      <span class="dossier-readout__sub">${escapeHtml(modeSub)}</span>
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Mejor puesto</span>
@@ -1846,15 +2007,34 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__value dossier-readout__value--trend dossier-readout__value--trend-${delta.tone}">${escapeHtml(delta.label)}</span>
       <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
     </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Mejor partida</span>
+      <span class="dossier-readout__value">${side.bestGame != null ? side.bestGame.toLocaleString('es') : '—'}</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Media</span>
+      <span class="dossier-readout__value">${side.avgPoints != null ? side.avgPoints.toFixed(1) : '—'}</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Part./semana</span>
+      <span class="dossier-readout__value">${side.matchesPerWeek != null ? Number(side.matchesPerWeek).toFixed(1) : '—'}</span>
+    </div>
+    ${showWinRate ? `
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Winrate eq.</span>
+      <span class="dossier-readout__value">${escapeHtml(formatWinRate(side.winRate))}</span>
+      <span class="dossier-readout__sub">${side.teamMatches || 0} part. equipos</span>
+    </div>` : ''}
   `;
 
   trend.innerHTML = `
     <p class="dossier-trend__title">Partidas de la temporada</p>
     <p class="dossier-trend__axes">Y puntos · X partidas</p>
-    ${buildSparklineSvg(side.recent)}
+    ${modeFilterMarkup()}
+    ${buildSparklineSvg(recentView)}
   `;
   wireSparklineTips(trend);
-  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(side.recent, null, null, width, height));
+  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(recentView, null, null, width, height));
 
   const bySeason = side.bySeason.length ? side.bySeason : [{
     seasonId: selectedSeasonId,
@@ -1892,7 +2072,34 @@ function renderDossierCompare(alpha, bravo) {
   const seasonsList = document.getElementById('dossier-seasons-list');
   if (!readouts || !trend || !seasonsList) return false;
 
-  readouts.innerHTML = COMPARE_METRICS.map((metric) => {
+  const recentA = filterRecentByMode(alpha.recent);
+  const recentB = filterRecentByMode(bravo.recent);
+  applyViewStats(alpha, recentA);
+  applyViewStats(bravo, recentB);
+
+  const pairs = sharedMatchPairs(recentA, recentB);
+  const canH2h = recentA.some((m) => m.matchId) && recentB.some((m) => m.matchId);
+  const useShared = pairs.length >= 2;
+  if (canH2h) {
+    alpha.h2hCount = pairs.length;
+    bravo.h2hCount = pairs.length;
+    alpha.h2hPoints = pairs.reduce((sum, p) => sum + (Number(p.a.points) || 0), 0);
+    bravo.h2hPoints = pairs.reduce((sum, p) => sum + (Number(p.b.points) || 0), 0);
+  }
+
+  const chartA = useShared ? pairs.map((p) => p.a) : recentA;
+  const chartB = useShared ? pairs.map((p) => p.b) : recentB;
+  const names = { a: alpha.name, b: bravo.name };
+
+  const metrics = COMPARE_METRICS.filter((metric) => {
+    if (metric.key === 'winRate') {
+      return alpha.teamMatches > 0 || bravo.teamMatches > 0 || dossierMatchMode === 'equipos';
+    }
+    if (metric.key === 'h2hCount' || metric.key === 'h2hPoints') return canH2h;
+    return true;
+  });
+
+  readouts.innerHTML = metrics.map((metric) => {
     const aVal = alpha[metric.key];
     const bVal = bravo[metric.key];
     const winner = metricWinner(aVal, bVal, metric.better);
@@ -1907,33 +2114,32 @@ function renderDossierCompare(alpha, bravo) {
     `;
   }).join('');
 
-  const chart = buildSparklineSvg(alpha.recent, bravo.recent, {
-    a: alpha.name,
-    b: bravo.name
-  });
-  const drewAny = alpha.recent.length >= 2 || bravo.recent.length >= 2;
-  const emptyA = drewAny && alpha.recent.length < 2
+  const chart = buildSparklineSvg(chartA, chartB, names);
+  const drewAny = chartA.length >= 2 || chartB.length >= 2;
+  const emptyA = drewAny && chartA.length < 2
     ? `<p class="dossier-trend__empty">${escapeHtml(alpha.name)}: sin historial reciente</p>`
     : '';
-  const emptyB = drewAny && bravo.recent.length < 2
+  const emptyB = drewAny && chartB.length < 2
     ? `<p class="dossier-trend__empty">${escapeHtml(bravo.name)}: sin historial reciente</p>`
     : '';
+  const h2hNote = canH2h && pairs.length < 2
+    ? '<p class="dossier-trend__empty">Sin partidas en común</p>'
+    : '';
+  const title = useShared ? 'Enfrentamientos compartidos' : 'Partidas de la temporada';
 
   trend.innerHTML = `
-    <p class="dossier-trend__title">Partidas de la temporada</p>
+    <p class="dossier-trend__title">${title}</p>
     <p class="dossier-trend__axes">Y puntos · X partidas</p>
+    ${modeFilterMarkup()}
     <p class="dossier-trend__legend">
       <span class="dossier-trend__legend-item dossier-trend__legend-item--alpha">${escapeHtml(alpha.name)}</span>
       <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">${escapeHtml(bravo.name)}</span>
     </p>
     ${chart}
-    ${emptyA}${emptyB}
+    ${h2hNote}${emptyA}${emptyB}
   `;
   wireSparklineTips(trend);
-  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(alpha.recent, bravo.recent, {
-    a: alpha.name,
-    b: bravo.name
-  }, width, height));
+  scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(chartA, chartB, names, width, height));
 
   const seasonIds = new Set();
   [...alpha.bySeason, ...bravo.bySeason].forEach((entry) => {
@@ -2066,6 +2272,7 @@ function teardownPlayerDossier() {
   sparklineTipsAbort?.abort();
   sparklineTipsAbort = null;
   disconnectSparklineLayout();
+  dossierMatchMode = 'all';
 
   if (dossier) {
     dossier.hidden = true;
@@ -2130,6 +2337,7 @@ function openPlayerDossier(name, options = {}) {
   }
 
   openDossierName = nextName;
+  if (!alreadyOpen) dossierMatchMode = 'all';
   const ok = renderPlayerDossier(openDossierName);
   if (!ok) {
     openDossierName = null;
@@ -2198,10 +2406,22 @@ function initPlayerDossier() {
   const clearBtn = document.getElementById('dossier-clear-rival');
   const input = document.getElementById('dossier-compare-input');
   const list = document.getElementById('compare-listbox');
+  const trend = document.getElementById('dossier-trend');
 
   if (closeBtn) closeBtn.addEventListener('click', () => closePlayerDossier());
   if (backdrop) backdrop.addEventListener('click', () => closePlayerDossier());
   if (clearBtn) clearBtn.addEventListener('click', () => clearCompareRival());
+
+  if (trend) {
+    trend.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-match-mode]');
+      if (!button || !trend.contains(button)) return;
+      const next = button.getAttribute('data-match-mode');
+      if (!next || next === dossierMatchMode) return;
+      dossierMatchMode = next;
+      if (openDossierName) renderPlayerDossier(openDossierName);
+    });
+  }
 
   if (toggle) {
     toggle.addEventListener('click', () => {
