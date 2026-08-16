@@ -328,6 +328,17 @@ body::before {
   margin-left: 0.5rem;
 }
 
+.status-time.is-stale {
+  color: var(--halo-orange);
+  opacity: 0.9;
+}
+
+.status-dot--stale {
+  background: var(--halo-orange);
+  box-shadow: 0 0 8px rgba(255, 107, 53, 0.55);
+  opacity: 0.9;
+}
+
 .season-banner {
   width: auto;
   max-width: min(320px, 100%);
@@ -1345,8 +1356,13 @@ main:has(.section--ranking.active) {
   opacity: 0.7;
 }
 
+.footer-sub .status-time {
+  margin-left: 0.25rem;
+}
+
 main:has(.section--ranking.active) + .footer {
-  display: none;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2017,6 +2033,8 @@ body.is-dossier-open {
 .player-dossier__header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.45rem;
   flex-shrink: 0;
 }
@@ -2045,20 +2063,20 @@ body.is-dossier-open {
   border-radius: 0;
 }
 
-.player-dossier__close-x {
-  width: 0.72rem;
-  height: 0.72rem;
-  flex: 0 0 auto;
-  fill: currentColor;
-  filter: drop-shadow(0 0 5px var(--halo-glow));
-}
-
 .player-dossier__close:hover,
 .player-dossier__close:focus-visible {
   outline: none;
   border-color: rgba(0, 212, 255, 0.7);
   background: rgba(0, 212, 255, 0.12);
   color: #fff;
+}
+
+.player-dossier__close-x {
+  width: 0.72rem;
+  height: 0.72rem;
+  flex: 0 0 auto;
+  fill: currentColor;
+  filter: drop-shadow(0 0 5px var(--halo-glow));
 }
 
 .player-dossier__close:hover .player-dossier__close-x,

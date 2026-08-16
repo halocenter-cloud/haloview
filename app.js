@@ -21,6 +21,7 @@ const RANK_REVEAL_MAX_STAGGER = 11;
 const ZERO_REVEAL_MAX_STAGGER = 8;
 const AVG_MIN_MATCHES = 5;
 const RANKING_METRIC_KEY = 'haloview-ranking-metric';
+const STALE_SYNC_MS = 12 * 60 * 60 * 1000;
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -840,13 +841,15 @@ function renderAvgRanking(players) {
     );
   }
 
+  const hints = [`Solo cuentan ${AVG_MIN_MATCHES}+ partidas.`];
   if (hasTiedAvgs(eligible)) {
-    html += `
-      <p class="ranking-tie-hint" role="status">
-        Mismo promedio: gana quien más partidas tenga.
-      </p>
-    `;
+    hints.push('Mismo promedio: gana quien más partidas tenga.');
   }
+  html += `
+    <p class="ranking-tie-hint" role="status">
+      ${hints.map((line) => escapeHtml(line)).join('<br>')}
+    </p>
+  `;
 
   return html;
 }
@@ -1057,13 +1060,59 @@ function initNavigation() {
   });
 }
 
+function formatRelativeSync(date) {
+  const diff = Date.now() - date.getTime();
+  if (!Number.isFinite(diff) || diff < 30 * 1000) return 'hace un momento';
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days} d`;
+}
+
 function updateTimestamp() {
   const el = document.getElementById('last-updated');
   if (!el) return;
   const date = new Date(squadData.lastUpdated);
-  el.textContent = Number.isNaN(date.getTime())
-    ? '—'
-    : date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+  if (Number.isNaN(date.getTime())) {
+    el.textContent = '—';
+    el.removeAttribute('datetime');
+    el.removeAttribute('title');
+    el.classList.remove('is-stale');
+    return;
+  }
+
+  const absolute = date.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+  const relative = formatRelativeSync(date);
+  const stale = Date.now() - date.getTime() > STALE_SYNC_MS;
+  el.dateTime = date.toISOString();
+  el.textContent = relative;
+  el.title = stale ? `Datos de ${relative} (${absolute})` : absolute;
+  el.classList.toggle('is-stale', stale);
+}
+
+function formatSeasonStart(iso) {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function updateSeasonStart() {
+  const el = document.getElementById('season-start');
+  if (!el) return;
+  const season = getSelectedSeason();
+  const start = formatSeasonStart(season && season.fechaInicio);
+  if (!start) {
+    el.textContent = '—';
+    el.removeAttribute('datetime');
+    el.removeAttribute('title');
+    return;
+  }
+  el.textContent = `desde ${start}`;
+  el.dateTime = new Date(season.fechaInicio).toISOString();
+  el.title = `Inicio de temporada: ${start}`;
 }
 
 function shortSeasonLabel(season) {
@@ -1110,6 +1159,8 @@ function updateSeasonChrome() {
     opt.classList.toggle('is-selected', selected);
     opt.setAttribute('aria-selected', String(selected));
   });
+
+  updateSeasonStart();
 }
 
 function playSeasonSwapMotion() {
