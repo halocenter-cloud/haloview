@@ -23,6 +23,7 @@ const AVG_MIN_MATCHES = 5;
 const RANKING_METRIC_KEY = 'haloview-ranking-metric';
 const STALE_SYNC_MS = 12 * 60 * 60 * 1000;
 const SEASON_TZ = 'America/Bogota';
+const BRIEFING_LOG_LIMIT = 10;
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -981,43 +982,586 @@ function initRankingMetricToggle() {
   });
 }
 
-function renderStats() {
-  const players = getCurrentPlayers();
-  const withPoints = players.filter(p => p.points > 0);
-  const leaderPoints = withPoints[0] ? withPoints[0].points : 0;
+function calendarDayKey(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('en-CA', { timeZone: SEASON_TZ });
+}
 
-  const podium = document.getElementById('podium');
-  const top3 = withPoints.filter(p => p.rank <= 3).slice(0, 3);
-  if (!top3.length) {
-    podium.innerHTML = '';
-    podium.hidden = true;
-  } else {
-    podium.hidden = false;
-    podium.innerHTML = top3.map(p => `
-      <div class="podium__slot podium__slot--${p.rank}" style="--row-accent: ${accentForRank(p.rank)}">
-        <span class="podium__rank">${rankLabel(p.rank)}</span>
-        <span class="podium__name">${escapeHtml(p.name)}</span>
-        <span class="podium__points">${p.points.toLocaleString('es')} pts</span>
-      </div>
-    `).join('');
+function utcFromDayKey(key) {
+  const parts = String(key || '').split('-').map(Number);
+  if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return NaN;
+  return Date.UTC(parts[0], parts[1] - 1, parts[2]);
+}
+
+function countMatchesInLastDays(times, season, days) {
+  const endSource = (season && season.fechaFin) || Date.now();
+  const end = new Date(endSource).getTime();
+  if (!Number.isFinite(end)) return 0;
+  const from = end - days * 24 * 60 * 60 * 1000;
+  return (times || []).filter((iso) => {
+    const t = new Date(iso).getTime();
+    return Number.isFinite(t) && t >= from && t <= end;
+  }).length;
+}
+
+function calendarDaysElapsed(season) {
+  if (!season || !season.fechaInicio) return null;
+  const startKey = calendarDayKey(season.fechaInicio);
+  const endKey = calendarDayKey(season.fechaFin || Date.now());
+  const startUtc = utcFromDayKey(startKey);
+  const endUtc = utcFromDayKey(endKey);
+  if (Number.isNaN(startUtc) || Number.isNaN(endUtc) || endUtc < startUtc) return null;
+  return Math.max(1, Math.round((endUtc - startUtc) / 86400000) + 1);
+}
+
+function collectSeasonMatchLog(seasonId) {
+  const byId = new Map();
+  for (const profile of squadData.profiles || []) {
+    const name = profile.name;
+    if (!name) continue;
+    const key = normalizePlayerName(name);
+    if (!key) continue;
+
+    for (const match of profile.recentMatches || []) {
+      if (Number(match.seasonId) !== Number(seasonId)) continue;
+      if (!match.matchId) continue;
+
+      let group = byId.get(match.matchId);
+      if (!group) {
+        group = {
+          matchId: match.matchId,
+          at: match.at || null,
+          modo: match.modo || null,
+          playersByKey: new Map()
+        };
+        byId.set(match.matchId, group);
+      }
+
+      if (match.at && (!group.at || String(match.at) > String(group.at))) {
+        group.at = match.at;
+      }
+      if (!group.modo && match.modo) group.modo = match.modo;
+      if (!group.playersByKey.has(key)) {
+        group.playersByKey.set(key, {
+          name,
+          points: Number(match.points) || 0,
+          result: match.result || null
+        });
+      }
+    }
   }
 
-  const chart = document.getElementById('points-chart');
-  if (!withPoints.length) {
-    chart.innerHTML = '<p class="chart-empty">Sin datos de puntos.</p>';
+  const matches = [...byId.values()].map((group) => ({
+    matchId: group.matchId,
+    at: group.at,
+    modo: group.modo,
+    players: [...group.playersByKey.values()].sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+    })
+  })).sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
+
+  return {
+    uniqueCount: matches.length,
+    lastAt: matches[0] && matches[0].at ? matches[0].at : null,
+    times: matches.map((m) => m.at).filter(Boolean),
+    entries: matches.slice(0, BRIEFING_LOG_LIMIT)
+  };
+}
+
+function decoratePlayersForBriefing(list) {
+  return decoratePlayersWithAvg(list).map((player) => {
+    const profile = getProfileByName(player.name);
+    const seasonStats = (profile?.bySeason || []).find(
+      (s) => Number(s.seasonId) === Number(selectedSeasonId)
+    ) || null;
+    return {
+      ...player,
+      bestGame: seasonStats && seasonStats.bestGame != null ? Number(seasonStats.bestGame) : null
+    };
+  });
+}
+
+function pickBriefingHighlight(players, scoreFn, isEligible) {
+  const pool = (players || []).filter((p) => (isEligible ? isEligible(p) : true));
+  if (!pool.length) return null;
+  return [...pool].sort((a, b) => {
+    const scoreDiff = scoreFn(b) - scoreFn(a);
+    if (scoreDiff) return scoreDiff;
+    const matchDiff = (Number(b.matches) || 0) - (Number(a.matches) || 0);
+    if (matchDiff) return matchDiff;
+    return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+  })[0];
+}
+
+function buildSeasonBriefing() {
+  const season = getSelectedSeason();
+  const players = decoratePlayersForBriefing(getCurrentPlayers());
+  const matchLog = season
+    ? collectSeasonMatchLog(season.id)
+    : { uniqueCount: 0, lastAt: null, times: [], entries: [] };
+  const uniqueCount = matchLog.uniqueCount;
+  const squadPoints = players.reduce((sum, p) => sum + (Number(p.points) || 0), 0);
+
+  return {
+    season,
+    players,
+    uniqueCount,
+    squadPoints,
+    lastMatchAt: matchLog.lastAt,
+    weekMatchCount: countMatchesInLastDays(matchLog.times, season, 7),
+    daysElapsed: calendarDaysElapsed(season),
+    matchLog: matchLog.entries,
+    highlights: {
+      leader: pickBriefingHighlight(
+        players,
+        (p) => Number(p.points) || 0,
+        (p) => players.some((row) => Number(row.points) > 0) ? Number(p.points) > 0 : true
+      ),
+      consistent: pickBriefingHighlight(
+        players,
+        (p) => Number(p.avgPoints) || 0,
+        isAvgEligible
+      ),
+      active: pickBriefingHighlight(
+        players,
+        (p) => Number(p.matches) || 0,
+        (p) => Number(p.matches) > 0
+      ),
+      bestGame: pickBriefingHighlight(
+        players,
+        (p) => Number(p.bestGame) || 0,
+        (p) => p.bestGame != null
+      )
+    }
+  };
+}
+
+function renderSeasonContext(briefing) {
+  const el = document.getElementById('season-context');
+  if (!el) return;
+  const season = briefing.season;
+  if (!season) {
+    el.innerHTML = '';
     return;
   }
 
-  const maxPoints = Math.max(leaderPoints, 1);
-  chart.innerHTML = withPoints.map(p => `
-    <div class="bar-row">
-      <span class="bar-label">${escapeHtml(p.name)}</span>
-      <div class="bar-track">
-        <div class="bar-fill" style="--bar-color: ${accentForRank(p.rank)}; width: ${(p.points / maxPoints) * 100}%"></div>
-      </div>
-      <span class="bar-value">${p.points.toLocaleString('es')}</span>
+  const start = formatSeasonStart(season.fechaInicio);
+  const days = briefing.daysElapsed;
+  const isArchive = !season.active;
+  const startAttr = season.fechaInicio ? new Date(season.fechaInicio).toISOString() : '';
+
+  el.innerHTML = `
+    <div class="season-context__item">
+      <span class="season-context__label">Inicio</span>
+      ${start
+        ? `<time class="season-context__value" datetime="${escapeHtml(startAttr)}">${escapeHtml(start)}</time>`
+        : '<span class="season-context__value">—</span>'}
+    </div>
+    <div class="season-context__item">
+      <span class="season-context__label">Días</span>
+      <span class="season-context__value">${days != null ? days.toLocaleString('es') : '—'}</span>
+    </div>
+    <div class="season-context__item">
+      <span class="season-context__chip${isArchive ? ' season-context__chip--archive' : ''}">${
+        isArchive ? 'Archivo' : 'Activa'
+      }</span>
+    </div>
+  `;
+}
+
+function renderSeasonKpis(briefing) {
+  const el = document.getElementById('season-kpis');
+  if (!el) return;
+
+  const lastDate = briefing.lastMatchAt ? new Date(briefing.lastMatchAt) : null;
+  const lastValid = lastDate && !Number.isNaN(lastDate.getTime());
+  const weekCount = Number(briefing.weekMatchCount) || 0;
+
+  const items = [
+    {
+      value: briefing.uniqueCount.toLocaleString('es'),
+      label: 'Partidas',
+      hint: 'según partidas sincronizadas'
+    },
+    {
+      value: briefing.squadPoints.toLocaleString('es'),
+      label: 'Puntos del escuadrón',
+      hint: null
+    },
+    {
+      value: lastValid ? formatRelativeSync(lastDate) : '—',
+      label: 'Última',
+      hint: 'partida más reciente'
+    },
+    {
+      value: weekCount.toLocaleString('es'),
+      label: 'Esta semana',
+      hint: 'últimos 7 días'
+    }
+  ];
+
+  el.innerHTML = items.map((item) => `
+    <div class="season-kpi">
+      <span class="season-kpi__value">${escapeHtml(item.value)}</span>
+      <span class="season-kpi__label">${escapeHtml(item.label)}</span>
+      ${item.hint ? `<span class="season-kpi__hint">${escapeHtml(item.hint)}</span>` : ''}
     </div>
   `).join('');
+}
+
+function highlightCardMarkup(label, player, stat, emptyHint) {
+  if (!player) {
+    return `
+      <div class="season-highlight is-empty" role="listitem" aria-disabled="true">
+        <span class="season-highlight__label">${escapeHtml(label)}</span>
+        <span class="season-highlight__name">—</span>
+        <span class="season-highlight__stat">${escapeHtml(emptyHint || '')}</span>
+      </div>
+    `;
+  }
+  return `
+    <button
+      type="button"
+      class="season-highlight"
+      role="listitem"
+      data-name="${escapeHtml(player.name)}"
+    >
+      <span class="season-highlight__label">${escapeHtml(label)}</span>
+      <span class="season-highlight__name">${escapeHtml(player.name)}</span>
+      <span class="season-highlight__stat">${escapeHtml(stat)}</span>
+    </button>
+  `;
+}
+
+function renderSeasonHighlights(briefing) {
+  const el = document.getElementById('season-highlights');
+  if (!el) return;
+  const { leader, consistent, active, bestGame } = briefing.highlights;
+
+  el.innerHTML = [
+    highlightCardMarkup(
+      'Líder',
+      leader,
+      leader ? `${leader.points.toLocaleString('es')} pts` : '',
+      'Sin puntos'
+    ),
+    highlightCardMarkup(
+      'Más constante',
+      consistent,
+      consistent ? `${formatAvgPoints(consistent.avgPoints)} media` : '',
+      `${AVG_MIN_MATCHES}+ partidas`
+    ),
+    highlightCardMarkup(
+      'Más activo',
+      active,
+      active ? formatMatchesLabel(active.matches) : '',
+      'Sin partidas'
+    ),
+    highlightCardMarkup(
+      'Mejor partida',
+      bestGame,
+      bestGame && bestGame.bestGame != null ? `${bestGame.bestGame.toLocaleString('es')} pts` : '',
+      'Sin registros'
+    )
+  ].join('');
+}
+
+function matchResultLabel(result) {
+  if (result === 'ganador') return 'Ganó';
+  if (result === 'perdedor') return 'Perdió';
+  return '';
+}
+
+function denseMatchRanks(players) {
+  let lastPoints = null;
+  let rank = 0;
+  let seen = 0;
+  return (players || []).map((player) => {
+    seen += 1;
+    if (player.points !== lastPoints) {
+      rank = seen;
+      lastPoints = player.points;
+    }
+    return { ...player, rank };
+  });
+}
+
+function formatLogAbsolute(iso) {
+  if (!iso) return '';
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('es', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: SEASON_TZ
+  });
+}
+
+/** @type {Map<string, object>} */
+let seasonMatchLogById = new Map();
+/** @type {Element|null} */
+let recapLastFocus = null;
+let recapClosing = false;
+
+function isMatchRecapOpen() {
+  const recap = document.getElementById('match-recap');
+  return Boolean(recap && !recap.hidden);
+}
+
+function renderSeasonLog(briefing) {
+  const el = document.getElementById('season-log');
+  if (!el) return;
+  const entries = briefing.matchLog || [];
+  seasonMatchLogById = new Map(entries.map((entry) => [entry.matchId, entry]));
+  if (!entries.length) {
+    el.innerHTML = '<p class="chart-empty">Sin partidas sincronizadas.</p>';
+    return;
+  }
+
+  el.innerHTML = entries.map((entry) => {
+    const atDate = entry.at ? new Date(entry.at) : null;
+    const validAt = atDate && !Number.isNaN(atDate.getTime());
+    const relative = validAt ? formatRelativeSync(atDate) : '—';
+    const absolute = validAt ? formatLogAbsolute(entry.at) : '';
+    const modo = modeLabel(entry.modo);
+    const count = entry.players.length;
+    const countLabel = count === 1 ? '1 spartan' : `${count} spartans`;
+
+    return `
+      <button
+        type="button"
+        class="season-log__row"
+        role="listitem"
+        data-match-id="${escapeHtml(entry.matchId)}"
+      >
+        <time
+          class="season-log__when"
+          ${validAt ? `datetime="${escapeHtml(atDate.toISOString())}"` : ''}
+          ${absolute ? `title="${escapeHtml(absolute)}"` : ''}
+        >${escapeHtml(relative)}</time>
+        ${modo ? `<span class="season-log__mode">${escapeHtml(modo)}</span>` : ''}
+        <span class="season-log__count">${escapeHtml(countLabel)}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderMatchRecap(entry) {
+  const titleEl = document.getElementById('match-recap-title');
+  const metaEl = document.getElementById('match-recap-meta');
+  const statsEl = document.getElementById('match-recap-stats');
+  const listEl = document.getElementById('match-recap-list');
+  if (!titleEl || !metaEl || !statsEl || !listEl || !entry) return false;
+
+  const modo = modeLabel(entry.modo);
+  const atDate = entry.at ? new Date(entry.at) : null;
+  const validAt = atDate && !Number.isNaN(atDate.getTime());
+  const ranked = denseMatchRanks(entry.players);
+  const totalPoints = ranked.reduce((sum, p) => sum + (Number(p.points) || 0), 0);
+
+  titleEl.textContent = modo || 'Partida';
+  metaEl.textContent = validAt
+    ? `${formatRelativeSync(atDate)} · ${formatLogAbsolute(entry.at)}`
+    : 'Hora desconocida';
+
+  statsEl.innerHTML = `
+    <div class="match-recap__stat">
+      <span class="match-recap__stat-value">${ranked.length.toLocaleString('es')}</span>
+      <span class="match-recap__stat-label">${ranked.length === 1 ? 'Spartan' : 'Spartans'}</span>
+    </div>
+    <div class="match-recap__stat">
+      <span class="match-recap__stat-value">${totalPoints.toLocaleString('es')}</span>
+      <span class="match-recap__stat-label">Puntos</span>
+    </div>
+  `;
+
+  listEl.innerHTML = ranked.map((player) => {
+    const result = matchResultLabel(player.result);
+    const accent = accentForRank(player.rank);
+    return `
+      <button
+        type="button"
+        class="match-recap__player"
+        role="listitem"
+        data-name="${escapeHtml(player.name)}"
+        style="--row-accent: ${accent}"
+      >
+        <span class="match-recap__rank">${escapeHtml(rankLabel(player.rank))}</span>
+        <span class="match-recap__name">${escapeHtml(player.name)}</span>
+        <span class="match-recap__tail">
+          ${result ? `<span class="match-recap__result">${escapeHtml(result)}</span>` : ''}
+          <span class="match-recap__points">${player.points.toLocaleString('es')} pts</span>
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  return true;
+}
+
+function teardownMatchRecap({ restoreFocus = true } = {}) {
+  const recap = document.getElementById('match-recap');
+  if (holoBootTimer) {
+    clearTimeout(holoBootTimer);
+    holoBootTimer = null;
+  }
+  if (holoCollapseTimer) {
+    clearTimeout(holoCollapseTimer);
+    holoCollapseTimer = null;
+  }
+  if (recap) {
+    recap.hidden = true;
+    recap.classList.remove('is-holo-boot', 'is-holo-live', 'is-holo-collapse');
+  }
+  if (!isDossierOpen()) {
+    document.body.classList.remove('is-dossier-open');
+  }
+  recapClosing = false;
+  const last = recapLastFocus;
+  recapLastFocus = null;
+  if (!restoreFocus || !last || typeof last.focus !== 'function') return;
+  try {
+    last.focus();
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function openMatchRecap(matchId) {
+  const recap = document.getElementById('match-recap');
+  const entry = seasonMatchLogById.get(matchId);
+  if (!recap || !entry) return;
+
+  if (isDossierOpen()) teardownPlayerDossier();
+  if (recapClosing) teardownMatchRecap({ restoreFocus: false });
+
+  if (recap.hidden) {
+    recapLastFocus = document.activeElement;
+  }
+
+  if (!renderMatchRecap(entry)) return;
+
+  recap.hidden = false;
+  document.body.classList.add('is-dossier-open');
+  restartHoloBoot(recap);
+
+  const closeBtn = document.getElementById('match-recap-close');
+  requestAnimationFrame(() => {
+    try {
+      (closeBtn || recap).focus();
+    } catch (_) {
+      /* ignore */
+    }
+  });
+}
+
+function closeMatchRecap() {
+  const recap = document.getElementById('match-recap');
+  if (!recap || recap.hidden || recapClosing) return;
+
+  if (prefersReducedMotion()) {
+    teardownMatchRecap();
+    return;
+  }
+
+  recapClosing = true;
+  if (holoBootTimer) {
+    clearTimeout(holoBootTimer);
+    holoBootTimer = null;
+  }
+
+  const frame = recap.querySelector('.player-dossier__frame');
+  recap.classList.remove('is-holo-boot', 'is-holo-live');
+  if (frame) void frame.offsetWidth;
+  recap.classList.add('is-holo-collapse');
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    if (frame) frame.removeEventListener('animationend', onCollapseEnd);
+    teardownMatchRecap();
+  };
+
+  const onCollapseEnd = (event) => {
+    if (event.target !== frame) return;
+    if (event.animationName !== 'holoCollapseFrame') return;
+    finish();
+  };
+
+  if (frame) frame.addEventListener('animationend', onCollapseEnd);
+  holoCollapseTimer = setTimeout(finish, HOLO_COLLAPSE_MS);
+}
+
+function openPlayerFromRecap(name) {
+  const returnFocus = recapLastFocus;
+  teardownMatchRecap({ restoreFocus: false });
+  openPlayerDossier(name);
+  if (returnFocus) dossierLastFocus = returnFocus;
+}
+
+function initMatchRecap() {
+  const closeBtn = document.getElementById('match-recap-close');
+  const backdrop = document.getElementById('match-recap-backdrop');
+  const list = document.getElementById('match-recap-list');
+  if (closeBtn) closeBtn.addEventListener('click', () => closeMatchRecap());
+  if (backdrop) backdrop.addEventListener('click', () => closeMatchRecap());
+  if (!list) return;
+  list.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-name]');
+    if (!btn || !list.contains(btn)) return;
+    const name = btn.getAttribute('data-name');
+    if (name) openPlayerFromRecap(name);
+  });
+}
+
+function renderStats() {
+  const briefing = buildSeasonBriefing();
+  renderSeasonContext(briefing);
+  renderSeasonKpis(briefing);
+  renderSeasonHighlights(briefing);
+  renderSeasonLog(briefing);
+}
+
+function wireSeasonHighlights() {
+  const root = document.getElementById('season-highlights');
+  if (!root || root.dataset.dossierWired === '1') return;
+  root.dataset.dossierWired = '1';
+
+  root.addEventListener('click', (event) => {
+    const card = event.target.closest('.season-highlight');
+    if (!card || !root.contains(card)) return;
+    const name = card.getAttribute('data-name');
+    if (name) openPlayerDossier(name);
+  });
+
+  root.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const card = event.target.closest('.season-highlight');
+    if (!card || !root.contains(card)) return;
+    const name = card.getAttribute('data-name');
+    if (!name) return;
+    event.preventDefault();
+    openPlayerDossier(name);
+  });
+}
+
+function wireSeasonLog() {
+  const root = document.getElementById('season-log');
+  if (!root || root.dataset.dossierWired === '1') return;
+  root.dataset.dossierWired = '1';
+
+  root.addEventListener('click', (event) => {
+    const row = event.target.closest('[data-match-id]');
+    if (!row || !root.contains(row)) return;
+    const matchId = row.getAttribute('data-match-id');
+    if (matchId) openMatchRecap(matchId);
+  });
 }
 
 function setStatusLabel(sectionId) {
@@ -1147,8 +1691,8 @@ function updateSeasonChrome() {
 
   if (descEl) {
     descEl.textContent = isArchive
-      ? 'Registro archivado — ranking acumulado de una temporada cerrada.'
-      : 'Resumen del ranking acumulado de la temporada activa.';
+      ? 'Briefing de una temporada cerrada.'
+      : 'Briefing del escuadrón en la temporada en curso.';
   }
   if (trigger) {
     trigger.setAttribute(
@@ -1313,6 +1857,11 @@ function initSeasonSelector() {
     if (isDossierOpen()) {
       event.preventDefault();
       closePlayerDossier();
+      return;
+    }
+    if (isMatchRecapOpen()) {
+      event.preventDefault();
+      closeMatchRecap();
       return;
     }
     if (isSeasonPanelOpen()) {
@@ -2870,9 +3419,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initParticles();
   initSeasonSelector();
   initPlayerDossier();
+  initMatchRecap();
   initRankingMetricToggle();
   renderRanking();
   renderStats();
+  wireSeasonHighlights();
+  wireSeasonLog();
   initNavigation();
   updateTimestamp();
   updateSeasonChrome();

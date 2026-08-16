@@ -95,13 +95,26 @@
     <section id="stats" class="section">
       <div class="section-intro">
         <h2 class="section-title">Temporada</h2>
-        <p class="section-desc" id="season-section-desc">Resumen del ranking acumulado de la temporada activa.</p>
+        <p class="section-desc" id="season-section-desc">Briefing del escuadrón en la temporada en curso.</p>
       </div>
-      <div id="podium" class="podium" aria-label="Podio"></div>
-      <div class="charts-row">
-        <div class="chart-card chart-card--full">
-          <h3>Puntos por jugador</h3>
-          <div class="bar-chart" id="points-chart"></div>
+      <div class="season-briefing">
+        <div class="season-context" id="season-context"></div>
+        <div class="season-kpis" id="season-kpis"></div>
+        <div
+          class="season-highlights"
+          id="season-highlights"
+          role="list"
+          aria-label="Destacados de la temporada"
+        ></div>
+        <div class="chart-card season-log-card">
+          <h3>Últimas partidas</h3>
+          <div
+            id="season-log"
+            class="season-log"
+            role="list"
+            aria-label="Últimas partidas del escuadrón"
+          ></div>
+          <p class="season-log__footnote">Según partidas sincronizadas</p>
         </div>
       </div>
     </section>
@@ -213,6 +226,41 @@
         <p class="player-dossier__seasons-title">Historial de temporadas</p>
         <div class="player-dossier__seasons-list" id="dossier-seasons-list"></div>
       </div>
+      <div class="player-dossier__projector" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div
+    id="match-recap"
+    class="player-dossier match-recap"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="match-recap-title"
+    hidden
+  >
+    <div class="player-dossier__backdrop" id="match-recap-backdrop" tabindex="-1"></div>
+    <div class="player-dossier__frame">
+      <div class="player-dossier__holo" aria-hidden="true">
+        <div class="player-dossier__scan"></div>
+        <div class="player-dossier__beam"></div>
+      </div>
+      <header class="player-dossier__header">
+        <p class="player-dossier__eyebrow">COMBAT RECORD</p>
+        <div class="player-dossier__header-actions">
+          <button type="button" class="player-dossier__close" id="match-recap-close" aria-label="Cerrar partida">
+            Cerrar
+            <svg class="player-dossier__close-x" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M1.2 0.2 L8 7 L14.8 0.2 L15.8 1.2 L9 8 L15.8 14.8 L14.8 15.8 L8 9 L1.2 15.8 L0.2 14.8 L7 8 L0.2 1.2 Z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+      <div class="match-recap__hero">
+        <h2 class="match-recap__title" id="match-recap-title">Partida</h2>
+        <p class="match-recap__meta" id="match-recap-meta"></p>
+      </div>
+      <div class="match-recap__stats" id="match-recap-stats"></div>
+      <div class="match-recap__list" id="match-recap-list" role="list" aria-label="Resultados de la partida"></div>
       <div class="player-dossier__projector" aria-hidden="true"></div>
     </div>
   </div>
