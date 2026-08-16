@@ -2525,9 +2525,10 @@ function restartHoloBoot(dossier) {
 
   dossier.classList.add('is-holo-boot');
   holoBootTimer = setTimeout(() => {
-    // Keep is-holo-boot so holoBootFrame is not cancelled. Replacing that
-    // scaleY animation with holoFlicker flashes the from-keyframe (collapsed).
     dossier.classList.add('is-holo-live');
+    requestAnimationFrame(() => {
+      dossier.classList.remove('is-holo-boot');
+    });
     holoBootTimer = null;
   }, bootMs);
 }

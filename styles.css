@@ -1980,17 +1980,7 @@ body.is-dossier-open {
   animation: holoBootFrame var(--holo-boot) cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__eyebrow,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__hero,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__rank,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__identity,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__compare,
-.player-dossier.is-holo-boot.is-holo-live .dossier-readout,
-.player-dossier.is-holo-boot.is-holo-live .compare-metric,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__trend,
-.player-dossier.is-holo-boot.is-holo-live .player-dossier__seasons,
-.player-dossier.is-holo-boot.is-holo-live .dossier-season-row {
-  animation: none;
+.player-dossier.is-holo-live:not(.is-holo-boot) .player-dossier__frame {
   opacity: 1;
   transform: none;
 }
@@ -2001,7 +1991,6 @@ body.is-dossier-open {
 
 .player-dossier.is-holo-live .player-dossier__beam {
   animation: holoBeamAmbient 5s linear infinite;
-  will-change: transform, opacity;
 }
 
 .player-dossier.is-holo-collapse .player-dossier__frame {
