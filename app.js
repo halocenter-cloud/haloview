@@ -19,6 +19,8 @@ const HOLO_COLLAPSE_MS = 500;
 const COMPARE_FIELD_MS = 340;
 const RANK_REVEAL_MAX_STAGGER = 11;
 const ZERO_REVEAL_MAX_STAGGER = 8;
+const AVG_MIN_MATCHES = 5;
+const RANKING_METRIC_KEY = 'haloview-ranking-metric';
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -150,6 +152,25 @@ const squadData = normalizeSquadData(typeof SQUAD_DATA !== 'undefined' ? SQUAD_D
 /** @type {number} */
 let selectedSeasonId = squadData.activeSeasonId;
 
+/** @type {'points' | 'avg'} */
+let rankingMetric = readStoredRankingMetric();
+
+function readStoredRankingMetric() {
+  try {
+    return sessionStorage.getItem(RANKING_METRIC_KEY) === 'avg' ? 'avg' : 'points';
+  } catch (_) {
+    return 'points';
+  }
+}
+
+function persistRankingMetric(metric) {
+  try {
+    sessionStorage.setItem(RANKING_METRIC_KEY, metric);
+  } catch (_) {
+    /* ignore quota / private mode */
+  }
+}
+
 function sortPlayers(list) {
   return [...(list || [])].sort((a, b) => {
     if (a.rank !== b.rank) return a.rank - b.rank;
@@ -172,6 +193,97 @@ function getSelectedSeason() {
 function getCurrentPlayers() {
   const season = getSelectedSeason();
   return sortPlayers(season ? season.players : []);
+}
+
+function computeAvgFromRecent(profile, seasonId) {
+  const recent = (profile?.recentMatches || []).filter(
+    (m) => Number(m.seasonId) === Number(seasonId)
+  );
+  if (!recent.length) return { matches: 0, avgPoints: null };
+  const total = recent.reduce((sum, m) => sum + (Number(m.points) || 0), 0);
+  return {
+    matches: recent.length,
+    avgPoints: Number((total / recent.length).toFixed(1))
+  };
+}
+
+function getPlayerSeasonAvg(player) {
+  const profile = getProfileByName(player.name);
+  const seasonStats = (profile?.bySeason || []).find(
+    (s) => Number(s.seasonId) === Number(selectedSeasonId)
+  ) || null;
+  const fromRecent = computeAvgFromRecent(profile, selectedSeasonId);
+
+  let matches = seasonStats && seasonStats.matches != null
+    ? Number(seasonStats.matches)
+    : fromRecent.matches;
+  let avgPoints = seasonStats && seasonStats.avgPoints != null
+    ? Number(seasonStats.avgPoints)
+    : null;
+
+  if (avgPoints == null && matches > 0) {
+    const seasonPoints = seasonStats && seasonStats.points != null
+      ? Number(seasonStats.points)
+      : (player.points != null ? Number(player.points) : null);
+    if (seasonPoints != null) {
+      avgPoints = Number((seasonPoints / matches).toFixed(1));
+    }
+  }
+
+  if (avgPoints == null) avgPoints = fromRecent.avgPoints;
+
+  return {
+    matches: matches || 0,
+    avgPoints
+  };
+}
+
+function decoratePlayersWithAvg(list) {
+  return (list || []).map((player) => {
+    const stats = getPlayerSeasonAvg(player);
+    return {
+      ...player,
+      matches: stats.matches,
+      avgPoints: stats.avgPoints
+    };
+  });
+}
+
+function sortPlayersByAvg(list) {
+  return [...(list || [])].sort((a, b) => {
+    if (b.avgPoints !== a.avgPoints) return b.avgPoints - a.avgPoints;
+    if (b.matches !== a.matches) return b.matches - a.matches;
+    return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+  });
+}
+
+function isAvgEligible(player) {
+  return player.avgPoints != null && Number(player.matches) >= AVG_MIN_MATCHES;
+}
+
+function hasTiedAvgs(list) {
+  const seen = new Set();
+  for (const p of list || []) {
+    if (p.avgPoints == null) continue;
+    if (seen.has(p.avgPoints)) return true;
+    seen.add(p.avgPoints);
+  }
+  return false;
+}
+
+function formatAvgPoints(value) {
+  if (value == null) return '—';
+  return Number(value).toLocaleString('es', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
+function formatMatchesLabel(matches) {
+  if (matches == null) return 'Sin partidas';
+  const n = Number(matches);
+  if (!Number.isFinite(n) || n <= 0) return 'Sin partidas';
+  return n === 1 ? '1 partida' : `${n} partidas`;
 }
 
 function prefersReducedMotion() {
@@ -295,32 +407,65 @@ function hasTiedRanks(list) {
 }
 
 /**
- * @param {{ id: number, name: string, rank: number, points: number }} p
- * @param {{ variant?: 'hero' | 'row', gapOverNext?: number, nextRank?: number, index?: number }} [options]
+ * @param {{ id: number, name: string, rank: number, points: number, avgPoints?: number|null, matches?: number }} p
+ * @param {{
+ *   variant?: 'hero' | 'row',
+ *   gapOverNext?: number,
+ *   nextRank?: number,
+ *   index?: number,
+ *   metric?: 'points' | 'avg',
+ *   displayRank?: number|null,
+ *   avgPoints?: number|null,
+ *   matches?: number,
+ *   ineligible?: boolean
+ * }} [options]
  */
 function renderSpartanRow(p, options = {}) {
   const variant = options.variant || 'row';
-  const accent = accentForRank(p.rank);
+  const metric = options.metric || 'points';
+  const isAvg = metric === 'avg';
+  const displayRank = options.displayRank !== undefined ? options.displayRank : p.rank;
+  const accent = accentForRank(displayRank);
   const name = escapeHtml(p.name);
   const isHero = variant === 'hero';
   const rowIndex = Number.isFinite(options.index) ? options.index : 0;
+  const standby = isAvg ? Boolean(options.ineligible) : p.points <= 0;
   const classes = [
     'spartan-row',
-    `rank-${p.rank}`,
+    displayRank != null ? `rank-${displayRank}` : '',
     isHero ? 'spartan-row--hero' : '',
-    p.points <= 0 ? 'spartan-row--standby' : '',
+    standby ? 'spartan-row--standby' : '',
     'spartan-row--interactive'
   ].filter(Boolean).join(' ');
 
   const gap = options.gapOverNext;
   const nextRank = options.nextRank;
+  const gapText = isAvg
+    ? formatAvgPoints(gap)
+    : (typeof gap === 'number' ? gap.toLocaleString('es') : '');
   const gapLine = isHero && typeof gap === 'number' && gap > 0 && nextRank != null
-    ? `<p class="spartan-row__gap">Ventaja +${gap.toLocaleString('es')} sobre el ${nextRank}º</p>`
+    ? `<p class="spartan-row__gap">Ventaja +${gapText} sobre el ${nextRank}º</p>`
     : '';
 
   const pointsUnit = isHero
-    ? `<span class="spartan-row__points-unit">pts</span>`
+    ? `<span class="spartan-row__points-unit">${isAvg ? 'media' : 'pts'}</span>`
     : '';
+
+  const avgPoints = options.avgPoints !== undefined ? options.avgPoints : p.avgPoints;
+  const matches = options.matches !== undefined ? options.matches : p.matches;
+  const valueText = isAvg ? formatAvgPoints(avgPoints) : p.points.toLocaleString('es');
+  const rankText = displayRank != null ? rankLabel(displayRank) : '—';
+  const matchesLabel = formatMatchesLabel(matches);
+  const matchesLine = `<p class="spartan-row__meta">${escapeHtml(matchesLabel)}</p>`;
+
+  let ariaLabel;
+  if (isAvg) {
+    ariaLabel = options.ineligible
+      ? `${name}, media ${valueText} en ${matchesLabel}. Abrir ficha.`
+      : `${name}, media ${valueText} en ${matchesLabel}, puesto ${displayRank} de promedio. Abrir ficha.`;
+  } else {
+    ariaLabel = `${name}, puesto ${p.rank}, ${p.points} puntos, ${matchesLabel}. Abrir ficha.`;
+  }
 
   return `
     <article
@@ -330,17 +475,18 @@ function renderSpartanRow(p, options = {}) {
       data-name="${name}"
       role="listitem"
       tabindex="0"
-      aria-label="${name}, puesto ${p.rank}, ${p.points} puntos. Abrir ficha."
+      aria-label="${ariaLabel}"
     >
       <div class="spartan-row__glow" aria-hidden="true"></div>
       <div class="spartan-row__scan" aria-hidden="true"></div>
-      <div class="spartan-row__rank">${rankLabel(p.rank)}</div>
+      <div class="spartan-row__rank">${rankText}</div>
       <div class="spartan-row__identity">
         <p class="spartan-row__name">${name}</p>
+        ${matchesLine}
         ${gapLine}
       </div>
       <div class="spartan-row__points">
-        <span class="spartan-row__points-value">${p.points.toLocaleString('es')}</span>
+        <span class="spartan-row__points-value">${valueText}</span>
         ${pointsUnit}
       </div>
     </article>
@@ -556,7 +702,10 @@ function highlightPlayer(queryName) {
   const match = players.find(p => normalizePlayerName(p.name) === target);
   if (!match) return;
 
-  if (match.points <= 0) {
+  if (rankingMetric === 'avg') {
+    const stats = getPlayerSeasonAvg(match);
+    if (!isAvgEligible(stats)) expandZeroGroup();
+  } else if (match.points <= 0) {
     expandZeroGroup();
   }
 
@@ -573,21 +722,38 @@ function highlightPlayer(queryName) {
   });
 }
 
-function renderRanking() {
-  const stack = document.getElementById('ranking-stack');
-  const players = getCurrentPlayers();
-
-  if (!players.length) {
-    stack.innerHTML = `
-      <div class="ranking-empty" role="status">
-        Sin jugadores en el ranking de esta temporada.
+function renderCollapsedPlayerGroup(label, rowsHtml, rowOffset) {
+  return `
+    <div class="zero-group" role="listitem" style="--row-i: ${rowOffset}">
+      <button
+        type="button"
+        class="zero-group__toggle"
+        id="zero-group-toggle"
+        aria-expanded="false"
+        aria-controls="zero-group-list"
+      >
+        <span class="zero-group__label">${escapeHtml(label)}</span>
+        <span class="zero-group__chevron" aria-hidden="true"></span>
+      </button>
+      <div
+        class="zero-group__panel"
+        id="zero-group-list"
+        role="list"
+        inert
+        aria-hidden="true"
+      >
+        <div class="zero-group__panel-inner">
+          ${rowsHtml}
+        </div>
       </div>
-    `;
-    return;
-  }
+    </div>
+  `;
+}
 
-  const withPoints = players.filter(p => p.points > 0);
-  const zeroPoints = players.filter(p => p.points <= 0);
+function renderPointsRanking(players) {
+  const decorated = decoratePlayersWithAvg(players);
+  const withPoints = decorated.filter((p) => p.points > 0);
+  const zeroPoints = decorated.filter((p) => p.points <= 0);
   const HERO_SLOTS = 3;
 
   let html = '';
@@ -601,39 +767,23 @@ function renderRanking() {
           variant: 'hero',
           gapOverNext,
           nextRank: next ? next.rank : undefined,
+          matches: p.matches,
           index
         }
-      : { variant: 'row', index }
+      : { variant: 'row', matches: p.matches, index }
     );
   });
 
   if (zeroPoints.length) {
-    const zeroRows = zeroPoints.map((p, index) => renderSpartanRow(p, { index })).join('');
-    html += `
-      <div class="zero-group" role="listitem" style="--row-i: ${withPoints.length}">
-        <button
-          type="button"
-          class="zero-group__toggle"
-          id="zero-group-toggle"
-          aria-expanded="false"
-          aria-controls="zero-group-list"
-        >
-          <span class="zero-group__label">Sin puntos aún (${zeroPoints.length})</span>
-          <span class="zero-group__chevron" aria-hidden="true"></span>
-        </button>
-        <div
-          class="zero-group__panel"
-          id="zero-group-list"
-          role="list"
-          inert
-          aria-hidden="true"
-        >
-          <div class="zero-group__panel-inner">
-            ${zeroRows}
-          </div>
-        </div>
-      </div>
-    `;
+    const zeroRows = zeroPoints.map((p, index) => renderSpartanRow(p, {
+      matches: p.matches,
+      index
+    })).join('');
+    html += renderCollapsedPlayerGroup(
+      `Sin puntos aún (${zeroPoints.length})`,
+      zeroRows,
+      withPoints.length
+    );
   }
 
   if (hasTiedRanks(players)) {
@@ -643,6 +793,82 @@ function renderRanking() {
       </p>
     `;
   }
+
+  return html;
+}
+
+function renderAvgRanking(players) {
+  const decorated = decoratePlayersWithAvg(players);
+  const eligible = sortPlayersByAvg(decorated.filter(isAvgEligible));
+  const ineligible = decorated.filter((p) => !isAvgEligible(p));
+  const HERO_SLOTS = 3;
+
+  let html = '';
+
+  eligible.forEach((p, index) => {
+    const displayRank = index + 1;
+    const isHero = index < HERO_SLOTS;
+    const next = eligible[index + 1] || null;
+    const gapOverNext = next && p.avgPoints != null && next.avgPoints != null
+      ? Number((p.avgPoints - next.avgPoints).toFixed(1))
+      : 0;
+    html += renderSpartanRow(p, {
+      variant: isHero ? 'hero' : 'row',
+      metric: 'avg',
+      displayRank,
+      avgPoints: p.avgPoints,
+      matches: p.matches,
+      gapOverNext: isHero ? gapOverNext : undefined,
+      nextRank: isHero && next ? index + 2 : undefined,
+      index
+    });
+  });
+
+  if (ineligible.length) {
+    const rows = ineligible.map((p, index) => renderSpartanRow(p, {
+      metric: 'avg',
+      displayRank: null,
+      avgPoints: p.avgPoints,
+      matches: p.matches,
+      ineligible: true,
+      index
+    })).join('');
+    html += renderCollapsedPlayerGroup(
+      `Menos de 5 partidas (${ineligible.length})`,
+      rows,
+      eligible.length
+    );
+  }
+
+  if (hasTiedAvgs(eligible)) {
+    html += `
+      <p class="ranking-tie-hint" role="status">
+        Mismo promedio: gana quien más partidas tenga.
+      </p>
+    `;
+  }
+
+  return html;
+}
+
+function renderRanking() {
+  const stack = document.getElementById('ranking-stack');
+  if (!stack) return;
+
+  const players = getCurrentPlayers();
+
+  if (!players.length) {
+    stack.innerHTML = `
+      <div class="ranking-empty" role="status">
+        Sin jugadores en el ranking de esta temporada.
+      </div>
+    `;
+    return;
+  }
+
+  const html = rankingMetric === 'avg'
+    ? renderAvgRanking(players)
+    : renderPointsRanking(players);
 
   if (zeroRevealTimer) {
     clearTimeout(zeroRevealTimer);
@@ -712,6 +938,42 @@ function wireRankingRowInteractions() {
     event.preventDefault();
     const name = row.getAttribute('data-name');
     if (name) openPlayerDossier(name);
+  });
+}
+
+function rankingStackLabel() {
+  return rankingMetric === 'avg' ? 'Ranking por promedio' : 'Ranking del escuadrón';
+}
+
+function syncRankingMetricButtons() {
+  document.querySelectorAll('.ranking-metric').forEach((btn) => {
+    const active = btn.getAttribute('data-metric') === rankingMetric;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  const stack = document.getElementById('ranking-stack');
+  if (stack) stack.setAttribute('aria-label', rankingStackLabel());
+}
+
+function setRankingMetric(metric) {
+  const next = metric === 'avg' ? 'avg' : 'points';
+  if (next === rankingMetric) return;
+  rankingMetric = next;
+  persistRankingMetric(rankingMetric);
+  syncRankingMetricButtons();
+  renderRanking();
+}
+
+function initRankingMetricToggle() {
+  const toolbar = document.getElementById('ranking-toolbar');
+  if (!toolbar) return;
+  syncRankingMetricButtons();
+  if (toolbar.dataset.wired === '1') return;
+  toolbar.dataset.wired = '1';
+  toolbar.addEventListener('click', (event) => {
+    const btn = event.target.closest('.ranking-metric');
+    if (!btn || !toolbar.contains(btn)) return;
+    setRankingMetric(btn.getAttribute('data-metric'));
   });
 }
 
@@ -1240,8 +1502,8 @@ function buildSparklineSvg(matches, secondMatches, names, measuredWidth, measure
 
   const padL = 30;
   const padR = 36;
-  const padT = 14;
-  const padB = 24;
+  const padT = 18;
+  const padB = 32;
   const measuredW = Math.max(0, Math.floor(Number(measuredWidth) || 0));
   const measuredH = Math.max(0, Math.floor(Number(measuredHeight) || 0));
   const height = Math.max(measuredH || 200, 168);
@@ -1332,7 +1594,6 @@ function buildSparklineSvg(matches, secondMatches, names, measuredWidth, measure
           ${dotsB}
           ${xLabels}
         </svg>
-        <div class="dossier-trend__tip" id="dossier-trend-tip" hidden></div>
       </div>
     </div>
   `;
@@ -1374,18 +1635,29 @@ function positionTrendTip(svg, host, tip, hit) {
   if (!ctm) return;
   const screen = pt.matrixTransform(ctm);
   const hostRect = host.getBoundingClientRect();
-  tip.style.left = `${screen.x - hostRect.left}px`;
-  tip.style.top = `${screen.y - hostRect.top}px`;
-  tip.style.transform = '';
+  const x = screen.x - hostRect.left;
+  const y = screen.y - hostRect.top;
+  tip.style.left = `${x}px`;
+  tip.style.top = `${y}px`;
+  tip.style.transform = 'translate(-50%, calc(-100% - 10px))';
+
+  const tipRect = tip.getBoundingClientRect();
+  const pad = 6;
+  let dx = 0;
+  if (tipRect.left < hostRect.left + pad) dx = hostRect.left + pad - tipRect.left;
+  if (tipRect.right > hostRect.right - pad) dx += hostRect.right - pad - (tipRect.right + dx);
+  const flip = tipRect.top < hostRect.top + pad;
+  tip.style.transform = flip
+    ? `translate(calc(-50% + ${dx}px), 12px)`
+    : `translate(calc(-50% + ${dx}px), calc(-100% - 10px))`;
 }
 
 function wireSparklineTips(trend) {
   sparklineTipsAbort?.abort();
   const chart = trend.querySelector('.dossier-trend__chart');
-  const plot = trend.querySelector('.dossier-trend__plot');
   const svg = trend.querySelector('.dossier-trend__svg');
   const tip = trend.querySelector('.dossier-trend__tip');
-  if (!chart || !plot || !svg || !tip) return;
+  if (!chart || !svg || !tip) return;
 
   sparklineTipsAbort = new AbortController();
   const { signal } = sparklineTipsAbort;
@@ -1404,7 +1676,7 @@ function wireSparklineTips(trend) {
     tip.textContent = formatTrendTip(hit, svg);
     tip.hidden = false;
     tip.classList.toggle('is-bravo', hit.getAttribute('data-series') === 'bravo');
-    positionTrendTip(svg, plot, tip, hit);
+    positionTrendTip(svg, trend, tip, hit);
   };
 
   hits.forEach((hit) => {
@@ -1517,7 +1789,9 @@ function isComparePickerOpen() {
 }
 
 function canComparePlayers() {
-  return (squadData.profiles || []).length > 1;
+  const profiles = squadData.profiles || [];
+  if (profiles.length > 1) return true;
+  return getCurrentPlayers().length > 1;
 }
 
 function modeLabel(modo) {
@@ -1986,7 +2260,6 @@ function renderDossierSingle(side) {
   const modeSub = dossierMatchMode !== 'all'
     ? `${recentView.length} en ${modeLabel(dossierMatchMode)}`
     : `Carrera ${careerMatches}`;
-  const showWinRate = side.teamMatches > 0 || dossierMatchMode === 'equipos';
 
   readouts.innerHTML = `
     <div class="dossier-readout">
@@ -2019,12 +2292,11 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__label">Part./semana</span>
       <span class="dossier-readout__value">${side.matchesPerWeek != null ? Number(side.matchesPerWeek).toFixed(1) : '—'}</span>
     </div>
-    ${showWinRate ? `
     <div class="dossier-readout">
       <span class="dossier-readout__label">Winrate eq.</span>
       <span class="dossier-readout__value">${escapeHtml(formatWinRate(side.winRate))}</span>
       <span class="dossier-readout__sub">${side.teamMatches || 0} part. equipos</span>
-    </div>` : ''}
+    </div>
   `;
 
   trend.innerHTML = `
@@ -2032,6 +2304,7 @@ function renderDossierSingle(side) {
     <p class="dossier-trend__axes">Y puntos · X partidas</p>
     ${modeFilterMarkup()}
     ${buildSparklineSvg(recentView)}
+    <div class="dossier-trend__tip" hidden></div>
   `;
   wireSparklineTips(trend);
   scheduleSparklineLayout(trend, (width, height) => buildSparklineSvg(recentView, null, null, width, height));
@@ -2136,6 +2409,7 @@ function renderDossierCompare(alpha, bravo) {
       <span class="dossier-trend__legend-item dossier-trend__legend-item--bravo">${escapeHtml(bravo.name)}</span>
     </p>
     ${chart}
+    <div class="dossier-trend__tip" hidden></div>
     ${h2hNote}${emptyA}${emptyB}
   `;
   wireSparklineTips(trend);
@@ -2316,7 +2590,11 @@ function teardownPlayerDossier() {
 
 function openPlayerDossier(name, options = {}) {
   const dossier = document.getElementById('player-dossier');
-  if (!dossier || dossierClosing) return;
+  if (!dossier) return;
+
+  if (dossierClosing) {
+    teardownPlayerDossier();
+  }
 
   const exists = resolvePlayerRef(name);
   if (!exists) return;
@@ -2534,6 +2812,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initParticles();
   initSeasonSelector();
   initPlayerDossier();
+  initRankingMetricToggle();
   renderRanking();
   renderStats();
   initNavigation();

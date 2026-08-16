@@ -669,6 +669,88 @@ main:has(.section--ranking.active) {
   min-height: calc(100vh - 140px);
 }
 
+.ranking-toolbar {
+  display: flex;
+  width: fit-content;
+  margin: 0.85rem auto 0.7rem;
+  padding: 3px;
+  gap: 0;
+  border: 1px solid rgba(0, 212, 255, 0.28);
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.ranking-metric {
+  border: none;
+  background: transparent;
+  color: rgba(192, 208, 224, 0.8);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ranking-metric:hover,
+.ranking-metric:focus-visible {
+  outline: none;
+  color: var(--halo-cyan);
+}
+
+.ranking-metric.is-active {
+  background: rgba(0, 212, 255, 0.14);
+  color: var(--halo-cyan);
+}
+
+@property --holo-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ranking-metric[data-metric="avg"] {
+  position: relative;
+  z-index: 1;
+}
+
+.ranking-metric[data-metric="avg"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--holo-angle),
+    transparent 0deg,
+    transparent 210deg,
+    rgba(255, 215, 0, 0.2) 240deg,
+    var(--halo-gold) 275deg,
+    #fff6c8 300deg,
+    var(--halo-bronze) 328deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
+  pointer-events: none;
+  animation: rankingHoloGoldSpin 2.8s linear infinite;
+}
+
+.ranking-metric[data-metric="avg"].is-active::before {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes rankingHoloGoldSpin {
+  to { --holo-angle: 360deg; }
+}
+
 .ranking-stack {
   display: flex;
   flex-direction: column;
@@ -686,12 +768,12 @@ main:has(.section--ranking.active) {
   position: relative;
   flex: 0 0 auto;
   min-height: 64px;
-  height: 64px;
+  height: auto;
   display: grid;
-  grid-template-columns: 64px 1fr 96px;
+  grid-template-columns: 64px 1fr 108px;
   align-items: center;
   gap: 1rem;
-  padding: 0 2rem;
+  padding: 0.55rem 2rem;
   background:
     linear-gradient(90deg, rgba(0, 212, 255, 0.06) 0%, transparent 35%),
     linear-gradient(180deg, rgba(12, 20, 32, 0.95) 0%, rgba(8, 14, 24, 0.98) 100%);
@@ -900,6 +982,19 @@ main:has(.section--ranking.active) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.spartan-row__meta {
+  margin-top: 0.2rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(192, 208, 224, 0.55);
+}
+
+.spartan-row--hero .spartan-row__meta {
+  font-size: 0.8rem;
 }
 
 .spartan-row__points {
@@ -1397,17 +1492,17 @@ main:has(.section--ranking.active) + .footer {
   }
 
   .spartan-row {
-    grid-template-columns: 40px 1fr 56px;
-    padding: 0 1rem;
+    grid-template-columns: 40px 1fr 64px;
+    padding: 0.4rem 1rem;
     gap: 0.65rem;
     min-height: 52px;
-    height: 52px;
+    height: auto;
   }
 
   .spartan-row--hero {
     min-height: 72px;
     height: auto;
-    grid-template-columns: 44px 1fr 64px;
+    grid-template-columns: 44px 1fr 72px;
     padding: 0.65rem 1rem;
     gap: 0.55rem;
   }
@@ -1435,6 +1530,11 @@ main:has(.section--ranking.active) + .footer {
     margin-top: 0.15rem;
   }
 
+  .spartan-row__meta {
+    font-size: 0.68rem;
+    margin-top: 0.12rem;
+  }
+
   .spartan-row__name {
     font-family: var(--font-body);
     font-size: 0.9rem;
@@ -1448,6 +1548,11 @@ main:has(.section--ranking.active) + .footer {
 
   .spartan-row__points-value {
     font-size: 1rem;
+  }
+
+  .ranking-toolbar {
+    margin: 0.65rem auto 0.55rem;
+    padding: 3px;
   }
 
   .ranking-tie-hint {
@@ -1649,7 +1754,7 @@ body.is-dossier-open {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 0;
   overflow: hidden;
 }
 
@@ -1832,6 +1937,13 @@ body.is-dossier-open {
 .player-dossier.is-holo-boot .dossier-readout:nth-child(2) { animation-delay: 0.32s; }
 .player-dossier.is-holo-boot .dossier-readout:nth-child(3) { animation-delay: 0.36s; }
 .player-dossier.is-holo-boot .dossier-readout:nth-child(4) { animation-delay: 0.4s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(5) { animation-delay: 0.44s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(6) { animation-delay: 0.48s; }
+.player-dossier.is-holo-boot .dossier-readout:nth-child(n+7) { animation-delay: 0.52s; }
+
+.player-dossier.is-holo-boot .player-dossier__compare {
+  animation: holoPrint 0.35s ease-out 0.2s both;
+}
 
 .player-dossier.is-holo-boot .compare-metric {
   animation: holoPrint 0.35s ease-out both;
@@ -1866,6 +1978,21 @@ body.is-dossier-open {
 
 .player-dossier.is-holo-boot.is-holo-live .player-dossier__frame {
   animation: holoBootFrame var(--holo-boot) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__eyebrow,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__hero,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__rank,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__identity,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__compare,
+.player-dossier.is-holo-boot.is-holo-live .dossier-readout,
+.player-dossier.is-holo-boot.is-holo-live .compare-metric,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__trend,
+.player-dossier.is-holo-boot.is-holo-live .player-dossier__seasons,
+.player-dossier.is-holo-boot.is-holo-live .dossier-season-row {
+  animation: none;
+  opacity: 1;
+  transform: none;
 }
 
 .player-dossier.is-holo-live .player-dossier__holo {
@@ -2063,6 +2190,7 @@ body.is-dossier-open {
   position: relative;
   z-index: 5;
   margin-bottom: 1.15rem;
+  min-height: 2.2rem;
 }
 
 .player-dossier__compare[hidden],
@@ -2358,6 +2486,7 @@ body.is-dossier-open {
   border: 1px solid rgba(0, 212, 255, 0.18);
   background: rgba(0, 212, 255, 0.04);
   border-radius: 0;
+  min-height: 4.4rem;
 }
 
 .dossier-readout__label {
@@ -2418,6 +2547,7 @@ body.is-dossier-open {
   background: rgba(255, 107, 53, 0.05);
   color: var(--halo-orange);
   border-radius: 0;
+  overflow: visible;
 }
 
 .player-dossier__trend--compare {
@@ -2518,7 +2648,8 @@ body.is-dossier-open {
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   -webkit-overflow-scrolling: touch;
-  padding-top: 1.15rem;
+  padding-top: 1.35rem;
+  padding-bottom: 0.7rem;
   margin-top: 0.15rem;
   scrollbar-color: rgba(0, 212, 255, 0.45) rgba(8, 12, 20, 0.8);
   scrollbar-width: thin;
@@ -2845,6 +2976,7 @@ body.is-dossier-open {
   .player-dossier.is-holo-boot .player-dossier__hero,
   .player-dossier.is-holo-boot .player-dossier__identity,
   .player-dossier.is-holo-boot .player-dossier__eyebrow,
+  .player-dossier.is-holo-boot .player-dossier__compare,
   .player-dossier.is-holo-boot .dossier-readout,
   .player-dossier.is-holo-boot .compare-metric,
   .player-dossier.is-holo-boot .player-dossier__trend,
@@ -2866,10 +2998,17 @@ body.is-dossier-open {
     animation-delay: 0.14s;
   }
 
+  .player-dossier.is-holo-boot .player-dossier__compare {
+    animation-delay: 0.12s;
+  }
+
   .player-dossier.is-holo-boot .dossier-readout:nth-child(1) { animation-delay: 0.16s; }
   .player-dossier.is-holo-boot .dossier-readout:nth-child(2) { animation-delay: 0.2s; }
   .player-dossier.is-holo-boot .dossier-readout:nth-child(3) { animation-delay: 0.24s; }
   .player-dossier.is-holo-boot .dossier-readout:nth-child(4) { animation-delay: 0.28s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(5) { animation-delay: 0.3s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(6) { animation-delay: 0.32s; }
+  .player-dossier.is-holo-boot .dossier-readout:nth-child(n+7) { animation-delay: 0.34s; }
 
   .player-dossier.is-holo-boot .player-dossier__trend {
     animation-delay: 0.3s;
