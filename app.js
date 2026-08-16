@@ -22,6 +22,7 @@ const ZERO_REVEAL_MAX_STAGGER = 8;
 const AVG_MIN_MATCHES = 5;
 const RANKING_METRIC_KEY = 'haloview-ranking-metric';
 const STALE_SYNC_MS = 12 * 60 * 60 * 1000;
+const SEASON_TZ = 'America/Bogota';
 
 /**
  * Normaliza legacy (season + players) o shape multi-temporada.
@@ -1096,7 +1097,12 @@ function formatSeasonStart(iso) {
   if (!iso) return null;
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('es', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: SEASON_TZ
+  });
 }
 
 function updateSeasonStart() {
@@ -2047,7 +2053,10 @@ const COMPARE_METRICS = [
 
 function seasonLabelText(season) {
   if (!season) return '—';
-  return season.active ? season.label : `${season.label} · Registro archivado`;
+  const name = shortSeasonLabel(season);
+  const start = formatSeasonStart(season.fechaInicio);
+  const base = start ? `${name} — desde ${start}` : (season.label || name);
+  return season.active ? base : `${base} · Registro archivado`;
 }
 
 function getCompareCandidates(excludeName) {
