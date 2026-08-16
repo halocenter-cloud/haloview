@@ -792,13 +792,19 @@ main:has(.section--ranking.active) {
   border-left: 4px solid var(--row-accent);
   border-radius: 0;
   overflow: hidden;
-  contain: layout style;
+  overflow: clip;
+  isolation: isolate;
+  contain: paint;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
   touch-action: manipulation;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--row-accent) 50%, transparent);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s ease,
-    background 0.25s ease;
+    background 0.25s ease,
+    box-shadow 0.35s ease;
 }
 
 .ranking-stack > .spartan-row {
@@ -889,18 +895,6 @@ main:has(.section--ranking.active) {
   z-index: 2;
 }
 
-.spartan-row::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--row-accent), transparent 60%);
-  opacity: 0.5;
-  transition: opacity 0.35s ease;
-}
-
 .spartan-row__glow {
   position: absolute;
   inset: 0;
@@ -928,6 +922,7 @@ main:has(.section--ranking.active) {
   .spartan-row:hover {
     transform: translateX(4px);
     border-color: color-mix(in srgb, var(--row-accent) 60%, var(--halo-border));
+    box-shadow: inset 0 1px 0 var(--row-accent);
     background:
       linear-gradient(90deg, color-mix(in srgb, var(--row-accent) 12%, transparent) 0%, transparent 45%),
       linear-gradient(180deg, rgba(16, 28, 44, 0.98) 0%, rgba(10, 18, 30, 1) 100%);
@@ -935,10 +930,6 @@ main:has(.section--ranking.active) {
 
   .spartan-row:hover::before {
     transform: translateX(120%);
-  }
-
-  .spartan-row:hover::after {
-    opacity: 1;
   }
 
   .spartan-row:hover .spartan-row__name {
@@ -951,13 +942,24 @@ main:has(.section--ranking.active) {
 }
 
 @media (hover: none), (pointer: coarse) {
-  .spartan-row::before {
+  .spartan-row::before,
+  .spartan-row::after {
     content: none;
     display: none;
   }
 
   .spartan-row {
-    overflow: visible;
+    overflow: hidden;
+    overflow: clip;
+    transform: none;
+    touch-action: pan-y;
+    transition: border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .spartan-row:hover,
+  .spartan-row:active,
+  .spartan-row:focus {
+    transform: none;
   }
 }
 
@@ -1082,7 +1084,9 @@ main:has(.section--ranking.active) {
 
 .spartan-row.is-highlighted {
   border-color: var(--halo-cyan);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--halo-cyan) 50%, transparent);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--row-accent) 50%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--halo-cyan) 50%, transparent);
   background:
     linear-gradient(90deg, rgba(0, 212, 255, 0.16) 0%, transparent 50%),
     linear-gradient(180deg, rgba(16, 28, 44, 0.98) 0%, rgba(10, 18, 30, 1) 100%);
@@ -3116,6 +3120,10 @@ body.is-dossier-open {
 
 .spartan-row--interactive {
   cursor: pointer;
+}
+
+.spartan-row--interactive:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .spartan-row--interactive:focus-visible {

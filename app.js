@@ -917,10 +917,21 @@ function scheduleRankingSettle(stack) {
   }, settleMs);
 }
 
+function blurActiveRankingRow(stack) {
+  const focused = document.activeElement;
+  if (!focused || !stack.contains(focused)) return;
+  if (!focused.classList.contains('spartan-row')) return;
+  if (typeof focused.blur === 'function') focused.blur();
+}
+
 function wireRankingRowInteractions() {
   const stack = document.getElementById('ranking-stack');
   if (!stack || stack.dataset.dossierWired === '1') return;
   stack.dataset.dossierWired = '1';
+
+  stack.addEventListener('touchmove', () => {
+    blurActiveRankingRow(stack);
+  }, { passive: true });
 
   stack.addEventListener('click', (event) => {
     const toggle = event.target.closest('.zero-group__toggle');
