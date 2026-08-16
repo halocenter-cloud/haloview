@@ -2526,9 +2526,6 @@ function restartHoloBoot(dossier) {
   dossier.classList.add('is-holo-boot');
   holoBootTimer = setTimeout(() => {
     dossier.classList.add('is-holo-live');
-    requestAnimationFrame(() => {
-      dossier.classList.remove('is-holo-boot');
-    });
     holoBootTimer = null;
   }, bootMs);
 }
