@@ -1149,7 +1149,6 @@ function renderSeasonContext(briefing) {
 
   const start = formatSeasonStart(season.fechaInicio);
   const days = briefing.daysElapsed;
-  const isArchive = !season.active;
   const startAttr = season.fechaInicio ? new Date(season.fechaInicio).toISOString() : '';
 
   el.innerHTML = `
@@ -1160,13 +1159,8 @@ function renderSeasonContext(briefing) {
         : '<span class="season-context__value">—</span>'}
     </div>
     <div class="season-context__item">
-      <span class="season-context__label">Días</span>
+      <span class="season-context__label">Días transcurridos</span>
       <span class="season-context__value">${days != null ? days.toLocaleString('es') : '—'}</span>
-    </div>
-    <div class="season-context__item">
-      <span class="season-context__chip${isArchive ? ' season-context__chip--archive' : ''}">${
-        isArchive ? 'Archivo' : 'Activa'
-      }</span>
     </div>
   `;
 }

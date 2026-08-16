@@ -950,6 +950,17 @@ main:has(.section--ranking.active) {
   }
 }
 
+@media (hover: none), (pointer: coarse) {
+  .spartan-row::before {
+    content: none;
+    display: none;
+  }
+
+  .spartan-row {
+    overflow: visible;
+  }
+}
+
 .spartan-row.rank-1 {
   border-left-color: var(--halo-gold);
   --row-accent: var(--halo-gold);
