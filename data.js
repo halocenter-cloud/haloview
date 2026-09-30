@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-09-28T05:11:02.929Z",
+  "lastUpdated": "2026-09-30T02:30:43.800Z",
   "activeSeasonId": 1,
   "season": "Temporada 1 — desde 7 ago 2026",
   "players": [
@@ -1258,7 +1258,7 @@ const SQUAD_DATA = {
           "matches": 126,
           "bestGame": 10,
           "avgPoints": 4.3,
-          "matchesPerWeek": 17.2,
+          "matchesPerWeek": 16.6,
           "wins": 3,
           "teamMatches": 8
         }
@@ -2143,7 +2143,7 @@ const SQUAD_DATA = {
           "matches": 108,
           "bestGame": 10,
           "avgPoints": 4.9,
-          "matchesPerWeek": 14.8,
+          "matchesPerWeek": 14.2,
           "wins": 1,
           "teamMatches": 4
         }
@@ -2276,7 +2276,7 @@ const SQUAD_DATA = {
           "matches": 14,
           "bestGame": 8,
           "avgPoints": 3.4,
-          "matchesPerWeek": 1.9,
+          "matchesPerWeek": 1.8,
           "wins": 0,
           "teamMatches": 0
         }
@@ -2633,7 +2633,7 @@ const SQUAD_DATA = {
           "matches": 42,
           "bestGame": 5,
           "avgPoints": 1.9,
-          "matchesPerWeek": 5.7,
+          "matchesPerWeek": 5.5,
           "wins": 2,
           "teamMatches": 2
         }
@@ -3491,7 +3491,7 @@ const SQUAD_DATA = {
           "matches": 97,
           "bestGame": 10,
           "avgPoints": 3.4,
-          "matchesPerWeek": 13.3,
+          "matchesPerWeek": 12.8,
           "wins": 1,
           "teamMatches": 7
         }
@@ -4392,7 +4392,7 @@ const SQUAD_DATA = {
           "matches": 110,
           "bestGame": 10,
           "avgPoints": 5.9,
-          "matchesPerWeek": 15,
+          "matchesPerWeek": 14.5,
           "wins": 5,
           "teamMatches": 8
         }
@@ -5378,7 +5378,7 @@ const SQUAD_DATA = {
           "matches": 114,
           "bestGame": 10,
           "avgPoints": 4.1,
-          "matchesPerWeek": 15.6,
+          "matchesPerWeek": 15,
           "wins": 2,
           "teamMatches": 7
         }
@@ -5828,7 +5828,7 @@ const SQUAD_DATA = {
           "matches": 43,
           "bestGame": 10,
           "avgPoints": 3.5,
-          "matchesPerWeek": 5.9,
+          "matchesPerWeek": 5.7,
           "wins": 1,
           "teamMatches": 1
         }
@@ -6929,7 +6929,7 @@ const SQUAD_DATA = {
           "matches": 135,
           "bestGame": 10,
           "avgPoints": 7,
-          "matchesPerWeek": 18.5,
+          "matchesPerWeek": 17.8,
           "wins": 5,
           "teamMatches": 8
         }
