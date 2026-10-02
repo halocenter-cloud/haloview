@@ -1453,6 +1453,7 @@ function openMatchRecap(matchId) {
 
   recap.hidden = false;
   document.body.classList.add('is-dossier-open');
+  resetDialogScroll(recap);
   restartHoloBoot(recap);
 
   const closeBtn = document.getElementById('match-recap-close');
@@ -1516,6 +1517,7 @@ function initMatchRecap() {
   const list = document.getElementById('match-recap-list');
   if (closeBtn) closeBtn.addEventListener('click', () => closeMatchRecap());
   if (backdrop) backdrop.addEventListener('click', () => closeMatchRecap());
+  wireStickyDialogHeader(document.getElementById('match-recap'));
   if (!list) return;
   list.addEventListener('click', (event) => {
     const btn = event.target.closest('[data-name]');
@@ -2834,7 +2836,15 @@ function applyDossierCompareChrome(isCompare) {
   }
   if (clearBtn) clearBtn.hidden = !isCompare;
   if (eyebrow) {
-    eyebrow.textContent = isCompare ? 'UNSC PERSONNEL FILE · COMPARE' : 'UNSC PERSONNEL FILE';
+    // El sufijo va en un span para poder ocultarlo en móvil (no cabe junto a
+    // "Quitar rival" + "Cerrar" y empujaba el botón fuera del frame).
+    eyebrow.textContent = 'UNSC PERSONNEL FILE';
+    if (isCompare) {
+      const tag = document.createElement('span');
+      tag.className = 'player-dossier__eyebrow-tag';
+      tag.textContent = ' · COMPARE';
+      eyebrow.appendChild(tag);
+    }
   }
   if (readouts) readouts.classList.toggle('player-dossier__readouts--compare', isCompare);
   if (trend) trend.classList.toggle('player-dossier__trend--compare', isCompare);
@@ -3101,6 +3111,9 @@ function tryConfirmRival(raw) {
     compareRivalName = null;
     return false;
   }
+  // Buscar al rival suele dejar la ficha desplazada (teclado + lista); la
+  // comparación arranca desde arriba, con header y hero a la vista.
+  resetDialogScroll(document.getElementById('player-dossier'));
   syncUrlState();
   return true;
 }
@@ -3110,6 +3123,7 @@ function clearCompareRival() {
   closeComparePicker();
   if (!openDossierName) return;
   renderPlayerDossier(openDossierName);
+  resetDialogScroll(document.getElementById('player-dossier'));
   syncUrlState();
   const toggle = document.getElementById('dossier-compare-toggle');
   requestAnimationFrame(() => {
@@ -3119,6 +3133,35 @@ function clearCompareRival() {
       /* ignore */
     }
   });
+}
+
+/**
+ * Vuelve al inicio del frame con scroll de un diálogo (ficha o recap) y quita
+ * el estado "pegado" del header. Llamar con el diálogo ya visible: con
+ * `hidden` no hay layout y scrollTop no se aplica.
+ * @param {Element|null} root
+ */
+function resetDialogScroll(root) {
+  const frame = root ? root.querySelector('.player-dossier__frame') : null;
+  if (!frame) return;
+  frame.scrollTop = 0;
+  const header = frame.querySelector('.player-dossier__header');
+  if (header) header.classList.remove('is-stuck');
+}
+
+/**
+ * El header es sticky dentro del frame. Marca `is-stuck` cuando hay contenido
+ * desplazado por debajo para pintarle fondo sólido y separador.
+ * @param {Element|null} root
+ */
+function wireStickyDialogHeader(root) {
+  const frame = root ? root.querySelector('.player-dossier__frame') : null;
+  const header = frame ? frame.querySelector('.player-dossier__header') : null;
+  if (!frame || !header || frame.dataset.stickyWired === '1') return;
+  frame.dataset.stickyWired = '1';
+  frame.addEventListener('scroll', () => {
+    header.classList.toggle('is-stuck', frame.scrollTop > 2);
+  }, { passive: true });
 }
 
 function restartHoloBoot(dossier) {
@@ -3237,6 +3280,7 @@ function openPlayerDossier(name, options = {}) {
 
   dossier.hidden = false;
   document.body.classList.add('is-dossier-open');
+  resetDialogScroll(dossier);
   syncUrlState();
   clearPlayerHighlights();
   restartHoloBoot(dossier);
@@ -3301,6 +3345,7 @@ function initPlayerDossier() {
   if (closeBtn) closeBtn.addEventListener('click', () => closePlayerDossier());
   if (backdrop) backdrop.addEventListener('click', () => closePlayerDossier());
   if (clearBtn) clearBtn.addEventListener('click', () => clearCompareRival());
+  wireStickyDialogHeader(document.getElementById('player-dossier'));
 
   if (trend) {
     trend.addEventListener('click', (event) => {
