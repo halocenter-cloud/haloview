@@ -2838,7 +2838,7 @@ function applyDossierCompareChrome(isCompare) {
   if (eyebrow) {
     // El sufijo va en un span para poder ocultarlo en móvil (no cabe junto a
     // "Quitar rival" + "Cerrar" y empujaba el botón fuera del frame).
-    eyebrow.textContent = 'UNSC PERSONNEL FILE';
+    eyebrow.textContent = 'TARJETA SPARTAN';
     if (isCompare) {
       const tag = document.createElement('span');
       tag.className = 'player-dossier__eyebrow-tag';
