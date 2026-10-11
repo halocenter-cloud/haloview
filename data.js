@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-10-05T03:25:09.821Z",
+  "lastUpdated": "2026-10-11T21:17:45.378Z",
   "activeSeasonId": 2,
   "season": "Temporada 2 — desde 1 oct 2026",
   "players": [
@@ -1403,7 +1403,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "53b8b0656e078dd8",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1419,7 +1419,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "72ac430c453f198f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1427,7 +1427,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "ade65efb6e592c38",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1435,7 +1435,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "65feffee63c953f5",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1443,7 +1443,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "162c50ac3d4205ca",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1451,7 +1451,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1499,7 +1499,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1507,7 +1507,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1515,7 +1515,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1523,7 +1523,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1547,7 +1547,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -1555,7 +1555,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -1567,7 +1567,8 @@ const SQUAD_DATA = {
           "matches": 24,
           "bestGame": 10,
           "avgPoints": 6.3,
-          "matchesPerWeek": 42.7,
+          "avgMatches": 24,
+          "matchesPerWeek": 15.7,
           "wins": 0,
           "teamMatches": 0
         },
@@ -1577,7 +1578,8 @@ const SQUAD_DATA = {
           "rank": 3,
           "matches": 126,
           "bestGame": 10,
-          "avgPoints": 4.3,
+          "avgPoints": 4.7,
+          "avgMatches": 99,
           "matchesPerWeek": 16.3,
           "wins": 3,
           "teamMatches": 8
@@ -2371,7 +2373,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "53b8b0656e078dd8",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2387,7 +2389,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "72ac430c453f198f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2395,7 +2397,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "ade65efb6e592c38",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2403,7 +2405,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "65feffee63c953f5",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2411,7 +2413,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "162c50ac3d4205ca",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2419,7 +2421,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2467,7 +2469,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2475,7 +2477,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2483,7 +2485,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2491,7 +2493,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2515,7 +2517,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2523,7 +2525,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2531,7 +2533,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2539,7 +2541,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -2551,7 +2553,8 @@ const SQUAD_DATA = {
           "matches": 11,
           "bestGame": 10,
           "avgPoints": 7.5,
-          "matchesPerWeek": 19.6,
+          "avgMatches": 11,
+          "matchesPerWeek": 7.2,
           "wins": 0,
           "teamMatches": 0
         },
@@ -2561,7 +2564,8 @@ const SQUAD_DATA = {
           "rank": 4,
           "matches": 108,
           "bestGame": 10,
-          "avgPoints": 4.9,
+          "avgPoints": 5.5,
+          "avgMatches": 85,
           "matchesPerWeek": 14,
           "wins": 1,
           "teamMatches": 4
@@ -2659,7 +2663,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2667,7 +2671,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2675,7 +2679,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -2683,7 +2687,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -2695,6 +2699,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -2705,7 +2710,8 @@ const SQUAD_DATA = {
           "rank": 9,
           "matches": 14,
           "bestGame": 8,
-          "avgPoints": 3.4,
+          "avgPoints": 4,
+          "avgMatches": 10,
           "matchesPerWeek": 1.8,
           "wins": 0,
           "teamMatches": 0
@@ -3091,7 +3097,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -3139,7 +3145,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -3163,7 +3169,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -3171,7 +3177,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -3179,7 +3185,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -3187,7 +3193,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -3199,7 +3205,8 @@ const SQUAD_DATA = {
           "matches": 17,
           "bestGame": 6,
           "avgPoints": 2.9,
-          "matchesPerWeek": 30.2,
+          "avgMatches": 17,
+          "matchesPerWeek": 11.1,
           "wins": 0,
           "teamMatches": 0
         },
@@ -3209,7 +3216,8 @@ const SQUAD_DATA = {
           "rank": 8,
           "matches": 42,
           "bestGame": 5,
-          "avgPoints": 1.9,
+          "avgPoints": 1.6,
+          "avgMatches": 29,
           "matchesPerWeek": 5.4,
           "wins": 2,
           "teamMatches": 2
@@ -3271,6 +3279,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -3282,6 +3291,7 @@ const SQUAD_DATA = {
           "matches": 5,
           "bestGame": 1,
           "avgPoints": 1,
+          "avgMatches": 5,
           "matchesPerWeek": 0.6,
           "wins": 0,
           "teamMatches": 0
@@ -4139,7 +4149,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4187,7 +4197,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4195,7 +4205,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4203,7 +4213,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4211,7 +4221,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4235,7 +4245,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4243,7 +4253,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4251,7 +4261,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -4259,7 +4269,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -4271,7 +4281,8 @@ const SQUAD_DATA = {
           "matches": 24,
           "bestGame": 10,
           "avgPoints": 4.3,
-          "matchesPerWeek": 42.7,
+          "avgMatches": 24,
+          "matchesPerWeek": 15.7,
           "wins": 0,
           "teamMatches": 0
         },
@@ -4281,7 +4292,8 @@ const SQUAD_DATA = {
           "rank": 6,
           "matches": 97,
           "bestGame": 10,
-          "avgPoints": 3.4,
+          "avgPoints": 3.9,
+          "avgMatches": 74,
           "matchesPerWeek": 12.5,
           "wins": 1,
           "teamMatches": 7
@@ -5075,7 +5087,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "53b8b0656e078dd8",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5091,7 +5103,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "72ac430c453f198f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5099,7 +5111,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "ade65efb6e592c38",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5107,7 +5119,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "65feffee63c953f5",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5115,7 +5127,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "162c50ac3d4205ca",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5123,7 +5135,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5171,7 +5183,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5195,7 +5207,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5203,7 +5215,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5211,7 +5223,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -5219,7 +5231,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -5231,7 +5243,8 @@ const SQUAD_DATA = {
           "matches": 6,
           "bestGame": 10,
           "avgPoints": 7,
-          "matchesPerWeek": 10.7,
+          "avgMatches": 6,
+          "matchesPerWeek": 3.9,
           "wins": 0,
           "teamMatches": 0
         },
@@ -5241,7 +5254,8 @@ const SQUAD_DATA = {
           "rank": 2,
           "matches": 110,
           "bestGame": 10,
-          "avgPoints": 5.9,
+          "avgPoints": 6.8,
+          "avgMatches": 83,
           "matchesPerWeek": 14.2,
           "wins": 5,
           "teamMatches": 8
@@ -5295,6 +5309,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -5305,7 +5320,8 @@ const SQUAD_DATA = {
           "rank": 11,
           "matches": 4,
           "bestGame": 8,
-          "avgPoints": 3.5,
+          "avgPoints": 6,
+          "avgMatches": 2,
           "matchesPerWeek": 0.5,
           "wins": 0,
           "teamMatches": 0
@@ -6131,7 +6147,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "53b8b0656e078dd8",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6147,7 +6163,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "72ac430c453f198f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6155,7 +6171,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "ade65efb6e592c38",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6163,7 +6179,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "65feffee63c953f5",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6171,7 +6187,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "162c50ac3d4205ca",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6179,7 +6195,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6227,7 +6243,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6235,7 +6251,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6243,7 +6259,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6251,7 +6267,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6275,7 +6291,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6283,7 +6299,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6291,7 +6307,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6299,7 +6315,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -6311,7 +6327,8 @@ const SQUAD_DATA = {
           "matches": 9,
           "bestGame": 8,
           "avgPoints": 3.2,
-          "matchesPerWeek": 16,
+          "avgMatches": 9,
+          "matchesPerWeek": 5.9,
           "wins": 0,
           "teamMatches": 0
         },
@@ -6321,7 +6338,8 @@ const SQUAD_DATA = {
           "rank": 5,
           "matches": 114,
           "bestGame": 10,
-          "avgPoints": 4.1,
+          "avgPoints": 4.7,
+          "avgMatches": 88,
           "matchesPerWeek": 14.7,
           "wins": 2,
           "teamMatches": 7
@@ -6342,6 +6360,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -6353,6 +6372,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -6373,6 +6393,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -6384,6 +6405,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -6517,7 +6539,8 @@ const SQUAD_DATA = {
           "matches": 11,
           "bestGame": 6,
           "avgPoints": 1.8,
-          "matchesPerWeek": 19.6,
+          "avgMatches": 11,
+          "matchesPerWeek": 7.2,
           "wins": 0,
           "teamMatches": 0
         },
@@ -6528,6 +6551,7 @@ const SQUAD_DATA = {
           "matches": 3,
           "bestGame": 2,
           "avgPoints": 2,
+          "avgMatches": 3,
           "matchesPerWeek": 0.4,
           "wins": 0,
           "teamMatches": 0
@@ -6961,7 +6985,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6969,7 +6993,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 1,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6977,7 +7001,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -6985,7 +7009,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -6997,7 +7021,8 @@ const SQUAD_DATA = {
           "matches": 13,
           "bestGame": 10,
           "avgPoints": 4,
-          "matchesPerWeek": 23.1,
+          "avgMatches": 13,
+          "matchesPerWeek": 8.5,
           "wins": 0,
           "teamMatches": 0
         },
@@ -7007,7 +7032,8 @@ const SQUAD_DATA = {
           "rank": 7,
           "matches": 43,
           "bestGame": 10,
-          "avgPoints": 3.5,
+          "avgPoints": 3.9,
+          "avgMatches": 33,
           "matchesPerWeek": 5.6,
           "wins": 1,
           "teamMatches": 1
@@ -8113,7 +8139,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "53b8b0656e078dd8",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8129,7 +8155,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "72ac430c453f198f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8137,7 +8163,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "ade65efb6e592c38",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8145,7 +8171,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "65feffee63c953f5",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8153,7 +8179,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "162c50ac3d4205ca",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8161,7 +8187,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8209,7 +8235,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "38a5b7c76ecc5ffa",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8217,7 +8243,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "c7a4c0ab0a2e9809",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8225,7 +8251,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "d0b32ac0eebc2a9f",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8233,7 +8259,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 10,
           "matchId": "a6968b08278478d6",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8257,7 +8283,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 8,
           "matchId": "70ce607e71ea934d",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8265,7 +8291,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 6,
           "matchId": "022f332fa6492430",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8273,7 +8299,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "0080c4cbc990959b",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8281,7 +8307,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 4,
           "matchId": "7dafe9e272a74616",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         }
       ],
@@ -8293,7 +8319,8 @@ const SQUAD_DATA = {
           "matches": 23,
           "bestGame": 10,
           "avgPoints": 8.2,
-          "matchesPerWeek": 40.9,
+          "avgMatches": 23,
+          "matchesPerWeek": 15.1,
           "wins": 0,
           "teamMatches": 0
         },
@@ -8303,7 +8330,8 @@ const SQUAD_DATA = {
           "rank": 1,
           "matches": 135,
           "bestGame": 10,
-          "avgPoints": 7,
+          "avgPoints": 8.2,
+          "avgMatches": 106,
           "matchesPerWeek": 17.4,
           "wins": 5,
           "teamMatches": 8
@@ -8324,6 +8352,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -8335,6 +8364,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -8355,6 +8385,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -8366,6 +8397,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -8463,7 +8495,7 @@ const SQUAD_DATA = {
           "seasonId": 1,
           "points": 2,
           "matchId": "3a2cd2985e80fb30",
-          "modo": null,
+          "modo": "ffa",
           "result": null
         },
         {
@@ -8499,7 +8531,8 @@ const SQUAD_DATA = {
           "matches": 5,
           "bestGame": 10,
           "avgPoints": 5.4,
-          "matchesPerWeek": 8.9,
+          "avgMatches": 5,
+          "matchesPerWeek": 3.3,
           "wins": 0,
           "teamMatches": 0
         },
@@ -8509,7 +8542,8 @@ const SQUAD_DATA = {
           "rank": 10,
           "matches": 9,
           "bestGame": 8,
-          "avgPoints": 3.2,
+          "avgPoints": 4,
+          "avgMatches": 5,
           "matchesPerWeek": 1.2,
           "wins": 0,
           "teamMatches": 1
@@ -8530,6 +8564,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
@@ -8541,6 +8576,7 @@ const SQUAD_DATA = {
           "matches": 0,
           "bestGame": null,
           "avgPoints": null,
+          "avgMatches": 0,
           "matchesPerWeek": 0,
           "wins": 0,
           "teamMatches": 0
