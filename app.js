@@ -20,6 +20,8 @@ const COMPARE_FIELD_MS = 340;
 const RANK_REVEAL_MAX_STAGGER = 11;
 const ZERO_REVEAL_MAX_STAGGER = 8;
 const AVG_MIN_MATCHES = 5;
+// El promedio solo usa FFA (arcade y equipos tienen un máximo menor).
+const AVG_MODE = 'ffa';
 const RANKING_METRIC_KEY = 'haloview-ranking-metric';
 const STALE_SYNC_MS = 12 * 60 * 60 * 1000;
 const SEASON_TZ = 'America/Bogota';
@@ -106,6 +108,7 @@ function normalizeProfile(profile) {
           matches: s.matches != null ? Number(s.matches) : null,
           bestGame: s.bestGame != null ? Number(s.bestGame) : null,
           avgPoints: s.avgPoints != null ? Number(s.avgPoints) : null,
+          avgMatches: s.avgMatches != null ? Number(s.avgMatches) : null,
           matchesPerWeek: s.matchesPerWeek != null ? Number(s.matchesPerWeek) : null,
           wins: s.wins != null ? Number(s.wins) : 0,
           teamMatches: s.teamMatches != null ? Number(s.teamMatches) : 0
@@ -198,16 +201,21 @@ function getCurrentPlayers() {
   return sortPlayers(season ? season.players : []);
 }
 
+function summarizeAvgMatches(recent) {
+  const list = (recent || []).filter((m) => m.modo === AVG_MODE);
+  if (!list.length) return { avgMatches: 0, avgPoints: null };
+  const total = list.reduce((sum, m) => sum + (Number(m.points) || 0), 0);
+  return {
+    avgMatches: list.length,
+    avgPoints: Number((total / list.length).toFixed(1))
+  };
+}
+
 function computeAvgFromRecent(profile, seasonId) {
   const recent = (profile?.recentMatches || []).filter(
     (m) => Number(m.seasonId) === Number(seasonId)
   );
-  if (!recent.length) return { matches: 0, avgPoints: null };
-  const total = recent.reduce((sum, m) => sum + (Number(m.points) || 0), 0);
-  return {
-    matches: recent.length,
-    avgPoints: Number((total / recent.length).toFixed(1))
-  };
+  return { matches: recent.length, ...summarizeAvgMatches(recent) };
 }
 
 function getPlayerSeasonAvg(player) {
@@ -217,27 +225,18 @@ function getPlayerSeasonAvg(player) {
   ) || null;
   const fromRecent = computeAvgFromRecent(profile, selectedSeasonId);
 
-  let matches = seasonStats && seasonStats.matches != null
+  const matches = seasonStats && seasonStats.matches != null
     ? Number(seasonStats.matches)
     : fromRecent.matches;
-  let avgPoints = seasonStats && seasonStats.avgPoints != null
-    ? Number(seasonStats.avgPoints)
-    : null;
 
-  if (avgPoints == null && matches > 0) {
-    const seasonPoints = seasonStats && seasonStats.points != null
-      ? Number(seasonStats.points)
-      : (player.points != null ? Number(player.points) : null);
-    if (seasonPoints != null) {
-      avgPoints = Number((seasonPoints / matches).toFixed(1));
-    }
-  }
-
-  if (avgPoints == null) avgPoints = fromRecent.avgPoints;
-
+  // Un data.js sin avgMatches trae la media vieja (todos los modos): se ignora.
+  const fromSync = seasonStats && seasonStats.avgMatches != null;
   return {
     matches: matches || 0,
-    avgPoints
+    avgMatches: fromSync ? Number(seasonStats.avgMatches) : fromRecent.avgMatches,
+    avgPoints: fromSync
+      ? (seasonStats.avgPoints != null ? Number(seasonStats.avgPoints) : null)
+      : fromRecent.avgPoints
   };
 }
 
@@ -247,6 +246,7 @@ function decoratePlayersWithAvg(list) {
     return {
       ...player,
       matches: stats.matches,
+      avgMatches: stats.avgMatches,
       avgPoints: stats.avgPoints
     };
   });
@@ -255,13 +255,13 @@ function decoratePlayersWithAvg(list) {
 function sortPlayersByAvg(list) {
   return [...(list || [])].sort((a, b) => {
     if (b.avgPoints !== a.avgPoints) return b.avgPoints - a.avgPoints;
-    if (b.matches !== a.matches) return b.matches - a.matches;
+    if (b.avgMatches !== a.avgMatches) return b.avgMatches - a.avgMatches;
     return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
   });
 }
 
 function isAvgEligible(player) {
-  return player.avgPoints != null && Number(player.matches) >= AVG_MIN_MATCHES;
+  return player.avgPoints != null && Number(player.avgMatches) >= AVG_MIN_MATCHES;
 }
 
 function hasTiedAvgs(list) {
@@ -287,6 +287,12 @@ function formatMatchesLabel(matches) {
   const n = Number(matches);
   if (!Number.isFinite(n) || n <= 0) return 'Sin partidas';
   return n === 1 ? '1 partida' : `${n} partidas`;
+}
+
+function formatAvgMatchesLabel(avgMatches) {
+  const n = Number(avgMatches);
+  if (!Number.isFinite(n) || n <= 0) return 'Sin partidas FFA';
+  return n === 1 ? '1 partida FFA' : `${n} partidas FFA`;
 }
 
 function prefersReducedMotion() {
@@ -420,6 +426,7 @@ function hasTiedRanks(list) {
  *   displayRank?: number|null,
  *   avgPoints?: number|null,
  *   matches?: number,
+ *   avgMatches?: number,
  *   ineligible?: boolean
  * }} [options]
  */
@@ -456,9 +463,10 @@ function renderSpartanRow(p, options = {}) {
 
   const avgPoints = options.avgPoints !== undefined ? options.avgPoints : p.avgPoints;
   const matches = options.matches !== undefined ? options.matches : p.matches;
+  const avgMatches = options.avgMatches !== undefined ? options.avgMatches : p.avgMatches;
   const valueText = isAvg ? formatAvgPoints(avgPoints) : p.points.toLocaleString('es');
   const rankText = displayRank != null ? rankLabel(displayRank) : '—';
-  const matchesLabel = formatMatchesLabel(matches);
+  const matchesLabel = isAvg ? formatAvgMatchesLabel(avgMatches) : formatMatchesLabel(matches);
   const matchesLine = `<p class="spartan-row__meta">${escapeHtml(matchesLabel)}</p>`;
 
   let ariaLabel;
@@ -821,6 +829,7 @@ function renderAvgRanking(players) {
       displayRank,
       avgPoints: p.avgPoints,
       matches: p.matches,
+      avgMatches: p.avgMatches,
       gapOverNext: isHero ? gapOverNext : undefined,
       nextRank: isHero && next ? index + 2 : undefined,
       index
@@ -833,19 +842,23 @@ function renderAvgRanking(players) {
       displayRank: null,
       avgPoints: p.avgPoints,
       matches: p.matches,
+      avgMatches: p.avgMatches,
       ineligible: true,
       index
     })).join('');
     html += renderCollapsedPlayerGroup(
-      `Menos de 5 partidas (${ineligible.length})`,
+      `Menos de ${AVG_MIN_MATCHES} partidas FFA (${ineligible.length})`,
       rows,
       eligible.length
     );
   }
 
-  const hints = [`Solo cuentan ${AVG_MIN_MATCHES}+ partidas.`];
+  const hints = [
+    `El promedio solo cuenta partidas FFA (mínimo ${AVG_MIN_MATCHES}).`,
+    'Arcade y equipos suman a los puntos totales.'
+  ];
   if (hasTiedAvgs(eligible)) {
-    hints.push('Mismo promedio: gana quien más partidas tenga.');
+    hints.push('Mismo promedio: gana quien más partidas FFA tenga.');
   }
   html += `
     <p class="ranking-tie-hint" role="status">
@@ -1255,8 +1268,8 @@ function renderSeasonHighlights(briefing) {
     highlightCardMarkup(
       'Más constante',
       consistent,
-      consistent ? `${formatAvgPoints(consistent.avgPoints)} media` : '',
-      `${AVG_MIN_MATCHES}+ partidas`
+      consistent ? `${formatAvgPoints(consistent.avgPoints)} media FFA` : '',
+      `${AVG_MIN_MATCHES}+ partidas FFA`
     ),
     highlightCardMarkup(
       'Más activo',
@@ -2473,7 +2486,9 @@ function applyViewStats(side, recentView) {
   const fromRecent = summarizeRecent(recentView);
   const filtered = dossierMatchMode !== 'all';
   side.bestGame = filtered ? fromRecent.bestGame : (side.bestGame ?? fromRecent.bestGame);
-  side.avgPoints = filtered ? fromRecent.avgPoints : (side.avgPoints ?? fromRecent.avgPoints);
+  side.avgPoints = filtered
+    ? fromRecent.avgPoints
+    : (side.avgPoints ?? summarizeAvgMatches(recentView).avgPoints);
   side.wins = filtered ? fromRecent.wins : (side.wins ?? fromRecent.wins);
   side.teamMatches = filtered ? fromRecent.teamMatches : (side.teamMatches ?? fromRecent.teamMatches);
   side.winRate = fromRecent.winRate != null
@@ -2504,7 +2519,9 @@ function getCompareSide(name) {
     careerPoints: profile ? Number(profile.careerPoints) || 0 : 0,
     matchesPlayed: profile ? Number(profile.matchesPlayed) || 0 : 0,
     bestGame: seasonStats && seasonStats.bestGame != null ? Number(seasonStats.bestGame) : null,
-    avgPoints: seasonStats && seasonStats.avgPoints != null ? Number(seasonStats.avgPoints) : null,
+    avgPoints: seasonStats && seasonStats.avgMatches != null && seasonStats.avgPoints != null
+      ? Number(seasonStats.avgPoints)
+      : null,
     matchesPerWeek: seasonStats && seasonStats.matchesPerWeek != null ? Number(seasonStats.matchesPerWeek) : null,
     wins: seasonStats && seasonStats.wins != null ? Number(seasonStats.wins) : 0,
     teamMatches: seasonStats && seasonStats.teamMatches != null ? Number(seasonStats.teamMatches) : 0,
@@ -2909,7 +2926,7 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__value">${side.bestGame != null ? side.bestGame.toLocaleString('es') : '—'}</span>
     </div>
     <div class="dossier-readout">
-      <span class="dossier-readout__label">Media</span>
+      <span class="dossier-readout__label">${dossierMatchMode === 'all' ? 'Media FFA' : 'Media'}</span>
       <span class="dossier-readout__value">${side.avgPoints != null ? side.avgPoints.toFixed(1) : '—'}</span>
     </div>
     <div class="dossier-readout">
@@ -3003,7 +3020,9 @@ function renderDossierCompare(alpha, bravo) {
     const delta = formatMetricDelta(aVal, bVal, metric.better);
     return `
       <div class="compare-metric is-win-${winner}">
-        <span class="compare-metric__label">${escapeHtml(metric.label)}</span>
+        <span class="compare-metric__label">${escapeHtml(
+          metric.key === 'avgPoints' && dossierMatchMode === 'all' ? 'Media FFA' : metric.label
+        )}</span>
         <span class="compare-metric__value compare-metric__value--a">${escapeHtml(metric.format(aVal))}</span>
         <span class="compare-metric__delta">${escapeHtml(delta)}</span>
         <span class="compare-metric__value compare-metric__value--b">${escapeHtml(metric.format(bVal))}</span>
