@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-10-12T21:32:11.702Z",
+  "lastUpdated": "2026-10-12T21:33:58.171Z",
   "activeSeasonId": 2,
   "season": "Temporada 2 — desde 1 oct 2026",
   "players": [
@@ -10,7 +10,7 @@ const SQUAD_DATA = {
       "id": 1,
       "name": "tagoras5268",
       "rank": 1,
-      "points": 190
+      "points": 198
     },
     {
       "id": 2,
@@ -22,7 +22,7 @@ const SQUAD_DATA = {
       "id": 3,
       "name": "ESPECTRO5118",
       "rank": 3,
-      "points": 104
+      "points": 108
     },
     {
       "id": 4,
@@ -46,13 +46,13 @@ const SQUAD_DATA = {
       "id": 7,
       "name": "Gargolaa6235",
       "rank": 7,
-      "points": 42
+      "points": 44
     },
     {
       "id": 8,
       "name": "Kairos5404",
       "rank": 8,
-      "points": 34
+      "points": 40
     },
     {
       "id": 9,
@@ -70,7 +70,7 @@ const SQUAD_DATA = {
       "id": 11,
       "name": "Jhonnynk1706",
       "rank": 11,
-      "points": 2
+      "points": 12
     },
     {
       "id": 12,
@@ -133,7 +133,7 @@ const SQUAD_DATA = {
           "id": 1,
           "name": "tagoras5268",
           "rank": 1,
-          "points": 190
+          "points": 198
         },
         {
           "id": 2,
@@ -145,7 +145,7 @@ const SQUAD_DATA = {
           "id": 3,
           "name": "ESPECTRO5118",
           "rank": 3,
-          "points": 104
+          "points": 108
         },
         {
           "id": 4,
@@ -169,13 +169,13 @@ const SQUAD_DATA = {
           "id": 7,
           "name": "Gargolaa6235",
           "rank": 7,
-          "points": 42
+          "points": 44
         },
         {
           "id": 8,
           "name": "Kairos5404",
           "rank": 8,
-          "points": 34
+          "points": 40
         },
         {
           "id": 9,
@@ -193,7 +193,7 @@ const SQUAD_DATA = {
           "id": 11,
           "name": "Jhonnynk1706",
           "rank": 11,
-          "points": 2
+          "points": 12
         },
         {
           "id": 12,
@@ -3327,9 +3327,17 @@ const SQUAD_DATA = {
     {
       "name": "ESPECTRO5118",
       "bestRank": 3,
-      "careerPoints": 434,
-      "matchesPlayed": 122,
+      "careerPoints": 438,
+      "matchesPlayed": 123,
       "recentMatches": [
+        {
+          "at": "2026-10-12T21:33:58.087Z",
+          "seasonId": 2,
+          "points": 4,
+          "matchId": "01719399fa1adabc",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-10-12T21:32:11.541Z",
           "seasonId": 2,
@@ -4310,13 +4318,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 104,
+          "points": 108,
           "rank": 3,
-          "matches": 25,
+          "matches": 26,
           "bestGame": 10,
           "avgPoints": 4.3,
-          "avgMatches": 24,
-          "matchesPerWeek": 15,
+          "avgMatches": 25,
+          "matchesPerWeek": 15.6,
           "wins": 0,
           "teamMatches": 0
         },
@@ -4337,9 +4345,17 @@ const SQUAD_DATA = {
     {
       "name": "Gargolaa6235",
       "bestRank": 2,
-      "careerPoints": 690,
-      "matchesPlayed": 116,
+      "careerPoints": 692,
+      "matchesPlayed": 117,
       "recentMatches": [
+        {
+          "at": "2026-10-12T21:33:58.087Z",
+          "seasonId": 2,
+          "points": 2,
+          "matchId": "01719399fa1adabc",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-10-05T03:25:09.750Z",
           "seasonId": 2,
@@ -5272,13 +5288,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 42,
+          "points": 44,
           "rank": 7,
-          "matches": 6,
+          "matches": 7,
           "bestGame": 10,
-          "avgPoints": 7,
-          "avgMatches": 6,
-          "matchesPerWeek": 3.6,
+          "avgPoints": 6.3,
+          "avgMatches": 7,
+          "matchesPerWeek": 4.2,
           "wins": 0,
           "teamMatches": 0
         },
@@ -5299,9 +5315,17 @@ const SQUAD_DATA = {
     {
       "name": "Jhonnynk1706",
       "bestRank": 11,
-      "careerPoints": 2,
-      "matchesPlayed": 1,
+      "careerPoints": 12,
+      "matchesPlayed": 2,
       "recentMatches": [
+        {
+          "at": "2026-10-12T21:33:58.087Z",
+          "seasonId": 2,
+          "points": 10,
+          "matchId": "01719399fa1adabc",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-10-12T21:32:11.541Z",
           "seasonId": 2,
@@ -5314,13 +5338,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 2,
+          "points": 12,
           "rank": 11,
-          "matches": 1,
-          "bestGame": 2,
-          "avgPoints": null,
-          "avgMatches": 0,
-          "matchesPerWeek": 0.6,
+          "matches": 2,
+          "bestGame": 10,
+          "avgPoints": 10,
+          "avgMatches": 1,
+          "matchesPerWeek": 1.2,
           "wins": 0,
           "teamMatches": 0
         },
@@ -5407,9 +5431,17 @@ const SQUAD_DATA = {
     {
       "name": "Kairos5404",
       "bestRank": 5,
-      "careerPoints": 506,
-      "matchesPlayed": 124,
+      "careerPoints": 512,
+      "matchesPlayed": 125,
       "recentMatches": [
+        {
+          "at": "2026-10-12T21:33:58.087Z",
+          "seasonId": 2,
+          "points": 6,
+          "matchId": "01719399fa1adabc",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-10-12T21:32:11.541Z",
           "seasonId": 2,
@@ -6406,13 +6438,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 34,
+          "points": 40,
           "rank": 8,
-          "matches": 10,
+          "matches": 11,
           "bestGame": 8,
-          "avgPoints": 3.2,
-          "avgMatches": 9,
-          "matchesPerWeek": 6,
+          "avgPoints": 3.5,
+          "avgMatches": 10,
+          "matchesPerWeek": 6.6,
           "wins": 0,
           "teamMatches": 0
         },
@@ -7127,9 +7159,17 @@ const SQUAD_DATA = {
     {
       "name": "tagoras5268",
       "bestRank": 1,
-      "careerPoints": 1138,
-      "matchesPlayed": 159,
+      "careerPoints": 1146,
+      "matchesPlayed": 160,
       "recentMatches": [
+        {
+          "at": "2026-10-12T21:33:58.087Z",
+          "seasonId": 2,
+          "points": 8,
+          "matchId": "01719399fa1adabc",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-10-12T21:32:11.541Z",
           "seasonId": 2,
@@ -8406,13 +8446,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 190,
+          "points": 198,
           "rank": 1,
-          "matches": 24,
+          "matches": 25,
           "bestGame": 10,
           "avgPoints": 8.2,
-          "avgMatches": 23,
-          "matchesPerWeek": 14.4,
+          "avgMatches": 24,
+          "matchesPerWeek": 15,
           "wins": 0,
           "teamMatches": 0
         },
