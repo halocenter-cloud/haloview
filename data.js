@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-10-12T23:47:03.601Z",
+  "lastUpdated": "2026-10-13T00:06:56.604Z",
   "activeSeasonId": 2,
   "season": "Temporada 2 — desde 1 oct 2026",
   "players": [
@@ -1586,7 +1586,7 @@ const SQUAD_DATA = {
           "bestGame": 10,
           "avgPoints": 6.3,
           "avgMatches": 24,
-          "matchesPerWeek": 14.3,
+          "matchesPerWeek": 14.2,
           "wins": 0,
           "teamMatches": 0
         },
