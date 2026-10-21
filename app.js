@@ -19,7 +19,7 @@ const HOLO_COLLAPSE_MS = 500;
 const COMPARE_FIELD_MS = 340;
 const RANK_REVEAL_MAX_STAGGER = 11;
 const ZERO_REVEAL_MAX_STAGGER = 8;
-const AVG_MIN_MATCHES = 5;
+const AVG_MIN_MATCHES = 10;
 // El promedio solo usa FFA (arcade y equipos tienen un máximo menor).
 const AVG_MODE = 'ffa';
 const RANKING_METRIC_KEY = 'haloview-ranking-metric';
