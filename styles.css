@@ -103,6 +103,16 @@ body {
   animation: pulseGlow 1.5s ease-in-out infinite;
 }
 
+.boot-logo img,
+.header__emblem img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* El archivo trae fondo negro; screen lo deja transparente sobre el fondo oscuro. */
+  mix-blend-mode: screen;
+}
+
 .boot-title {
   font-family: var(--font-display);
   font-size: 0.85rem;
