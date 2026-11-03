@@ -1094,34 +1094,9 @@ function collectSeasonMatchLog(seasonId) {
   };
 }
 
-function decoratePlayersForBriefing(list) {
-  return decoratePlayersWithAvg(list).map((player) => {
-    const profile = getProfileByName(player.name);
-    const seasonStats = (profile?.bySeason || []).find(
-      (s) => Number(s.seasonId) === Number(selectedSeasonId)
-    ) || null;
-    return {
-      ...player,
-      bestGame: seasonStats && seasonStats.bestGame != null ? Number(seasonStats.bestGame) : null
-    };
-  });
-}
-
-function pickBriefingHighlight(players, scoreFn, isEligible) {
-  const pool = (players || []).filter((p) => (isEligible ? isEligible(p) : true));
-  if (!pool.length) return null;
-  return [...pool].sort((a, b) => {
-    const scoreDiff = scoreFn(b) - scoreFn(a);
-    if (scoreDiff) return scoreDiff;
-    const matchDiff = (Number(b.matches) || 0) - (Number(a.matches) || 0);
-    if (matchDiff) return matchDiff;
-    return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
-  })[0];
-}
-
 function buildSeasonBriefing() {
   const season = getSelectedSeason();
-  const players = decoratePlayersForBriefing(getCurrentPlayers());
+  const players = getCurrentPlayers();
   const matchLog = season
     ? collectSeasonMatchLog(season.id)
     : { uniqueCount: 0, lastAt: null, times: [], entries: [] };
@@ -1136,29 +1111,7 @@ function buildSeasonBriefing() {
     lastMatchAt: matchLog.lastAt,
     weekMatchCount: countMatchesInLastDays(matchLog.times, season, 7),
     daysElapsed: calendarDaysElapsed(season),
-    matchLog: matchLog.entries,
-    highlights: {
-      leader: pickBriefingHighlight(
-        players,
-        (p) => Number(p.points) || 0,
-        (p) => players.some((row) => Number(row.points) > 0) ? Number(p.points) > 0 : true
-      ),
-      consistent: pickBriefingHighlight(
-        players,
-        (p) => Number(p.avgPoints) || 0,
-        isAvgEligible
-      ),
-      active: pickBriefingHighlight(
-        players,
-        (p) => Number(p.matches) || 0,
-        (p) => Number(p.matches) > 0
-      ),
-      bestGame: pickBriefingHighlight(
-        players,
-        (p) => Number(p.bestGame) || 0,
-        (p) => p.bestGame != null
-      )
-    }
+    matchLog: matchLog.entries
   };
 }
 
@@ -1227,63 +1180,6 @@ function renderSeasonKpis(briefing) {
       ${item.hint ? `<span class="season-kpi__hint">${escapeHtml(item.hint)}</span>` : ''}
     </div>
   `).join('');
-}
-
-function highlightCardMarkup(label, player, stat, emptyHint) {
-  if (!player) {
-    return `
-      <div class="season-highlight is-empty" role="listitem" aria-disabled="true">
-        <span class="season-highlight__label">${escapeHtml(label)}</span>
-        <span class="season-highlight__name">—</span>
-        <span class="season-highlight__stat">${escapeHtml(emptyHint || '')}</span>
-      </div>
-    `;
-  }
-  return `
-    <button
-      type="button"
-      class="season-highlight"
-      role="listitem"
-      data-name="${escapeHtml(player.name)}"
-    >
-      <span class="season-highlight__label">${escapeHtml(label)}</span>
-      <span class="season-highlight__name">${escapeHtml(player.name)}</span>
-      <span class="season-highlight__stat">${escapeHtml(stat)}</span>
-    </button>
-  `;
-}
-
-function renderSeasonHighlights(briefing) {
-  const el = document.getElementById('season-highlights');
-  if (!el) return;
-  const { leader, consistent, active, bestGame } = briefing.highlights;
-
-  el.innerHTML = [
-    highlightCardMarkup(
-      'Líder',
-      leader,
-      leader ? `${leader.points.toLocaleString('es')} pts` : '',
-      'Sin puntos'
-    ),
-    highlightCardMarkup(
-      'Más constante',
-      consistent,
-      consistent ? `${formatAvgPoints(consistent.avgPoints)} media FFA` : '',
-      `${AVG_MIN_MATCHES}+ partidas FFA`
-    ),
-    highlightCardMarkup(
-      'Más activo',
-      active,
-      active ? formatMatchesLabel(active.matches) : '',
-      'Sin partidas'
-    ),
-    highlightCardMarkup(
-      'Mejor partida',
-      bestGame,
-      bestGame && bestGame.bestGame != null ? `${bestGame.bestGame.toLocaleString('es')} pts` : '',
-      'Sin registros'
-    )
-  ].join('');
 }
 
 function matchResultLabel(result) {
@@ -1544,31 +1440,7 @@ function renderStats() {
   const briefing = buildSeasonBriefing();
   renderSeasonContext(briefing);
   renderSeasonKpis(briefing);
-  renderSeasonHighlights(briefing);
   renderSeasonLog(briefing);
-}
-
-function wireSeasonHighlights() {
-  const root = document.getElementById('season-highlights');
-  if (!root || root.dataset.dossierWired === '1') return;
-  root.dataset.dossierWired = '1';
-
-  root.addEventListener('click', (event) => {
-    const card = event.target.closest('.season-highlight');
-    if (!card || !root.contains(card)) return;
-    const name = card.getAttribute('data-name');
-    if (name) openPlayerDossier(name);
-  });
-
-  root.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    const card = event.target.closest('.season-highlight');
-    if (!card || !root.contains(card)) return;
-    const name = card.getAttribute('data-name');
-    if (!name) return;
-    event.preventDefault();
-    openPlayerDossier(name);
-  });
 }
 
 function wireSeasonLog() {
@@ -3492,7 +3364,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initRankingMetricToggle();
   renderRanking();
   renderStats();
-  wireSeasonHighlights();
   wireSeasonLog();
   initNavigation();
   updateTimestamp();

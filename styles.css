@@ -1276,8 +1276,7 @@ main:has(.section--ranking.active) {
   background: rgba(255, 107, 53, 0.12);
 }
 
-.season-kpis,
-.season-highlights {
+.season-kpis {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
@@ -1312,66 +1311,8 @@ main:has(.section--ranking.active) {
   color: rgba(192, 208, 224, 0.45);
 }
 
-.season-highlight {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  width: 100%;
-  padding: 1rem 0.9rem;
-  appearance: none;
-  border-radius: 0;
-  background: var(--halo-panel);
-  border: 1px solid var(--halo-border);
-  border-top: 3px solid var(--halo-cyan);
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  font: inherit;
-}
-
-.season-highlight:hover,
-.season-highlight:focus-visible {
-  border-color: var(--halo-cyan);
-  outline: none;
-}
-
-.season-highlight.is-empty:hover,
-.season-highlight.is-empty:focus-visible {
-  border-color: var(--halo-border);
-}
-
-.season-highlight.is-empty {
-  cursor: default;
-  opacity: 0.55;
-  border-top-color: var(--halo-border);
-}
-
-.season-highlight__label {
-  font-family: var(--font-display);
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  color: var(--halo-cyan);
-  text-transform: uppercase;
-}
-
-.season-highlight__name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  overflow-wrap: anywhere;
-}
-
-.season-highlight__stat {
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  color: rgba(192, 208, 224, 0.75);
-}
-
 @media (min-width: 900px) {
-  .season-kpis,
-  .season-highlights {
+  .season-kpis {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
@@ -1847,8 +1788,7 @@ main:has(.section--ranking.active) + .footer {
     font-size: 1.35rem;
   }
 
-  .season-kpi,
-  .season-highlight {
+  .season-kpi {
     padding: 0.85rem 0.75rem;
   }
 
