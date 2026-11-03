@@ -2811,11 +2811,6 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__sub">${escapeHtml(modeSub)}</span>
     </div>
     <div class="dossier-readout">
-      <span class="dossier-readout__label">Tendencia</span>
-      <span class="dossier-readout__value dossier-readout__value--trend dossier-readout__value--trend-${delta.tone}">${escapeHtml(delta.label)}</span>
-      <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
-    </div>
-    <div class="dossier-readout">
       <span class="dossier-readout__label">${dossierMatchMode === 'all' ? 'Media FFA' : 'Media'}</span>
       <span class="dossier-readout__value">${side.avgPoints != null ? side.avgPoints.toFixed(1) : '—'}</span>
     </div>
@@ -2838,6 +2833,11 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__label">Winrate eq.</span>
       <span class="dossier-readout__value">${escapeHtml(formatWinRate(side.winRate))}</span>
       <span class="dossier-readout__sub">${side.teamMatches || 0} part. equipos</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Tendencia</span>
+      <span class="dossier-readout__value dossier-readout__value--trend dossier-readout__value--trend-${delta.tone}">${escapeHtml(delta.label)}</span>
+      <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
     </div>
   `;
 
