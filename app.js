@@ -2302,6 +2302,26 @@ function filterRecentByMode(recent) {
   return (recent || []).filter((m) => m.modo === dossierMatchMode);
 }
 
+function resumirModosTemporada(recent) {
+  const list = recent || [];
+  const ffa = list.filter((m) => m.modo === AVG_MODE);
+  const nonFfaPoints = list.reduce((sum, match) => (
+    match.modo === AVG_MODE ? sum : sum + (Number(match.points) || 0)
+  ), 0);
+  const latest = [...list].sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')))[0] || null;
+  const lastDate = latest && latest.at ? new Date(latest.at) : null;
+  const lastValid = lastDate && !Number.isNaN(lastDate.getTime());
+  const lastPoints = latest ? Number(latest.points) || 0 : null;
+  const lastMode = latest ? modeLabel(latest.modo) : '';
+  return {
+    ffaMatches: ffa.length,
+    nonFfaPoints,
+    lastMatchPoints: lastPoints,
+    lastMatchLabel: lastPoints == null ? '—' : (lastMode ? `${lastPoints} · ${lastMode}` : String(lastPoints)),
+    lastMatchWhen: lastValid ? formatRelativeSync(lastDate) : ''
+  };
+}
+
 function summarizeRecent(recent) {
   const list = recent || [];
   const pointsList = list.map((m) => Number(m.points) || 0);
@@ -2366,6 +2386,12 @@ function applyViewStats(side, recentView) {
   side.winRate = fromRecent.winRate != null
     ? fromRecent.winRate
     : (side.teamMatches > 0 ? side.wins / side.teamMatches : null);
+  const modos = resumirModosTemporada(side.recent);
+  side.ffaMatches = modos.ffaMatches;
+  side.nonFfaPoints = modos.nonFfaPoints;
+  side.lastMatchPoints = modos.lastMatchPoints;
+  side.lastMatchLabel = modos.lastMatchLabel;
+  side.lastMatchWhen = modos.lastMatchWhen;
   side.recentView = recentView;
 }
 
@@ -2447,20 +2473,8 @@ const COMPARE_METRICS = [
     format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
   },
   {
-    key: 'bestRank',
-    label: 'Mejor puesto',
-    better: 'lower',
-    format: (n) => (n != null ? rankLabel(n) : '—')
-  },
-  {
     key: 'matchesPlayed',
     label: 'Part. carrera',
-    better: 'higher',
-    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
-  },
-  {
-    key: 'bestGame',
-    label: 'Mejor partida',
     better: 'higher',
     format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
   },
@@ -2471,10 +2485,22 @@ const COMPARE_METRICS = [
     format: (n) => (n == null ? '—' : Number(n).toFixed(1))
   },
   {
-    key: 'matchesPerWeek',
-    label: 'Part./semana',
+    key: 'ffaMatches',
+    label: 'Partidas FFA',
     better: 'higher',
-    format: (n) => (n == null ? '—' : Number(n).toFixed(1))
+    format: (n) => (n == null ? '—' : String(n))
+  },
+  {
+    key: 'nonFfaPoints',
+    label: 'Puntos no FFA',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : Number(n).toLocaleString('es'))
+  },
+  {
+    key: 'lastMatchPoints',
+    label: 'Última partida',
+    better: 'higher',
+    format: (n) => (n == null ? '—' : String(n))
   },
   {
     key: 'winRate',
@@ -2785,25 +2811,28 @@ function renderDossierSingle(side) {
       <span class="dossier-readout__sub">${escapeHtml(modeSub)}</span>
     </div>
     <div class="dossier-readout">
-      <span class="dossier-readout__label">Mejor puesto</span>
-      <span class="dossier-readout__value">${side.bestRank != null ? rankLabel(side.bestRank) : '—'}</span>
-    </div>
-    <div class="dossier-readout">
       <span class="dossier-readout__label">Tendencia</span>
       <span class="dossier-readout__value dossier-readout__value--trend dossier-readout__value--trend-${delta.tone}">${escapeHtml(delta.label)}</span>
       <span class="dossier-readout__sub">${escapeHtml(delta.text)}</span>
-    </div>
-    <div class="dossier-readout">
-      <span class="dossier-readout__label">Mejor partida</span>
-      <span class="dossier-readout__value">${side.bestGame != null ? side.bestGame.toLocaleString('es') : '—'}</span>
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">${dossierMatchMode === 'all' ? 'Media FFA' : 'Media'}</span>
       <span class="dossier-readout__value">${side.avgPoints != null ? side.avgPoints.toFixed(1) : '—'}</span>
     </div>
     <div class="dossier-readout">
-      <span class="dossier-readout__label">Part./semana</span>
-      <span class="dossier-readout__value">${side.matchesPerWeek != null ? Number(side.matchesPerWeek).toFixed(1) : '—'}</span>
+      <span class="dossier-readout__label">Partidas FFA</span>
+      <span class="dossier-readout__value">${side.ffaMatches}</span>
+      <span class="dossier-readout__sub">de ${side.matches != null ? side.matches : (side.recent || []).length} en la temporada</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Puntos no FFA</span>
+      <span class="dossier-readout__value">${side.nonFfaPoints.toLocaleString('es')}</span>
+      <span class="dossier-readout__sub">arcade, equipos y multi</span>
+    </div>
+    <div class="dossier-readout">
+      <span class="dossier-readout__label">Última partida</span>
+      <span class="dossier-readout__value">${escapeHtml(side.lastMatchLabel)}</span>
+      ${side.lastMatchWhen ? `<span class="dossier-readout__sub">${escapeHtml(side.lastMatchWhen)}</span>` : ''}
     </div>
     <div class="dossier-readout">
       <span class="dossier-readout__label">Winrate eq.</span>
