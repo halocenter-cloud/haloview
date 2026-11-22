@@ -2,7 +2,7 @@
  * Datos del ranking — generado por HaloBackend (no editar a mano).
  */
 const SQUAD_DATA = {
-  "lastUpdated": "2026-11-22T05:57:27.056Z",
+  "lastUpdated": "2026-11-22T06:20:39.879Z",
   "activeSeasonId": 2,
   "season": "Temporada 2 — desde 1 oct 2026",
   "players": [
@@ -10,19 +10,19 @@ const SQUAD_DATA = {
       "id": 1,
       "name": "tagoras5268",
       "rank": 1,
-      "points": 460
+      "points": 468
     },
     {
       "id": 2,
-      "name": "Andrei2589",
+      "name": "Gargolaa6235",
       "rank": 2,
-      "points": 261
+      "points": 269
     },
     {
       "id": 3,
-      "name": "Gargolaa6235",
+      "name": "Andrei2589",
       "rank": 3,
-      "points": 259
+      "points": 265
     },
     {
       "id": 4,
@@ -40,13 +40,13 @@ const SQUAD_DATA = {
       "id": 6,
       "name": "Palitha96xD",
       "rank": 6,
-      "points": 131
+      "points": 137
     },
     {
       "id": 7,
       "name": "ArgonautaElite1",
       "rank": 7,
-      "points": 108
+      "points": 110
     },
     {
       "id": 8,
@@ -139,19 +139,19 @@ const SQUAD_DATA = {
           "id": 1,
           "name": "tagoras5268",
           "rank": 1,
-          "points": 460
+          "points": 468
         },
         {
           "id": 2,
-          "name": "Andrei2589",
+          "name": "Gargolaa6235",
           "rank": 2,
-          "points": 261
+          "points": 269
         },
         {
           "id": 3,
-          "name": "Gargolaa6235",
+          "name": "Andrei2589",
           "rank": 3,
-          "points": 259
+          "points": 265
         },
         {
           "id": 4,
@@ -169,13 +169,13 @@ const SQUAD_DATA = {
           "id": 6,
           "name": "Palitha96xD",
           "rank": 6,
-          "points": 131
+          "points": 137
         },
         {
           "id": 7,
           "name": "ArgonautaElite1",
           "rank": 7,
-          "points": 108
+          "points": 110
         },
         {
           "id": 8,
@@ -390,10 +390,18 @@ const SQUAD_DATA = {
   "profiles": [
     {
       "name": "Andrei2589",
-      "bestRank": 2,
-      "careerPoints": 798,
-      "matchesPlayed": 172,
+      "bestRank": 3,
+      "careerPoints": 802,
+      "matchesPlayed": 173,
       "recentMatches": [
+        {
+          "at": "2026-11-22T06:20:39.789Z",
+          "seasonId": 2,
+          "points": 4,
+          "matchId": "b5e7b724f95d664a",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-11-22T05:57:26.969Z",
           "seasonId": 2,
@@ -1774,13 +1782,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 261,
-          "rank": 2,
-          "matches": 46,
+          "points": 265,
+          "rank": 3,
+          "matches": 47,
           "bestGame": 10,
-          "avgPoints": 5.7,
-          "avgMatches": 46,
-          "matchesPerWeek": 6.2,
+          "avgPoints": 5.6,
+          "avgMatches": 47,
+          "matchesPerWeek": 6.3,
           "wins": 0,
           "teamMatches": 0
         },
@@ -3061,9 +3069,17 @@ const SQUAD_DATA = {
     {
       "name": "ArgonautaElite1",
       "bestRank": 7,
-      "careerPoints": 187,
-      "matchesPlayed": 80,
+      "careerPoints": 189,
+      "matchesPlayed": 81,
       "recentMatches": [
+        {
+          "at": "2026-11-22T06:20:39.789Z",
+          "seasonId": 2,
+          "points": 2,
+          "matchId": "b5e7b724f95d664a",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-11-22T05:57:26.969Z",
           "seasonId": 2,
@@ -3708,13 +3724,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 108,
+          "points": 110,
           "rank": 7,
-          "matches": 38,
+          "matches": 39,
           "bestGame": 6,
           "avgPoints": 2.8,
-          "avgMatches": 37,
-          "matchesPerWeek": 5.1,
+          "avgMatches": 38,
+          "matchesPerWeek": 5.2,
           "wins": 1,
           "teamMatches": 1
         },
@@ -4955,9 +4971,17 @@ const SQUAD_DATA = {
     {
       "name": "Gargolaa6235",
       "bestRank": 2,
-      "careerPoints": 907,
-      "matchesPlayed": 145,
+      "careerPoints": 917,
+      "matchesPlayed": 146,
       "recentMatches": [
+        {
+          "at": "2026-11-22T06:20:39.789Z",
+          "seasonId": 2,
+          "points": 10,
+          "matchId": "b5e7b724f95d664a",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-11-22T05:57:26.969Z",
           "seasonId": 2,
@@ -6122,13 +6146,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 259,
-          "rank": 3,
-          "matches": 35,
+          "points": 269,
+          "rank": 2,
+          "matches": 36,
           "bestGame": 10,
-          "avgPoints": 7.5,
-          "avgMatches": 33,
-          "matchesPerWeek": 4.7,
+          "avgPoints": 7.6,
+          "avgMatches": 34,
+          "matchesPerWeek": 4.8,
           "wins": 2,
           "teamMatches": 2
         },
@@ -7703,9 +7727,17 @@ const SQUAD_DATA = {
     {
       "name": "Palitha96xD",
       "bestRank": 6,
-      "careerPoints": 281,
-      "matchesPlayed": 76,
+      "careerPoints": 287,
+      "matchesPlayed": 77,
       "recentMatches": [
+        {
+          "at": "2026-11-22T06:20:39.789Z",
+          "seasonId": 2,
+          "points": 6,
+          "matchId": "b5e7b724f95d664a",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-11-22T05:57:26.969Z",
           "seasonId": 2,
@@ -8318,13 +8350,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 131,
+          "points": 137,
           "rank": 6,
-          "matches": 33,
+          "matches": 34,
           "bestGame": 10,
-          "avgPoints": 3.9,
-          "avgMatches": 32,
-          "matchesPerWeek": 4.4,
+          "avgPoints": 4,
+          "avgMatches": 33,
+          "matchesPerWeek": 4.6,
           "wins": 1,
           "teamMatches": 1
         },
@@ -8345,9 +8377,17 @@ const SQUAD_DATA = {
     {
       "name": "tagoras5268",
       "bestRank": 1,
-      "careerPoints": 1408,
-      "matchesPlayed": 191,
+      "careerPoints": 1416,
+      "matchesPlayed": 192,
       "recentMatches": [
+        {
+          "at": "2026-11-22T06:20:39.789Z",
+          "seasonId": 2,
+          "points": 8,
+          "matchId": "b5e7b724f95d664a",
+          "modo": "ffa",
+          "result": null
+        },
         {
           "at": "2026-11-22T05:57:26.969Z",
           "seasonId": 2,
@@ -9880,13 +9920,13 @@ const SQUAD_DATA = {
       "bySeason": [
         {
           "seasonId": 2,
-          "points": 460,
+          "points": 468,
           "rank": 1,
-          "matches": 56,
+          "matches": 57,
           "bestGame": 10,
           "avgPoints": 8.5,
-          "avgMatches": 53,
-          "matchesPerWeek": 7.5,
+          "avgMatches": 54,
+          "matchesPerWeek": 7.7,
           "wins": 2,
           "teamMatches": 2
         },
